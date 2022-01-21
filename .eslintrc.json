@@ -2,13 +2,27 @@
   "plugins": [
     "react-hooks"
   ],
-  "extends": ["airbnb"],
+  "extends": [
+    "airbnb",
+    "prettier"
+  ],
   "rules": {
-    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
+    "react/jsx-filename-extension": [
+      1,
+      {
+        "extensions": [
+          ".js",
+          ".jsx"
+        ]
+      }
+    ],
     "react/jsx-uses-react": "off",
     "react/react-in-jsx-scope": "off",
-    "import/no-unresolved": [0],
+    "import/no-unresolved": [
+      0
+    ],
     "react-hooks/rules-of-hooks": "error", // Checks rules of Hooks
-    "react-hooks/exhaustive-deps": "warn" // Checks effect dependencies
+    "react-hooks/exhaustive-deps": "warn", // Checks effect dependencies
+    "linebreak-style": 0
   }
 }
