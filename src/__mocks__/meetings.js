@@ -1,0 +1,102 @@
+import { v4 as uuid } from 'uuid';
+
+export const meetings = [
+  {
+    id: uuid(),
+    meetingName: 'My First Meeting',
+    members: ['주영환', '고건준', '권기준'],
+    date: '2022/01/16',
+    time: '15:57',
+  },
+  {
+    id: uuid(),
+    meetingName: 'My Second Meeting',
+    members: ['주영환', '고건준', '권기준'],
+    date: '2022/01/18',
+    time: '30:01',
+  },
+  {
+    id: uuid(),
+    meetingName: 'My Third Meeting',
+    members: ['주영환', '고건준', '권기준'],
+    date: '2022/01/22',
+    time: '50:55',
+  },
+  {
+    id: uuid(),
+    meetingName: 'My Fourth Meeting',
+    members: ['주영환', '고건준', '권기준'],
+    date: '2022/01/18',
+    time: '30:01',
+  },
+  {
+    id: uuid(),
+    meetingName: 'a',
+    members: ['주영환', '고건준', '권기준'],
+    date: '2022/01/18',
+    time: '30:01',
+  },
+  {
+    id: uuid(),
+    meetingName: 'b',
+    members: ['주영환', '고건준', '권기준'],
+    date: '2022/01/18',
+    time: '30:01',
+  },
+  {
+    id: uuid(),
+    meetingName: 'c',
+    members: ['주영환', '고건준', '권기준'],
+    date: '2022/01/18',
+    time: '30:01',
+  },
+  {
+    id: uuid(),
+    meetingName: 'd',
+    members: ['주영환', '고건준', '권기준'],
+    date: '2022/01/18',
+    time: '30:01',
+  },{
+    id: uuid(),
+    meetingName: 'Me',
+    members: ['주영환', '고건준', '권기준'],
+    date: '2022/01/18',
+    time: '30:01',
+  },{
+    id: uuid(),
+    meetingName: 'f',
+    members: ['주영환', '고건준', '권기준'],
+    date: '2022/01/18',
+    time: '30:01',
+  },{
+    id: uuid(),
+    meetingName: 'g',
+    members: ['주영환', '고건준', '권기준'],
+    date: '2022/01/18',
+    time: '30:01',
+  },{
+    id: uuid(),
+    meetingName: 'h',
+    members: ['주영환', '고건준', '권기준'],
+    date: '2022/01/18',
+    time: '30:01',
+  },{
+    id: uuid(),
+    meetingName: 'i',
+    members: ['주영환', '고건준', '권기준'],
+    date: '2022/01/18',
+    time: '30:01',
+  },{
+    id: uuid(),
+    meetingName: 'j',
+    members: ['주영환', '고건준', '권기준'],
+    date: '2022/01/18',
+    time: '30:01',
+  },{
+    id: uuid(),
+    meetingName: 'k',
+    members: ['주영환', '고건준', '권기준'],
+    date: '2022/01/18',
+    time: '30:01',
+  },
+];
