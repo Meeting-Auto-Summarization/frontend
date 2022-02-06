@@ -6,9 +6,12 @@ import { Box, Button, Container, Grid, Typography } from '@mui/material';
 import { Facebook as FacebookIcon } from '../icons/facebook';
 import { Google as GoogleIcon } from '../icons/google';
 import GoogleLogin from 'react-google-login';
-
+import { useContext } from 'react';
+import { UserContext } from '../utils/context/context';
 
 const Login = () => {
+    const userContext = useContext(UserContext);
+
     const router = useRouter();
     const formik = useFormik({
         initialValues: {
@@ -19,15 +22,15 @@ const Login = () => {
         email: Yup
             .string()
             .email(
-            'Must be a valid email')
+                'Must be a valid email')
             .max(255)
             .required(
-            'Email is required'),
+                'Email is required'),
         password: Yup
             .string()
             .max(255)
             .required(
-            'Password is required')
+                'Password is required')
         }),
         onSubmit: () => {
             router.push('/meeting-list');
@@ -35,7 +38,17 @@ const Login = () => {
     });
 
     const responseGoogle = (response) => {
-        console.log(response);
+        const profile = response.getBasicProfile();
+
+        // console.log(profile)
+
+        userContext.setUserEmail(profile.getEmail());
+        userContext.setUserNick(profile.getName());
+        userContext.setUserFirstName(profile.getGivenName());
+        userContext.setUserLastName(profile.getFamilyName());
+        userContext.setUserAvatar(profile.getImageUrl());
+
+        formik.handleSubmit();
     }
 
     return (
@@ -46,11 +59,11 @@ const Login = () => {
             <Box
                 component="main"
                 sx={{
-                alignItems: 'center',
-                display: 'flex',
-                flexGrow: 1,
-                minHeight: '100%',
-                marginBottom: '80px'
+                    alignItems: 'center',
+                    display: 'flex',
+                    flexGrow: 1,
+                    minHeight: '100%',
+                    marginBottom: '80px'
                 }}
             >
                 <Container maxWidth="sm">
@@ -115,7 +128,7 @@ const Login = () => {
                                     onFailure={responseGoogle}
                                     cookiePolicy={'single_host_origin'}
                                 />
-                                <Button
+                                {/* <Button
                                     fullWidth
                                     color="error"
                                     startIcon={<GoogleIcon />}
@@ -124,7 +137,7 @@ const Login = () => {
                                     variant="contained"
                                 >
                                     Login with Google
-                                </Button>
+                                </Button> */}
                             </Grid>
                         </Grid>
                         {/* <Box

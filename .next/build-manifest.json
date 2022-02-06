@@ -30,25 +30,15 @@
       "static/chunks/main.js",
       "static/chunks/pages/account.js"
     ],
-    "/dashboard": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/dashboard.js"
-    ],
     "/meeting-list": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
       "static/chunks/pages/meeting-list.js"
     ],
-    "/products": [
+    "/meeting-result": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/products.js"
-    ],
-    "/settings": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/settings.js"
+      "static/chunks/pages/meeting-result.js"
     ]
   },
   "ampFirstPages": []
