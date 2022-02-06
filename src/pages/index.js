@@ -7,7 +7,6 @@ import { Facebook as FacebookIcon } from '../icons/facebook';
 import { Google as GoogleIcon } from '../icons/google';
 import GoogleLogin from 'react-google-login';
 
-
 const Login = () => {
     const router = useRouter();
     const formik = useFormik({

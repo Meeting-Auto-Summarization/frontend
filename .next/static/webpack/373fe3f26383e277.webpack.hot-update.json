@@ -1,0 +1,1 @@
+{"c":["webpack"],"r":["pages/account"],"m":["./node_modules/next/dist/build/webpack/loaders/next-client-pages-loader.js?page=%2Faccount&absolutePagePath=%2FUsers%2Fkwonkijun%2FMAS%2Ffrontend%2Fsrc%2Fpages%2Faccount.js!","./src/components/account/account-profile-details.js","./src/components/account/account-profile.js","./src/pages/account.js"]}

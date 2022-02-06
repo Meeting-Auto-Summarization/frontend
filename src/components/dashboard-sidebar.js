@@ -4,13 +4,10 @@ import { useRouter } from 'next/router';
 import PropTypes from 'prop-types';
 import { Box, Button, Divider, Drawer, Typography, useMediaQuery, Dialog, DialogContent, DialogActions, Slider, TextField } from '@mui/material';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
-import { ChartBar as ChartBarIcon } from '../icons/chart-bar';
 import { Cog as CogIcon } from '../icons/cog';
 import { Lock as LockIcon } from '../icons/lock';
-import { ShoppingBag as ShoppingBagIcon } from '../icons/shopping-bag';
 import { User as UserIcon } from '../icons/user';
 import { UserAdd as UserAddIcon } from '../icons/user-add';
-import { Users as UsersIcon } from '../icons/users';
 import { XCircle as XCircleIcon } from '../icons/x-circle';
 import { Logo } from './logo';
 import { NavItem } from './nav-item';
@@ -21,20 +18,20 @@ const items = [
 		icon: (<FormatListBulletedIcon fontSize="small" />),
 		title: 'Meeting List'
 	},
-	{
-		href: '/dashboard',
-		icon: (<ChartBarIcon fontSize="small" />),
-		title: 'Dashboard'
+    {
+		href: '/script-edit',
+		icon: (<FormatListBulletedIcon fontSize="small" />),
+		title: 'Edit Script'
 	},
-	{
-		href: '/customers',
-		icon: (<UsersIcon fontSize="small" />),
-		title: 'Customers'
+    {
+		href: '/report-form',
+		icon: (<FormatListBulletedIcon fontSize="small" />),
+		title: 'Report Form Setting'
 	},
-	{
-		href: '/products',
-		icon: (<ShoppingBagIcon fontSize="small" />),
-		title: 'Products'
+    {
+		href: '/meeting',
+		icon: (<FormatListBulletedIcon fontSize="small" />),
+		title: 'Meeting'
 	},
 	{
 		href: '/account',
@@ -155,7 +152,7 @@ export const DashboardSidebar = (props) => {
 
     const handleCloseCreatePopup = (value1, value2) => {
         setIsOpenCreatePopup(false);
-        alert(value1 + value2)
+        console.log(value1 + value2);
     };
 
     const handleOpenJoinPopup = () => {
@@ -164,7 +161,7 @@ export const DashboardSidebar = (props) => {
 
     const handleCloseJoinPopup = (value) => {
         setIsOpenJoinPopup(false);
-        alert(value)
+        console.log(value);
     };
 
   	useEffect(() => {
