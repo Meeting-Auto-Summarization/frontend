@@ -19,16 +19,6 @@ const items = [
 		title: 'Meeting List'
 	},
     {
-		href: '/script-edit',
-		icon: (<FormatListBulletedIcon fontSize="small" />),
-		title: 'Edit Script'
-	},
-    {
-		href: '/report-form',
-		icon: (<FormatListBulletedIcon fontSize="small" />),
-		title: 'Report Form Setting'
-	},
-    {
 		href: '/meeting',
 		icon: (<FormatListBulletedIcon fontSize="small" />),
 		title: 'Meeting'

@@ -4,8 +4,12 @@ import { ScriptEditToolbar } from '../components/summary-step/script-edit-toolba
 import { ReportFormSetting } from '../components/summary-step/report-form-setting';
 import { DashboardLayout } from '../components/dashboard-layout';
 import { scripts } from '../__mocks__/scripts';
+import { useRouter } from 'next/router';
 
 const ReportForm = () => {
+    const router = useRouter();
+    const { mid } = router.query;
+
     return(
         <>
             <Head>
@@ -44,6 +48,14 @@ const ReportForm = () => {
                         boxShadow: '0px -5px 3px 3px rgba(0, 0, 0, 0.1)'
                     }}
                 >
+                    <Button
+                        variant="contained"
+                        size="large"
+                        sx={{ marginRight: 2 }}
+                        onClick={() => router.back()}
+                    >
+                        Prev Step
+                    </Button>
                     <Button variant="contained" size="large" sx={{ marginRight: 2 }}>Next Step</Button>
                 </Box>
             </Box>

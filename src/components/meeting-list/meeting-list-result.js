@@ -22,7 +22,6 @@ export const MeetingListResult = ({meeting, ...rest}) => {
                     {...rest}
                 >
                     <CardContent>
-                        
                             <Box
                                 sx={{
                                     display: 'flex',

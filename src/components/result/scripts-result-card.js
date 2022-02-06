@@ -1,34 +1,35 @@
 import {
-  styled,
-  Typography,
-  Grid,
-  Card,
-  CardContent,
-  CardHeader,
-  CardActions,
-  Button,
-  Box,
+    styled,
+    Typography,
+    Grid,
+    Card,
+    CardContent,
+    CardHeader,
+    CardActions,
+    Button,
+    Box,
 } from "@mui/material";
 import { useState } from "react";
 import { scripts } from "../../__mocks__/scripts";
 import { ExportPopup } from "./export-popup";
+import Link from 'next/link';
 
 const ScriptsCard = styled(Card)({
-  background: "#FFF3FF",
-  color: "#000000",
+    background: "#FFF3FF",
+    color: "#000000",
 });
 
 const ScriptsCardButton = styled(Button)({
-  background: "#FEDDFE",
-  color: "#000000",
-  fontWeight: "bold",
-  borderRadius: "12px",
-  fontSize: "20px",
-  marginLeft: "auto",
-  "&:hover": {
-    backgroundColor: "#FEDDFE",
-    color: "#808080",
-  },
+    background: "#FEDDFE",
+    color: "#000000",
+    fontWeight: "bold",
+    borderRadius: "12px",
+    fontSize: "20px",
+    marginLeft: "auto",
+    "&:hover": {
+        backgroundColor: "#FEDDFE",
+        color: "#808080",
+    },
 });
 
 export const ScriptsResultCard = (mid) => {
@@ -55,7 +56,7 @@ export const ScriptsResultCard = (mid) => {
                                     color="text.primary"
                                     sx={{ display: "inline" }}
                                 >
-                                Name
+                                    Name
                                 </Typography>
                             </Grid>
                             <Grid item xs={2}>
@@ -64,7 +65,7 @@ export const ScriptsResultCard = (mid) => {
                                 color="text.primary"
                                 sx={{ display: "inline" }}
                                 >
-                                Time
+                                    Time
                                 </Typography>
                             </Grid>
                             <Grid item xs={8}>
@@ -122,7 +123,15 @@ export const ScriptsResultCard = (mid) => {
                     </Grid>
                 </CardContent>
             <CardActions>
-                <ScriptsCardButton>Modify</ScriptsCardButton>
+                <Link
+                    href={{
+                        pathname: `/script-edit`, // 라우팅 id
+                        query: { mid: mid.mid }, // props 
+                    }}
+                    as={`/script-edit`}
+                >
+                    <ScriptsCardButton>Modify</ScriptsCardButton>
+                </Link>
                 <ScriptsCardButton onClick={handleClickOpen}>Export</ScriptsCardButton>
             </CardActions>
             <ExportPopup handleClose={handleClose} open={open} />
