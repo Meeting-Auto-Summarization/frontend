@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import { Box, Container, Typography } from '@mui/material';
-import { DashboardLayout } from '../components/dashboard-layout';
+import { AppLayout } from '../components/app-layout';
 import { SettingsNotifications } from '../components/settings/settings-notifications';
 import { SettingsPassword } from '../components/settings/settings-password';
 
@@ -35,9 +35,9 @@ const Settings = () => (
 );
 
 Settings.getLayout = (page) => (
-  <DashboardLayout>
+  <AppLayout>
     {page}
-  </DashboardLayout>
+  </AppLayout>
 );
 
 export default Settings;

@@ -2,7 +2,7 @@ import { Grid, Box } from "@mui/material";
 import { MeetingScripts } from "../components/meeting/meeting-scripts";
 import { MeetingVideo } from "../components/meeting/meeting-video";
 import { ProgrssInfo } from "../components/meeting/progress-info";
-import { DashboardLayout } from "../components/dashboard-layout";
+import { AppLayout } from "../components/app-layout";
 
 const MeetingProgrsssPage = () => {
     return (
@@ -23,9 +23,9 @@ const MeetingProgrsssPage = () => {
 }
 
 MeetingProgrsssPage.getLayout = (page) => (
-    <DashboardLayout>
+    <AppLayout>
         {page}
-    </DashboardLayout>
+    </AppLayout>
 );
 
 export default MeetingProgrsssPage;

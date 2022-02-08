@@ -1,8 +1,8 @@
 import { Container } from "@mui/material";
-import { MeetingResultHeader } from "../components/result/meeting-result-header";
-import { ScriptsResultCard } from "../components/result/scripts-result-card";
-import { SummaryResultCard } from "../components/result/summary-result-card";
-import { DashboardLayout } from "../components/dashboard-layout";
+import { MeetingResultHeader } from "../components/meeting-result/meeting-result-header";
+import { ScriptsResultCard } from "../components/meeting-result/scripts-result-card";
+import { SummaryResultCard } from "../components/meeting-result/summary-result-card";
+import { AppLayout } from "../components/app-layout";
 import { useRouter } from 'next/router';
 
 const MeetingResult = () => {
@@ -21,9 +21,9 @@ const MeetingResult = () => {
 };
 
 MeetingResult.getLayout = (page) => (
-    <DashboardLayout>
+    <AppLayout>
         {page}
-    </DashboardLayout>
+    </AppLayout>
 );
 
 export default MeetingResult;

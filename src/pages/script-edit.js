@@ -2,7 +2,7 @@ import Head from 'next/head';
 import { Box, Container, Button } from '@mui/material';
 import { ScriptEditToolbar } from '../components/summary-step/script-edit-toolbar';
 import { ScriptEditResult } from '../components/summary-step/script-edit-result';
-import { DashboardLayout } from '../components/dashboard-layout';
+import { AppLayout } from '../components/app-layout';
 import { scripts } from '../__mocks__/scripts';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
@@ -70,9 +70,9 @@ const ScriptEdit = () => {
 };
 
 ScriptEdit.getLayout = (page) => (
-    <DashboardLayout>
+    <AppLayout>
         {page}
-    </DashboardLayout>
+    </AppLayout>
 );
 
 export default ScriptEdit;

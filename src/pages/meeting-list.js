@@ -1,13 +1,23 @@
 import Head from 'next/head'
 import { Box, Container, Grid, Pagination } from '@mui/material';
-import { DashboardLayout } from 'src/components/dashboard-layout';
+import { AppLayout } from 'src/components/app-layout';
 import { meetings } from 'src/__mocks__/meetings';
 import { MeetingListResult } from 'src/components/meeting-list/meeting-list-result';
 import { MeetingListToolbar } from 'src/components/meeting-list/meeting-list-toolbar';
-import { useState, useEffect } from 'react';
-
+import { useState, useEffect, useContext } from 'react';
+import { UserContext } from '../utils/context/context';
+import { useRouter } from 'next/router';
 
 const MeetingList = () => {
+    const { isLogin } = useContext(UserContext);
+    const router = useRouter();
+    
+    useEffect(() => {
+        if (!isLogin) {
+            router.push('/not-login');
+        }
+    });
+
     const [limit, setLimit] = useState(6);
     const [page, setPage] = useState(1);
 
@@ -33,7 +43,7 @@ const MeetingList = () => {
         setPage(newPage);
     }
 
-    return(
+    return (
         <>
             <Head>
                 <title>
@@ -91,9 +101,9 @@ const MeetingList = () => {
 };
 
 MeetingList.getLayout = (page) => (
-    <DashboardLayout>
+    <AppLayout>
         {page}
-    </DashboardLayout>
+    </AppLayout>
 );
 
 export default MeetingList;

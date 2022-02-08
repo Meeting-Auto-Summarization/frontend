@@ -10,7 +10,14 @@ import { useContext } from 'react';
 import { UserContext } from '../utils/context/context';
 
 const Login = () => {
-    const userContext = useContext(UserContext);
+    const {
+        setIsLogin,
+        setUserEmail,
+        setUserNick,
+        setUserAvatar,
+        setUserFirstName,
+        setUserLastName
+    } = useContext(UserContext);
 
     const router = useRouter();
     const formik = useFormik({
@@ -39,14 +46,13 @@ const Login = () => {
 
     const responseGoogle = (response) => {
         const profile = response.getBasicProfile();
-
-        // console.log(profile)
-
-        userContext.setUserEmail(profile.getEmail());
-        userContext.setUserNick(profile.getName());
-        userContext.setUserFirstName(profile.getGivenName());
-        userContext.setUserLastName(profile.getFamilyName());
-        userContext.setUserAvatar(profile.getImageUrl());
+        
+        setIsLogin(true);
+        setUserEmail(profile.getEmail());
+        setUserNick(profile.getName());
+        setUserFirstName(profile.getGivenName());
+        setUserLastName(profile.getFamilyName());
+        setUserAvatar(profile.getImageUrl());
 
         formik.handleSubmit();
     }

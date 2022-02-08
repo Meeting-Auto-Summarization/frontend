@@ -2,7 +2,7 @@ import Head from 'next/head';
 import { Box, Container, Button, TextField } from '@mui/material';
 import { ScriptEditToolbar } from '../components/summary-step/script-edit-toolbar';
 import { ReportFormSetting } from '../components/summary-step/report-form-setting';
-import { DashboardLayout } from '../components/dashboard-layout';
+import { AppLayout } from '../components/app-layout';
 import { scripts } from '../__mocks__/scripts';
 import { useRouter } from 'next/router';
 
@@ -64,9 +64,9 @@ const ReportForm = () => {
 };
 
 ReportForm.getLayout = (page) => (
-    <DashboardLayout>
+    <AppLayout>
         {page}
-    </DashboardLayout>
+    </AppLayout>
 );
 
 export default ReportForm;

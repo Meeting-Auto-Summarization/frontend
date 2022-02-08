@@ -2,13 +2,20 @@ import Head from 'next/head';
 import { Box, Container, Grid, Typography } from '@mui/material';
 import { AccountProfile } from '../components/account/account-profile';
 import { AccountProfileDetails } from '../components/account/account-profile-details';
-import { DashboardLayout } from '../components/dashboard-layout';
-import { useContext } from 'react';
+import { AppLayout } from '../components/app-layout';
+import { useContext, useEffect } from 'react';
 import { UserContext } from '../utils/context/context';
-
+import { useRouter } from 'next/router';
 
 const Account = () => {
     const userContext = useContext(UserContext);
+    const router = useRouter();
+    
+    useEffect(() => {
+        if (!userContext.isLogin) {
+            router.push('/not-login');
+        }
+    });
 
     return (
         <>
@@ -41,7 +48,7 @@ const Account = () => {
                             md={6}
                             xs={12}
                         >
-                            <AccountProfile value={userContext} />
+                            <AccountProfile user={userContext} />
                         </Grid>
                         <Grid
                             item
@@ -49,7 +56,7 @@ const Account = () => {
                             md={6}
                             xs={12}
                         >
-                            <AccountProfileDetails value={userContext} />
+                            <AccountProfileDetails user={userContext} />
                         </Grid>
                     </Grid>
                 </Container>
@@ -59,9 +66,9 @@ const Account = () => {
 };
 
 Account.getLayout = (page) => (
-    <DashboardLayout>
+    <AppLayout>
         {page}
-    </DashboardLayout>
+    </AppLayout>
 );
 
 export default Account;

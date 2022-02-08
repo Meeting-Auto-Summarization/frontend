@@ -9,7 +9,7 @@ import {
     TextField
 } from '@mui/material';
 
-export const AccountProfileDetails = ({value, ...rest}) => {
+export const AccountProfileDetails = ({user, ...rest}) => {
     const handleChange = (event) => {
         // setValues({
         //     ...values,
@@ -46,7 +46,7 @@ export const AccountProfileDetails = ({value, ...rest}) => {
                                 name="firstName"
                                 onChange={handleChange}
                                 required
-                                value={value.userFirstName}
+                                value={user.userFirstName}
                                 variant="outlined"
                             />
                         </Grid>
@@ -61,7 +61,7 @@ export const AccountProfileDetails = ({value, ...rest}) => {
                                 name="lastName"
                                 onChange={handleChange}
                                 required
-                                value={value.userLastName}
+                                value={user.userLastName}
                                 variant="outlined"
                             />
                         </Grid>
@@ -76,7 +76,7 @@ export const AccountProfileDetails = ({value, ...rest}) => {
                                 name="email"
                                 onChange={handleChange}
                                 required
-                                value={value.userEmail}
+                                value={user.userEmail}
                                 variant="outlined"
                             />
                         </Grid>
