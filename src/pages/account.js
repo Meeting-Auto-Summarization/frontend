@@ -17,6 +17,10 @@ const Account = () => {
         }
     });
 
+    if (!userContext.isLogin) {
+        return null;
+    }
+
     return (
         <>
             <Head>

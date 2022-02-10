@@ -62,39 +62,24 @@ export const meetings = [
     members: ['주영환', '고건준', '권기준'],
     date: '2022/01/18',
     time: '30:01',
-  },{
+  },
+  {
     id: 'a41c2e1b-d4cd-43a9-a4c6-62915bda8956',
     meetingName: 'f',
     members: ['주영환', '고건준', '권기준'],
     date: '2022/01/18',
     time: '30:01',
-  },{
+  },
+  {
     id: 'eabd7c40-9941-4a02-b506-2311efad17b7',
     meetingName: 'g',
     members: ['주영환', '고건준', '권기준'],
     date: '2022/01/18',
     time: '30:01',
-  },{
+  },
+  {
     id: '470daa28-cec9-497c-847a-d6a0542a4ea4',
     meetingName: 'h',
-    members: ['주영환', '고건준', '권기준'],
-    date: '2022/01/18',
-    time: '30:01',
-  },{
-    id: '4ea26143-91dc-44eb-8763-74c7328607b4',
-    meetingName: 'i',
-    members: ['주영환', '고건준', '권기준'],
-    date: '2022/01/18',
-    time: '30:01',
-  },{
-    id: '5f4d7360-5869-4868-9d18-bd96c0880d8b',
-    meetingName: 'j',
-    members: ['주영환', '고건준', '권기준'],
-    date: '2022/01/18',
-    time: '30:01',
-  },{
-    id: '503b3bd4-3727-4992-8a3a-90b6a8eed926',
-    meetingName: 'k',
     members: ['주영환', '고건준', '권기준'],
     date: '2022/01/18',
     time: '30:01',

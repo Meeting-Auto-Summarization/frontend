@@ -2,7 +2,7 @@ import { useState, useEffect, useContext } from 'react';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import PropTypes from 'prop-types';
-import { Box, Button, Divider, Drawer, useMediaQuery } from '@mui/material';
+import { Box, Button, Divider, Drawer, Typography, useMediaQuery } from '@mui/material';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import { Cog as CogIcon } from '../icons/cog';
 import { Lock as LockIcon } from '../icons/lock';
@@ -73,7 +73,8 @@ export const AppSidebar = (props) => {
     };
 
 	const handleSubmitCreateDialog = (meetingName, limitNum) => {
-		const mid = uuid();
+		// const mid = uuid();
+		const mid = '고건준';
 
 		let now = new Date();
 		const date = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDay()}`;
@@ -161,11 +162,11 @@ export const AppSidebar = (props) => {
 								borderRadius: 1
 							}}
 						>
-                            <Button variant="contained" onClick={ !isMeeting ? handleOpenCreateDialog : handleOpenOngoingDialog }>
-                                회의 생성
+                            <Button variant="contained" onClick={ !isMeeting ? handleOpenCreateDialog : handleOpenOngoingDialog } sx={{ mr: 1 }}>
+                                <Typography sx={{ fontWeight: 'bold', fontSize: '0.8vw'}}>회의 생성</Typography>
                             </Button>
                             <Button variant="contained" onClick={ !isMeeting ? handleOpenJoinDialog : handleOpenOngoingDialog }>
-                                회의 참여
+                                <Typography sx={{ fontWeight: 'bold', fontSize: '0.8vw'}}>회의 생성</Typography>
                             </Button>
                             <CreateMeetingDialog
                                 open={isOpenCreateDialog}

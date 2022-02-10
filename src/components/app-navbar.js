@@ -6,6 +6,8 @@ import SearchIcon from '@mui/icons-material/Search';
 import { Bell as BellIcon } from '../icons/bell';
 import { UserCircle as UserCircleIcon } from '../icons/user-circle';
 import { Users as UsersIcon } from '../icons/users';
+import { useContext } from 'react';
+import { UserContext } from '../utils/context/context';
 
 const AppNavbarRoot = styled(AppBar)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
@@ -14,6 +16,7 @@ const AppNavbarRoot = styled(AppBar)(({ theme }) => ({
 
 export const AppNavbar = (props) => {
   const { onSidebarOpen, ...other } = props;
+  const { userAvatar } = useContext(UserContext);
 
   return (
     <>
@@ -74,7 +77,7 @@ export const AppNavbar = (props) => {
               width: 40,
               ml: 1
             }}
-            src="/static/images/avatars/avatar_1.png"
+            src={userAvatar}
           >
             <UserCircleIcon fontSize="small" />
           </Avatar>
