@@ -14,6 +14,7 @@ import { NavItem } from './nav-item';
 import { UserContext } from '../utils/context/context';
 import { MeetingAccess } from './app-sidebar/meeting-access';
 import { CreateMeetingDialog } from './app-sidebar/create-meeting-dialog';
+import { MeetingCodeDialog } from './app-sidebar/meeting-code-dialog';
 import { JoinMeetingDialog } from './app-sidebar/join-meeting-dialog';
 import { OngoingDialog } from './app-sidebar/ongoing-dialog';
 import { v4 as uuid } from 'uuid';
@@ -60,8 +61,10 @@ export const AppSidebar = (props) => {
 		noSsr: false
 	});
     const [isOpenCreateDialog, setIsOpenCreateDialog] = useState(false);
+    const [isOpenCodeDialog, setIsOpenCodeDialog] = useState(false);
     const [isOpenJoinDialog, setIsOpenJoinDialog] = useState(false);
 	const [isOpenOngoingDialog, setIsOpenOngoingDialog] = useState(false);
+	const [meetingCode, setMeetingCode] = useState('');
 	const { userNick, isMeeting, setIsMeeting, setMeetingID } = useContext(UserContext);
 
     const handleOpenCreateDialog = () => {
@@ -89,7 +92,15 @@ export const AppSidebar = (props) => {
 
 		setMeetingID(mid);
 		setIsMeeting(true);
+
+		setMeetingCode(Math.random().toString(36).substr(2,6));
+
+		setIsOpenCodeDialog(true);
     };
+
+	const handleCloseCodeDialog = () => {
+		setIsOpenCodeDialog(false);
+	};
 
     const handleOpenJoinDialog = () => {
         setIsOpenJoinDialog(true);
@@ -172,6 +183,11 @@ export const AppSidebar = (props) => {
                                 open={isOpenCreateDialog}
                                 onClose={handleCloseCreateDialog}
 								onSubmit={handleSubmitCreateDialog}
+                            />
+                            <MeetingCodeDialog
+                                open={isOpenCodeDialog}
+								code={meetingCode}
+                                onClose={handleCloseCodeDialog}
                             />
 							<JoinMeetingDialog
 								open={isOpenJoinDialog}

@@ -6,27 +6,20 @@ export const MeetingCodeDialog = (props) => {
     return (
         <Dialog open={open} onClose={() => onClose()}>
             <DialogContent>
-                <Box m={1}>
-                    <Typography>회의 제목</Typography>
-                    <TextField
-                        label="회의 제목"
-                        variant="outlined"
-                        sx={{ mt: '10px' }} 
-                        inputRef={meetingNameRef} />
-                </Box>
-                <Box m={1}>
-                    <Typography>인원 제한</Typography>
-                    <Slider
-                        defaultValue={4}
-                        valueLabelDisplay="auto"
-                        min={2}
-                        max={10} 
-                        marks={marks}
-                        sx={{ mt: '10px' }}
-                        onChangeCommitted={(e, val) => setLimitNum(val)} />
+                <Box
+                    m={1}
+                    sx={{
+                        px: 3,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center'
+                    }}
+                >
+                    <Typography variant="h3" mb={3}>회의 코드</Typography>
+                    <Typography variant="h5" mb={3}>{code}</Typography>
                 </Box>
                 <DialogActions>
-                    <Button variant="contained" onClick={handleSubmit}>확인</Button>
+                    <Button variant="contained" onClick={() => onClose()}>확인</Button>
                 </DialogActions>
             </DialogContent>
         </Dialog>
