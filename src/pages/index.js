@@ -120,7 +120,6 @@ const Login = () => {
                                             fullWidth
                                             color="error"
                                             startIcon={<GoogleIcon />}
-                                            //onClick={formik.handleSubmit}
                                             onClick={renderProps.onClick}
                                             size="large"
                                             variant="contained"

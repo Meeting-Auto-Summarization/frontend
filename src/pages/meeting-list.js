@@ -43,6 +43,10 @@ const MeetingList = () => {
         setPage(newPage);
     }
 
+    if (!isLogin) {
+        return null;
+    }
+
     return (
         <>
             <Head>
