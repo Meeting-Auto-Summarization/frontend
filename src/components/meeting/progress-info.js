@@ -16,7 +16,9 @@ import {
     MicOff,
     VideocamOff,
 } from "@mui/icons-material";
-import { useState } from "react";
+import { useState, useContext } from 'react';
+import Link from 'next/link';
+import { UserContext } from '../../utils/context/context';
 
 const ProgressInfoButton = styled(Button)({
     background: "#E63946",
@@ -64,6 +66,8 @@ export function ProgrssInfo() {
     const handleCameraMenu = (event) => {
         setCameraMenu(event.currentTarget);
     };
+
+    const { meetingID } = useContext(UserContext);
 
     return (
         <Box>
@@ -216,13 +220,20 @@ export function ProgrssInfo() {
                     <Typography display="inline" sx={{ my: 1, mx: 1.5 }}>
                         00:15
                     </Typography>
-                    <ProgressInfoButton
-                        href="#!"
-                        variant="text"
-                        sx={{ my: 1, mx: 1.5 }}
+                    <Link
+                        href={{
+                            pathname: `/script-edit`, // 라우팅 id
+                            query: { mid: meetingID }, // props 
+                        }}
+                        as={`/script-edit`}
                     >
-                        회의 종료
-                    </ProgressInfoButton>
+                        <ProgressInfoButton
+                            variant="text"
+                            sx={{ my: 1, mx: 1.5 }}
+                        >
+                            회의 종료
+                        </ProgressInfoButton>
+                    </Link>
                 </Box>
             </Box>
         </Box>

@@ -3,8 +3,22 @@ import { MeetingScripts } from "../components/meeting/meeting-scripts";
 import { MeetingVideo } from "../components/meeting/meeting-video";
 import { ProgrssInfo } from "../components/meeting/progress-info";
 import { AppLayout } from "../components/app-layout";
+import { useContext, useEffect } from 'react';
+import { UserContext } from '../utils/context/context';
 
 const MeetingProgrsssPage = () => {
+    const { isLogin } = useContext(UserContext);
+
+    useEffect(() => {
+        if (!isLogin) {
+            router.push('/not-login');
+        }
+    });
+
+    if (!isLogin) {
+        return null;
+    }
+
     return (
         <Box
             sx={{
@@ -20,7 +34,7 @@ const MeetingProgrsssPage = () => {
             </Grid>
         </Box>
     );
-}
+};
 
 MeetingProgrsssPage.getLayout = (page) => (
     <AppLayout>

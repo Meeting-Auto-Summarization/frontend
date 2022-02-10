@@ -6,11 +6,25 @@ import { AppLayout } from '../components/app-layout';
 import { scripts } from '../__mocks__/scripts';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
+import { useContext, useEffect } from 'react';
+import { UserContext } from '../utils/context/context';
+
 
 
 const ScriptEdit = () => {
     const router = useRouter();
     const { mid } = router.query;
+    const { isLogin } = useContext(UserContext);
+
+    useEffect(() => {
+        if (!isLogin) {
+            router.push('/not-login');
+        }
+    });
+
+    if (!isLogin) {
+        return null;
+    }
 
     return (
         <>

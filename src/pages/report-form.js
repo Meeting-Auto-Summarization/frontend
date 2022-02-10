@@ -1,14 +1,28 @@
 import Head from 'next/head';
-import { Box, Container, Button, TextField } from '@mui/material';
+import { Box, Container, Button } from '@mui/material';
 import { ScriptEditToolbar } from '../components/summary-step/script-edit-toolbar';
 import { ReportFormSetting } from '../components/summary-step/report-form-setting';
 import { AppLayout } from '../components/app-layout';
 import { scripts } from '../__mocks__/scripts';
 import { useRouter } from 'next/router';
+import { useContext, useEffect } from 'react';
+import { UserContext } from '../utils/context/context';
+
 
 const ReportForm = () => {
     const router = useRouter();
     const { mid } = router.query;
+    const { isLogin } = useContext(UserContext);
+
+    useEffect(() => {
+        if (!isLogin) {
+            router.push('/not-login');
+        }
+    });
+
+    if (!isLogin) {
+        return null;
+    }
 
     return(
         <>

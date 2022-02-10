@@ -73,7 +73,8 @@ export const AppSidebar = (props) => {
     };
 
 	const handleSubmitCreateDialog = (meetingName, limitNum) => {
-		const mid = uuid();
+		// const mid = uuid();
+		const mid = '고건준';
 
 		let now = new Date();
 		const date = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDay()}`;
