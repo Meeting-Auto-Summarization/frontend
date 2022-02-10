@@ -2,6 +2,7 @@
 =======
 # ignore
 .DS_Store
+/.next
 >>>>>>> ef9e6cf137f08b932ed81fa320573776c120f6ee
 
 # dependencies
