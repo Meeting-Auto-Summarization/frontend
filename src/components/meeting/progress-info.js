@@ -70,8 +70,8 @@ export function ProgrssInfo() {
     const { meetingID } = useContext(UserContext);
 
     const [hours, setHours] = useState(0);
-    const [minutes, setMinutes] = useState(59);
-    const [seconds, setSeconds] = useState(50);
+    const [minutes, setMinutes] = useState(0);
+    const [seconds, setSeconds] = useState(0);
 
     useEffect(() => {
         const countdown = setInterval(() => {
@@ -249,7 +249,10 @@ export function ProgrssInfo() {
                     <Link
                         href={{
                             pathname: `/script-edit`, // 라우팅 id
-                            query: { mid: meetingID }, // props 
+                            query: {
+                                mid: meetingID,
+                                time: `${hours < 10 ? `0${hours}` : hours}:${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}`
+                            } // props 
                         }}
                         as={`/script-edit`}
                     >

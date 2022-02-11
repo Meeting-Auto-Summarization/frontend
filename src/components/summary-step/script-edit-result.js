@@ -82,10 +82,9 @@ export const ScriptEditResult = ({ scripts, ...rest }) => {
                                     <TableRow
                                         hover
                                         key={script.id}
-                                        onClick={(event) => handleClick(event, script.id)}
                                         // selected={selectedCustomerIds.indexOf(customer.id) !== -1}
                                     >
-                                        <TableCell padding="checkbox">
+                                        <TableCell padding="checkbox" onClick={(event) => handleClick(event, script.id)}>
                                             <Checkbox
                                                 id={script.id}
                                                 checked={isItemSelected}
@@ -93,12 +92,12 @@ export const ScriptEditResult = ({ scripts, ...rest }) => {
                                                 // value="true"
                                             />
                                         </TableCell>
-                                        <TableCell sx={{paddingY: '8px'}}>
+                                        <TableCell sx={{paddingY: '8px'}} onClick={(event) => handleClick(event, script.id)}>
                                             <Typography color="textPrimary" variant="h6">
                                                 {script.name}
                                             </Typography>
                                         </TableCell>
-                                        <TableCell sx={{paddingY: '8px'}}>
+                                        <TableCell sx={{paddingY: '8px'}} onClick={(event) => handleClick(event, script.id)}>
                                             <Typography color="textPrimary" variant="body1">
                                                 {script.time}
                                             </Typography>
