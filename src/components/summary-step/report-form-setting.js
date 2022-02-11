@@ -6,37 +6,28 @@ import {
     TextField,
     Typography
 } from '@mui/material';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
+import { v4 as uuid } from 'uuid';
 
 export const ReportFormSetting = () => {
-    const [headList, setHeadList] = useState([0]);
-    const [subList, setSubList] = useState([[]]);
+    const [inputList, setInputList] = useState([['']]);
+    const [_, updateState] = useState();
+    const forceUpdate = useCallback(() => updateState({}), []);
 
     const handleAddHead = () => {
-        const newHeadList = headList.concat(headList.length)
-        setHeadList(newHeadList);
-
-        let newSubList = subList;
-        newSubList[headList.length] = new Array();
-        setSubList(newSubList);
+        setInputList(prev => (
+            prev.concat([['']])
+        ));
     };
 
     const handleAddSub = (headNum) => {
-        const subListItem = subList[headNum];
-        
-        if (subListItem.length === 0) {
-            subListItem.push('a');
-        } else {
-            const newIndex = String.fromCharCode(subListItem[subListItem.length - 1].charCodeAt() + 1)
-            subListItem.push(newIndex);
-        }
-
-        let newSubList = subList;
-        newSubList[headNum] = subListItem;
-        setSubList(newSubList);
+        const newarr = inputList;
+        newarr[headNum].push('');
+        setInputList(newarr);
+        forceUpdate();
     };
 
-    const HeadInputComp = ({index}) => {
+    const HeadInputComp = ({index, content}) => {
         return (
             <Box
                 margin={2}
@@ -45,47 +36,69 @@ export const ReportFormSetting = () => {
                     alignItems: "flex-end"
                 }}
             >
-                <Typography variant="h5" marginRight={2}>{index + 1}.</Typography>
-                <TextField fullWidth variant="standard"></TextField>
+                <Typography variant="h5" marginRight={2}>{parseInt(index) + 1}.</Typography>
+                <TextField
+                    fullWidth
+                    variant="standard"
+                    defaultValue={content}
+                    onChange={(e) => {
+                        const newarr = inputList;
+                        newarr[index][0] = e.target.value;
+                        setInputList(newarr);
+                    }}
+                />
                 <Button onClick={() => handleAddHead()}>Add Headline</Button>
-                <Button onClick={(e) => handleAddSub(index)}>Add Subheading</Button>
+                <Button onClick={() => handleAddSub(index)}>Add Subheading</Button>
             </Box>
         );
     };
 
-    const SubInputComp = ({headindex, subindex}) => {
+    const SubInputComp = ({headindex, subindex, content}) => {
+        const alp = String.fromCharCode(subindex + 96);
+
         return (
             <Box
+                margin={2}
                 sx={{
                     display: "flex",
                     alignItems: "flex-end",
                     marginLeft: "100px"
                 }}
             >
-                <Typography variant="h5" marginRight={2}>{subindex}.</Typography>
-                <TextField fullWidth variant="standard"></TextField>
+                <Typography variant="h5" marginRight={2}>{alp}.</Typography>
+                <TextField
+                    fullWidth
+                    variant="standard"
+                    defaultValue={content}
+                    onChange={(e) => {
+                        const newarr = inputList;
+                        newarr[headindex][subindex] = e.target.value;
+                        setInputList(newarr);
+                    }}
+                />
                 <Button onClick={(e) => handleAddSub(headindex)}>Add Line</Button>
             </Box>
         );
     };
 
-    return (
+    return(
         <Card>
             <PerfectScrollbar>
-                {headList.map((num) => {
+                {inputList.map((onedim, index) => {
                     return(
-                        <Box key={num}>
-                            <HeadInputComp index={num} />
-                            {subList[num].map((subNum) => {
+                        <Box key={uuid()}>
+                            {onedim.map((content, subIndex) => {
                                 return(
-                                    <SubInputComp
-                                        key={subNum}
-                                        headindex={num}
-                                        subindex={subNum} />
+                                    <Box key={uuid()}>
+                                        {subIndex === 0
+                                            ? <HeadInputComp index={index} content={content} />
+                                            : <SubInputComp headindex={index} subindex={subIndex} content={content} />
+                                        }
+                                    </Box>
                                 )
                             })}
                         </Box>
-                    );
+                    )
                 })}
             </PerfectScrollbar>
         </Card>

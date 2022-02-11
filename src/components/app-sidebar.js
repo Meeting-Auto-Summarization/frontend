@@ -177,7 +177,7 @@ export const AppSidebar = (props) => {
                                 <Typography sx={{ fontWeight: 'bold', fontSize: '0.8vw'}}>회의 생성</Typography>
                             </Button>
                             <Button variant="contained" onClick={ !isMeeting ? handleOpenJoinDialog : handleOpenOngoingDialog }>
-                                <Typography sx={{ fontWeight: 'bold', fontSize: '0.8vw'}}>회의 생성</Typography>
+                                <Typography sx={{ fontWeight: 'bold', fontSize: '0.8vw'}}>회의 참여</Typography>
                             </Button>
                             <CreateMeetingDialog
                                 open={isOpenCreateDialog}

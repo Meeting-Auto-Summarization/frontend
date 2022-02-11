@@ -8,7 +8,6 @@ import { useRouter } from 'next/router';
 import { useContext, useEffect } from 'react';
 import { UserContext } from '../utils/context/context';
 
-
 const ReportForm = () => {
     const router = useRouter();
     const { mid } = router.query;
