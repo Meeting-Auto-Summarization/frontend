@@ -16,7 +16,7 @@ import {
     MicOff,
     VideocamOff,
 } from "@mui/icons-material";
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import Link from 'next/link';
 import { UserContext } from '../../utils/context/context';
 
@@ -68,6 +68,29 @@ export function ProgrssInfo() {
     };
 
     const { meetingID } = useContext(UserContext);
+
+    const [hours, setHours] = useState(0);
+    const [minutes, setMinutes] = useState(59);
+    const [seconds, setSeconds] = useState(50);
+
+    useEffect(() => {
+        const countdown = setInterval(() => {
+            if (parseInt(seconds) < 59) {
+                setSeconds(parseInt(seconds) + 1);
+            }
+            if (parseInt(seconds) === 59) {
+                if (parseInt(minutes) === 59) {
+                    setHours(parseInt(hours) + 1);
+                    setMinutes(0);
+                    setSeconds(0);
+                } else {
+                    setMinutes(parseInt(minutes) + 1);
+                    setSeconds(0);
+                }
+            }
+        }, 1000);
+        return () => clearInterval(countdown);
+    }, [minutes, seconds]);
 
     return (
         <Box>
@@ -218,7 +241,10 @@ export function ProgrssInfo() {
                     sx={{ flexGrow: 1, textAlign: "right", margin: "auto" }}
                 >
                     <Typography display="inline" sx={{ my: 1, mx: 1.5 }}>
-                        00:15
+                        {hours != 0 && `${hours}:`}
+                        {minutes < 10 ? `0${minutes}` : minutes}
+                        :
+                        {seconds < 10 ? `0${seconds}` : seconds}
                     </Typography>
                     <Link
                         href={{
