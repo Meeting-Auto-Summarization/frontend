@@ -1,6 +1,5 @@
 import { Box, Typography, Grid, Checkbox, Button, styled } from "@mui/material";
-import { useState, useCallback } from "react";
-import { scripts } from "../../__mocks__/scripts";
+import { useState, useCallback, useEffect } from "react";
 
 const SummaryButton = styled(Button)({
     background: "#F1FAEE",
@@ -15,7 +14,7 @@ const SummaryButton = styled(Button)({
     },
 });
 
-export function MeetingScripts() {
+export function MeetingScripts({messageList}) {
     const [summaryFlag, setSummaryFlag] = useState(false);
     const handleSummaryButton = () => {
         if (summaryFlag) {
@@ -35,6 +34,11 @@ export function MeetingScripts() {
         },
         [checkedList]
     );
+
+    useEffect(() => {
+        console.log(messageList);
+    }, [messageList])
+
     return (
         <Grid item spacing={1} xs={4}>
             <Box>
@@ -72,55 +76,57 @@ export function MeetingScripts() {
                     container
                     sx={{ overflow: "auto", height: "100%", minHeight: "100px" }}
                 >
-                {scripts[0].script.map((item) => (
-                    <Grid
-                        key={item.id}
-                        container
-                        xs={12}
-                    >
-                        <Grid item xs={2} md={1}>
-                            <Checkbox
-                                onChange={(e) => onCheckedElement(e.target.checked, item)}
-                                checked={!!checkedList.includes(item)}
-                                inputProps={{
-                                    "aria-label": "controlled",
-                                }}
-                                sx={{ padding: 0 }}
-                            />
+                {messageList.map((item) => {
+                    return(
+                        <Grid
+                            container
+                            xs={12}
+                        >
+                            <Grid item xs={2} md={1}>
+                                <Checkbox
+                                    onChange={(e) => onCheckedElement(e.target.checked, item)}
+                                    checked={!!checkedList.includes(item)}
+                                    inputProps={{
+                                        "aria-label": "controlled",
+                                    }}
+                                    sx={{ padding: 0 }}
+                                />
+                            </Grid>
+                            <Grid item xs={3} md={2}>
+                                <Typography
+                                    variant="value"
+                                    color="text.primary"
+                                    sx={{ display: "inline" }}
+                                >
+                                    00:00
+                                </Typography>
+                            </Grid>
+                            <Grid item xs={3} md={2}>
+                                <Typography
+                                    variant="value"
+                                    color="text.primary"
+                                    sx={{ display: "inline" }}
+                                >
+                                    {item.nick}
+                                </Typography>
+                            </Grid>
+                            <Grid item xs={4} md={6} align="left">
+                                <Typography
+                                    variant="value"
+                                    color="text.primary"
+                                    sx={{
+                                        display: "inline",
+                                    }}
+                                >
+                                    {item.message}
+                                </Typography>
+                            </Grid>
                         </Grid>
-                        <Grid item xs={3} md={2}>
-                            <Typography
-                                variant="value"
-                                color="text.primary"
-                                sx={{ display: "inline" }}
-                            >
-                                {item.time}
-                            </Typography>
-                        </Grid>
-                        <Grid item xs={3} md={2}>
-                            <Typography
-                                variant="value"
-                                color="text.primary"
-                                sx={{ display: "inline" }}
-                            >
-                                {item.name}
-                            </Typography>
-                        </Grid>
-                        <Grid item xs={4} md={6} align="left">
-                            <Typography
-                                variant="value"
-                                color="text.primary"
-                                sx={{
-                                    display: "inline",
-                                }}
-                            >
-                                {item.content}
-                            </Typography>
-                        </Grid>
-                    </Grid>
-                ))}
+                        );
+                    })}
                 </Grid>
             </Box>
         </Grid>
     );
 }
+
