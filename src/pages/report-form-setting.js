@@ -1,17 +1,24 @@
 import Head from 'next/head';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { useContext, useState, useEffect } from 'react';
 import { Box, Container, Button } from '@mui/material';
 import { ScriptEditToolbar } from '../components/summary-step/script-edit-toolbar';
-import { ReportFormSetting } from '../components/summary-step/report-form-setting';
+import { ReportFormResult } from '../components/summary-step/report-form-result';
 import { AppLayout } from '../components/app-layout';
 import { scripts } from '../__mocks__/scripts';
-import { useRouter } from 'next/router';
-import { useContext, useEffect } from 'react';
+import { reports } from '../__mocks__/reports';
 import { UserContext } from '../utils/context/context';
 
-const ReportForm = () => {
+const ReportFormSetting = () => {
     const router = useRouter();
     const { mid } = router.query;
     const { isLogin } = useContext(UserContext);
+    const [reportTitleList, setReportTitleList] = useState([[]]);
+    
+    if (!isLogin) {
+        return null;
+    }
 
     useEffect(() => {
         if (!isLogin) {
@@ -19,8 +26,22 @@ const ReportForm = () => {
         }
     });
 
-    if (!isLogin) {
-        return null;
+    const handleCallback = (inputList) => {
+        setReportTitleList(inputList);
+    };
+
+    const handleSubmit = () => {
+        const report = reports.find(report => report.id === mid);
+
+        if (!report) {
+            reports.push({
+                id: mid,
+                title: reportTitleList,
+                summary: [[]]
+            });
+        } else {
+            report.title = reportTitleList
+        }
     }
 
     return(
@@ -38,8 +59,10 @@ const ReportForm = () => {
                 }}
             >
                 <Container maxWidth={false}>
-                    <ScriptEditToolbar scriptID={scripts[0].id} description={"Report Form 지정"}/>
-                    <ReportFormSetting />
+                    <ScriptEditToolbar scriptID={mid} description={"Report Form 지정"}/>
+                    <ReportFormResult
+                        parentCallback={handleCallback}
+                    />
                     <Box
                         sx={{
                             height: '80px',
@@ -49,7 +72,7 @@ const ReportForm = () => {
                 </Container>
                 <Box sx={{
                         width: '100%',
-                        height: '100px',
+                        height: 100,
                         background: 'white',
                         position: 'fixed',
                         left: 0,
@@ -69,17 +92,32 @@ const ReportForm = () => {
                     >
                         Prev Step
                     </Button>
-                    <Button variant="contained" size="large" sx={{ marginRight: 2 }}>Next Step</Button>
+                    <Link
+                        href={{
+                            pathname: `/report-range-setting`, // 라우팅 id
+                            query: { mid: mid }, // props 
+                        }}
+                        as={`/report-range-setting`}
+                    >
+                        <Button
+                            variant="contained"
+                            size="large"
+                            sx={{ marginRight: 2 }}
+                            onClick={handleSubmit}
+                        >
+                            Next Step
+                        </Button>
+                    </Link>
                 </Box>
             </Box>
         </>
     );
 };
 
-ReportForm.getLayout = (page) => (
+ReportFormSetting.getLayout = (page) => (
     <AppLayout>
         {page}
     </AppLayout>
 );
 
-export default ReportForm;
+export default ReportFormSetting;

@@ -80,7 +80,7 @@ export const AppSidebar = (props) => {
 		const mid = '고건준';
 
 		let now = new Date();
-		const date = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDay()}`;
+		const date = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}`;
 
 		meetings.push({
 			id: mid,

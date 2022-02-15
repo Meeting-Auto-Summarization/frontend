@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { scripts } from "../../__mocks__/scripts";
+import { meetings } from "../../__mocks__/meetings";
 import { ExportPopup } from "./export-popup";
 import Link from 'next/link';
 
@@ -32,8 +33,8 @@ const ScriptsCardButton = styled(Button)({
     },
 });
 
-export const ScriptsResultCard = (mid) => {
-    console.log(scripts.filter(meeting => meeting.id === mid.mid)[0])
+export const ScriptsResultCard = ({mid}) => {
+    const script = scripts.find(meeting => meeting.id === mid).script;
     const [open, setOpen] = useState(false);
 
     const handleClickOpen = () => {
@@ -74,16 +75,16 @@ export const ScriptsResultCard = (mid) => {
                                     color="text.primary"
                                     sx={{ display: "inline" }}
                                 >
-                                Contents
+                                    Contents
                                 </Typography>
                             </Grid>
                         </Grid>
                         <Grid item container sx={{ overflow: "auto", height: "25vh" }}>
                             <Box width="100%">
-                                {scripts.filter(meeting => meeting.id === mid.mid)[0].script.map((script) => {
+                                {script.map((line) => {
                                     return(
                                         <Grid
-                                            key={script.id}
+                                            key={line.id}
                                             container
                                             display="flex"
                                         >
@@ -93,7 +94,7 @@ export const ScriptsResultCard = (mid) => {
                                                     color="text.primary"
                                                     sx={{ display: "inline" }}
                                                 >
-                                                    {script.name}
+                                                    {line.name}
                                                 </Typography>
                                             </Grid>
                                             <Grid item xs={2}>
@@ -103,7 +104,7 @@ export const ScriptsResultCard = (mid) => {
                                                     sx={{ display: "inline" }}
                                                 >
                                                     {`\u00a0`}
-                                                    {script.time}
+                                                    {line.time}
                                                 </Typography>
                                             </Grid>
                                             <Grid item xs={8} align="left">
@@ -112,7 +113,7 @@ export const ScriptsResultCard = (mid) => {
                                                     color="text.primary"
                                                     sx={{ display: "inline" }}
                                                 >
-                                                    {script.content}
+                                                    {line.content}
                                                 </Typography>
                                             </Grid>
                                         </Grid>
@@ -126,7 +127,7 @@ export const ScriptsResultCard = (mid) => {
                 <Link
                     href={{
                         pathname: `/script-edit`, // 라우팅 id
-                        query: { mid: mid.mid }, // props 
+                        query: { mid: mid, time: meetings.find(meeting => meeting.id === mid).time }, // props 
                     }}
                     as={`/script-edit`}
                 >

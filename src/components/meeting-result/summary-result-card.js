@@ -11,6 +11,7 @@ import {
 import { useState } from "react";
 import summary from "../../__mocks__/summary";
 import { ExportPopup } from "./export-popup";
+import { v4 as uuid } from 'uuid';
 
 const SummaryCard = styled(Card)({
   background: "#FEFEEE",
@@ -50,13 +51,17 @@ export function SummaryResultCard() {
                 key={idx}
                 item
             >
-              <Grid>
+              <Grid
+                key={uuid()}
+              >
                 <Typography variant="h6">
                   {`${idx + 1}. ${item.section}`}
                 </Typography>
               </Grid>
               {item.contents.map((content, num) => (
-                <Grid>
+                <Grid
+                  key={uuid()}
+                >
                   <Typography variant="value">
                     {`\u00a0\u00a0\u00a0${num + 1}) ${content}`}
                   </Typography>

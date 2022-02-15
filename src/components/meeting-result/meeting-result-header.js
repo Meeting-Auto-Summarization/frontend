@@ -1,6 +1,9 @@
 import { Typography, Grid } from "@mui/material";
+import { meetings } from '../../__mocks__/meetings';
 
-export function MeetingResultHeader() {
+export function MeetingResultHeader({mid}) {
+  const meeting = meetings.find(meeting => meeting.id === mid)
+
   return (
     <Grid container spacing={2} sx={{ mt: 1 }}>
       <Grid item xs={6} align="left">
@@ -9,7 +12,7 @@ export function MeetingResultHeader() {
           color="text.primary"
           sx={{ display: "inline" }}
         >
-          My First Meeting
+          {meeting.meetingName}
         </Typography>
       </Grid>
       <Grid item xs={6} align="right">
@@ -18,7 +21,7 @@ export function MeetingResultHeader() {
           color="text.primary"
           sx={{ display: "inline" }}
         >
-          20210123
+          {meeting.date}
         </Typography>
       </Grid>
       <Grid item xs={6} align="left">
@@ -27,7 +30,7 @@ export function MeetingResultHeader() {
           color="text.primary"
           sx={{ display: "inline" }}
         >
-          김민수 이민수 신민수
+          {meeting.members.join(', ')}
         </Typography>
       </Grid>
       <Grid item xs={6} align="right">
@@ -36,7 +39,7 @@ export function MeetingResultHeader() {
           color="text.primary"
           sx={{ display: "inline" }}
         >
-          30:01
+          {meeting.time}
         </Typography>
       </Grid>
     </Grid>

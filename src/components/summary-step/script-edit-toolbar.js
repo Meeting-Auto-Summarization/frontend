@@ -1,7 +1,7 @@
 import { Box, Typography } from '@mui/material';
 import { meetings } from 'src/__mocks__/meetings';
 
-export const ScriptEditToolbar = ({scriptID, description}) => {
+export const ScriptEditToolbar = ({mid, description}) => {
     return (
         <Box>
             <Box
@@ -13,11 +13,7 @@ export const ScriptEditToolbar = ({scriptID, description}) => {
                     m: -1
                 }}
             >
-                {meetings.filter((meeting) => {
-                    if (scriptID === meeting.id) {
-                        return meeting;
-                    }
-                }).map((meeting) => {
+                {meetings.filter(meeting => meeting.id === mid).map((meeting) => {
                     return(
                         <Box
                             key={meeting.id}

@@ -1,4 +1,5 @@
 import PerfectScrollbar from 'react-perfect-scrollbar';
+import { useCallback, useState, useEffect } from 'react';
 import {
     Box,
     Card,
@@ -6,13 +7,16 @@ import {
     TextField,
     Typography
 } from '@mui/material';
-import { useCallback, useState } from 'react';
 import { v4 as uuid } from 'uuid';
 
-export const ReportFormSetting = () => {
+export const ReportFormResult = ({parentCallback}) => {
     const [inputList, setInputList] = useState([['']]);
     const [_, updateState] = useState();
     const forceUpdate = useCallback(() => updateState({}), []);
+
+    useEffect(() => {
+        parentCallback(inputList);
+    });
 
     const handleAddHead = () => {
         setInputList(prev => (

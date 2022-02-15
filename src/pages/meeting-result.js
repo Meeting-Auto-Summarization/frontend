@@ -25,7 +25,7 @@ const MeetingResult = () => {
     return (
         <>
             <Container>
-                <MeetingResultHeader />
+                <MeetingResultHeader mid={mid} />
                 <ScriptsResultCard mid={mid} />
                 <SummaryResultCard />
             </Container>

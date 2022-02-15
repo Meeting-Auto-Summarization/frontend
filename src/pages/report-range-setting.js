@@ -1,20 +1,17 @@
 import Head from 'next/head';
 import { Box, Container, Button } from '@mui/material';
 import { ScriptEditToolbar } from '../components/summary-step/script-edit-toolbar';
-import { ScriptEditResult } from '../components/summary-step/script-edit-result';
+import { ReportRangeResult } from '../components/summary-step/report-range-result';
 import { AppLayout } from '../components/app-layout';
-import { meetings } from '../__mocks__/meetings';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { useContext, useEffect } from 'react';
 import { UserContext } from '../utils/context/context';
 
-const ScriptEdit = () => {
+const ReportRangeSetting = () => {
     const router = useRouter();
-    const { mid, time } = router.query;
+    const { mid } = router.query;
     const { isLogin } = useContext(UserContext);
-
-    meetings.find(meeting => meeting.id === mid).time = time;
 
     useEffect(() => {
         if (!isLogin) {
@@ -30,7 +27,7 @@ const ScriptEdit = () => {
         <>
             <Head>
                 <title>
-                    Edit Script | Material Kit
+                    Set Report Range | MAS
                 </title>
             </Head>
             <Box
@@ -41,9 +38,9 @@ const ScriptEdit = () => {
                 }}
             >
                 <Container maxWidth={false}>
-                    <ScriptEditToolbar mid={mid} description={"Script 수정"}/>
+                    <ScriptEditToolbar scriptID={mid} description={"보고서에 포함될 스크립트 범위 지정"}/>
                     <Box sx={{ mt: 3 }}>
-                        <ScriptEditResult mid={mid} />
+                        <ReportRangeResult mid={mid} />
                     </Box>
                 </Container>
                 <Box sx={{
@@ -70,12 +67,18 @@ const ScriptEdit = () => {
                     </Button>
                     <Link
                         href={{
-                            pathname: `/report-form-setting`, // 라우팅 id
+                            pathname: `/meeting-result`, // 라우팅 id
                             query: { mid: mid }, // props 
                         }}
-                        as={`/report-form-setting`}
+                        as={`/meeting-result`}
                     >
-                        <Button variant="contained" size="large" sx={{ marginRight: 2 }}>Next Step</Button>
+                        <Button
+                            variant="contained"
+                            size="large"
+                            sx={{ marginRight: 2 }}
+                        >
+                            Summarizing!!
+                        </Button>
                     </Link>
                 </Box>
             </Box>
@@ -83,10 +86,10 @@ const ScriptEdit = () => {
     );
 };
 
-ScriptEdit.getLayout = (page) => (
+ReportRangeSetting.getLayout = (page) => (
     <AppLayout>
         {page}
     </AppLayout>
 );
 
-export default ScriptEdit;
+export default ReportRangeSetting;
