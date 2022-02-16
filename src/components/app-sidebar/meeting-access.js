@@ -43,7 +43,7 @@ export const MeetingAccess = () => {
                 />
             </Box>
             <NextLink
-                href="/meeting"
+                href="/meeting-progress"
                 passHref
             >
                 <Button

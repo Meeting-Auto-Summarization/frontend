@@ -28,9 +28,9 @@ const ReportFormSetting = () => {
     const genEmptyArray = (arr) => {
         var newArr = new Array(arr.length);
 
-        for (let i = 0; i < arr.length; i++) {
+        for (var i = 0; i < arr.length; i++) {
             newArr[i] = new Array(arr[i].length);
-            for (let j = 0; j < arr[i].length; j++) {
+            for (var j = 0; j < arr[i].length; j++) {
                 newArr[i][j] = '';
             }
         }
@@ -44,16 +44,9 @@ const ReportFormSetting = () => {
 
     const handleSubmit = () => {
         const reports = meetings.find(m => m.id === mid).reports;
-
-        if (Object.keys(reports).length === 0) {
-            reports.push({
-                title: reportTitleList,
-                summary: genEmptyArray(reportTitleList)
-            });
-        } else {
-            reports.title = reportTitleList;
-            reports.summary = genEmptyArray(reportTitleList);
-        }
+        
+        reports.title = reportTitleList;
+        reports.summary = genEmptyArray(reportTitleList);
     }
 
     return(
@@ -71,10 +64,8 @@ const ReportFormSetting = () => {
                 }}
             >
                 <Container maxWidth={false}>
-                    <ScriptEditToolbar scriptID={mid} description={"Report Form 지정"}/>
-                    <ReportFormResult
-                        parentCallback={handleCallback}
-                    />
+                    <ScriptEditToolbar mid={mid} description={"Report Form 지정"} />
+                    <ReportFormResult parentCallback={handleCallback} />
                     <Box
                         sx={{
                             height: '80px',

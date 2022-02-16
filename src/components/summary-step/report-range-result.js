@@ -8,8 +8,6 @@ export const ReportRangeResult = ({ mid, ...rest }) => {
     const meeting = meetings.find(m => m.id === mid); 
     const scripts = meeting.scripts;
     const reports = meeting.reports;
-
-    console.log(meeting)
     
     const [selected, setSelected] = useState([]);
     const [startIndex, setStartIndex] = useState(-1);

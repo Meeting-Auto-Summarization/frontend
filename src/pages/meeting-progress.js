@@ -8,7 +8,7 @@ import { UserContext } from '../utils/context/context';
 import { io } from "socket.io-client";
 import Peer from 'peerjs';
 
-const MeetingProgrsssPage = () => {
+const MeetingProgress = () => {
     const { isLogin } = useContext(UserContext);
 
     useEffect(() => {
@@ -165,10 +165,10 @@ const MeetingProgrsssPage = () => {
     );
 };
 
-MeetingProgrsssPage.getLayout = (page) => (
+MeetingProgress.getLayout = (page) => (
     <AppLayout>
         {page}
     </AppLayout>
 );
 
-export default MeetingProgrsssPage;
+export default MeetingProgress;

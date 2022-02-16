@@ -40,6 +40,7 @@ export function ProgrssInfo(props) {
     const [microphones, setMicrophones] = useState([]);
     let { myVideo, disconnectUser } = props;
     const { handleCameraChange, handleAudioChange } = props;
+    
     const handleMicOnOff = () => {
         const myStream = myVideo.current.srcObject;
         myStream.getAudioTracks().forEach((track) => {
@@ -66,13 +67,12 @@ export function ProgrssInfo(props) {
     };
 
     /* const handleCameraChange = (idx) => {
-         myVideo.current.srcObject =
-         const videoTrack = myStream.getVideoTracks()[0];
-         const videoSender = myPeerConnection.getSenders().find((sender) => sender.track.kind === "video");
-         console.log(videoSender);
-         videoSender.replaceTrack(videoTrack);
-         
-     }*/
+        myVideo.current.srcObject =
+        const videoTrack = myStream.getVideoTracks()[0];
+        const videoSender = myPeerConnection.getSenders().find((sender) => sender.track.kind === "video");
+        console.log(videoSender);
+        videoSender.replaceTrack(videoTrack);
+    }*/
 
     const handleCameraMenuClose = () => {
         setCameraMenu(null);
@@ -194,7 +194,6 @@ export function ProgrssInfo(props) {
                                 })
                             }
                         </Menu>
-
                         <Grid sx={{ mx: 1 }}>
                             <Grid item align="center">
                                 <IconButton
@@ -254,7 +253,6 @@ export function ProgrssInfo(props) {
                                 })
                             }
                         </Menu>
-
                         <Grid sx={{ mx: 1 }}>
                             <Grid item>
                                 <IconButton color="inherit" sx={{ px: 0 }}>
@@ -298,7 +296,7 @@ export function ProgrssInfo(props) {
                             sx={{ my: 1, mx: 1.5 }}
                             onClick={() => {
                                 const time = `${hours < 10 ? `0${hours}` : hours}:${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
-                                meetings.find(m => m.id === mid).time = time;
+                                meetings.find(m => m.id === meetingID).time = time;
                                 disconnectUser();
                             }}
                         >

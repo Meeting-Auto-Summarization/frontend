@@ -38,7 +38,7 @@ const ReportRangeSetting = () => {
                 }}
             >
                 <Container maxWidth={false}>
-                    <ScriptEditToolbar scriptID={mid} description={"보고서에 포함될 스크립트 범위 지정"}/>
+                    <ScriptEditToolbar mid={mid} description={"보고서에 포함될 스크립트 범위 지정"}/>
                     <Box sx={{ mt: 3 }}>
                         <ReportRangeResult mid={mid} />
                     </Box>

@@ -17,8 +17,9 @@ import { CreateMeetingDialog } from './app-sidebar/create-meeting-dialog';
 import { MeetingCodeDialog } from './app-sidebar/meeting-code-dialog';
 import { JoinMeetingDialog } from './app-sidebar/join-meeting-dialog';
 import { OngoingDialog } from './app-sidebar/ongoing-dialog';
-import { v4 as uuid } from 'uuid';
 import { meetings } from '../__mocks__/meetings';
+import { v4 as uuid } from 'uuid';
+
 
 const items = [
     {
@@ -76,8 +77,7 @@ export const AppSidebar = (props) => {
     };
 
 	const handleSubmitCreateDialog = (meetingName, limitNum) => {
-		// const mid = uuid();
-		const mid = '고건준';
+		const mid = uuid();
 
 		let now = new Date();
 		const date = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}`;
@@ -88,6 +88,8 @@ export const AppSidebar = (props) => {
 			members: [userNick],
 			date: date,
 			time: '00:00',
+			scripts: [],
+			reports: {}
 		})
 
 		setMeetingID(mid);
