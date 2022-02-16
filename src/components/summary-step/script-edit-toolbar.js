@@ -13,7 +13,7 @@ export const ScriptEditToolbar = ({mid, description}) => {
                     m: -1
                 }}
             >
-                {meetings.filter(meeting => meeting.id === mid).map((meeting) => {
+                {meetings.filter(m => m.id === mid).map((meeting) => {
                     return(
                         <Box
                             key={meeting.id}

@@ -15,10 +15,10 @@ import {
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useState } from 'react';
-import { scripts } from '../../__mocks__/scripts';
+import { meetings } from '../../__mocks__/meetings';
 
 export const ScriptEditResult = ({ mid, ...rest }) => {
-    const script = scripts.find(meeting => meeting.id === mid).script;
+    const scripts = meetings.find(m => m.id === mid).scripts;
     const [selected, setSelected] = useState([]);
 
     const handleClick = (event, id) => {
@@ -77,7 +77,7 @@ export const ScriptEditResult = ({ mid, ...rest }) => {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {script.map((line) => {
+                            {scripts.map((line) => {
                                 const isItemSelected = isSelected(line.id);
 
                                 return(
@@ -130,5 +130,5 @@ export const ScriptEditResult = ({ mid, ...rest }) => {
 };
 
 ScriptEditResult.propTypes = {
-  scripts: PropTypes.array.isRequired
+    meetings: PropTypes.array.isRequired
 };

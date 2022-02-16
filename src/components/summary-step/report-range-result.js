@@ -1,12 +1,16 @@
 import PerfectScrollbar from 'react-perfect-scrollbar';
-import { Card, Checkbox, Table, TableBody, TableCell, TableHead, TableRow, Typography, TextField, Grid } from '@mui/material';
+import { Card, Checkbox, Table, TableBody, TableCell, TableHead, TableRow, Typography, Grid } from '@mui/material';
 import { useState } from 'react';
-import { scripts } from '../../__mocks__/scripts';
-import { reports } from '../../__mocks__/reports';
+import { meetings } from '../../__mocks__/meetings';
 import { ReportTitleList } from './report-title-list';
 
 export const ReportRangeResult = ({ mid, ...rest }) => {
-    const script = scripts.find(meeting => meeting.id === mid).script;
+    const meeting = meetings.find(m => m.id === mid); 
+    const scripts = meeting.scripts;
+    const reports = meeting.reports;
+
+    console.log(meeting)
+    
     const [selected, setSelected] = useState([]);
     const [startIndex, setStartIndex] = useState(-1);
 
@@ -14,7 +18,7 @@ export const ReportRangeResult = ({ mid, ...rest }) => {
         let newSelectedCustomerIds;
     
         if (event.target.checked) {
-          newSelectedCustomerIds = script.map((script) => script.id);
+          newSelectedCustomerIds = scripts.map(line => line.id);
         } else {
           newSelectedCustomerIds = [];
         }
@@ -26,9 +30,8 @@ export const ReportRangeResult = ({ mid, ...rest }) => {
         const emptyArray = [];
         setSelected(emptyArray);
 
-        // script를 넘겨주는 방식이 아니라 해당 컴포에서 직접 불러오는 방식으로 수정할 것. mid만 넘기셈 페이지간에는
-        const line = script.find(script => script.id === id);
-        const selectedIndex = script.indexOf(line);
+        const line = scripts.find(line => line.id === id);
+        const selectedIndex = scripts.indexOf(line);
         setStartIndex(selectedIndex);
 
         const newSelected = [id];
@@ -37,10 +40,10 @@ export const ReportRangeResult = ({ mid, ...rest }) => {
     };
 
     const handleSelectEnd = (id) => {
-        const line = script.find(script => script.id === id);
-        const selectedIndex = script.indexOf(line);
+        const line = scripts.find(line => line.id === id);
+        const selectedIndex = scripts.indexOf(line);
 
-        const newSelected = script.slice(startIndex, selectedIndex + 1).map(script => script.id);
+        const newSelected = scripts.slice(startIndex, selectedIndex + 1).map(line => line.id);
         setSelected(newSelected);
         setStartIndex(-1);
     };
@@ -85,7 +88,7 @@ export const ReportRangeResult = ({ mid, ...rest }) => {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {script.map((line) => {
+                                {scripts.map((line) => {
                                     return(
                                         <TableRow
                                             hover
@@ -105,11 +108,6 @@ export const ReportRangeResult = ({ mid, ...rest }) => {
                                                 <Checkbox
                                                     id={line.id}
                                                     checked={selected.indexOf(line.id) !== -1}
-                                                    onChange={
-                                                        startIndex === -1
-                                                        ? () => handleSelectStart(line.id)
-                                                        : () => handleSelectEnd(line.id)
-                                                    }
                                                 />
                                             </TableCell>
                                             <TableCell sx={{ width: "12%" }}>
@@ -145,7 +143,7 @@ export const ReportRangeResult = ({ mid, ...rest }) => {
                     }}
                 >    
                     <ReportTitleList
-                        titleList={reports.find(report => report.id === mid).title}
+                        titleList={reports.title}
                     />
                 </Card>
             </Grid>

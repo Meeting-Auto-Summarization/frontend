@@ -6,8 +6,7 @@ import { Box, Container, Button } from '@mui/material';
 import { ScriptEditToolbar } from '../components/summary-step/script-edit-toolbar';
 import { ReportFormResult } from '../components/summary-step/report-form-result';
 import { AppLayout } from '../components/app-layout';
-import { scripts } from '../__mocks__/scripts';
-import { reports } from '../__mocks__/reports';
+import { meetings } from '../__mocks__/meetings';
 import { UserContext } from '../utils/context/context';
 
 const ReportFormSetting = () => {
@@ -26,21 +25,34 @@ const ReportFormSetting = () => {
         }
     });
 
+    const genEmptyArray = (arr) => {
+        var newArr = new Array(arr.length);
+
+        for (let i = 0; i < arr.length; i++) {
+            newArr[i] = new Array(arr[i].length);
+            for (let j = 0; j < arr[i].length; j++) {
+                newArr[i][j] = '';
+            }
+        }
+
+        return newArr;
+    };
+
     const handleCallback = (inputList) => {
         setReportTitleList(inputList);
     };
 
     const handleSubmit = () => {
-        const report = reports.find(report => report.id === mid);
+        const reports = meetings.find(m => m.id === mid).reports;
 
-        if (!report) {
+        if (Object.keys(reports).length === 0) {
             reports.push({
-                id: mid,
                 title: reportTitleList,
-                summary: [[]]
+                summary: genEmptyArray(reportTitleList)
             });
         } else {
-            report.title = reportTitleList
+            reports.title = reportTitleList;
+            reports.summary = genEmptyArray(reportTitleList);
         }
     }
 

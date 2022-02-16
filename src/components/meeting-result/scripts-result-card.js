@@ -10,7 +10,6 @@ import {
     Box,
 } from "@mui/material";
 import { useState } from "react";
-import { scripts } from "../../__mocks__/scripts";
 import { meetings } from "../../__mocks__/meetings";
 import { ExportPopup } from "./export-popup";
 import Link from 'next/link';
@@ -34,7 +33,7 @@ const ScriptsCardButton = styled(Button)({
 });
 
 export const ScriptsResultCard = ({mid}) => {
-    const script = scripts.find(meeting => meeting.id === mid).script;
+    const scripts = meetings.find(m => m.id === mid).scripts;
     const [open, setOpen] = useState(false);
 
     const handleClickOpen = () => {
@@ -81,7 +80,7 @@ export const ScriptsResultCard = ({mid}) => {
                         </Grid>
                         <Grid item container sx={{ overflow: "auto", height: "25vh" }}>
                             <Box width="100%">
-                                {script.map((line) => {
+                                {scripts.map((line) => {
                                     return(
                                         <Grid
                                             key={line.id}
@@ -127,7 +126,7 @@ export const ScriptsResultCard = ({mid}) => {
                 <Link
                     href={{
                         pathname: `/script-edit`, // 라우팅 id
-                        query: { mid: mid, time: meetings.find(meeting => meeting.id === mid).time }, // props 
+                        query: { mid: mid }, // props 
                     }}
                     as={`/script-edit`}
                 >

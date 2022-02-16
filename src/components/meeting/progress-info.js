@@ -19,6 +19,7 @@ import {
 import { useState, useContext, useEffect } from 'react';
 import Link from 'next/link';
 import { UserContext } from '../../utils/context/context';
+import { meetings } from '../../__mocks__/meetings';
 
 const ProgressInfoButton = styled(Button)({
     background: "#E63946",
@@ -287,8 +288,7 @@ export function ProgrssInfo(props) {
                         href={{
                             pathname: `/script-edit`, // 라우팅 id
                             query: {
-                                mid: meetingID,
-                                time: `${hours < 10 ? `0${hours}` : hours}:${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}`
+                                mid: meetingID
                             } // props 
                         }}
                         as={`/script-edit`}
@@ -297,6 +297,8 @@ export function ProgrssInfo(props) {
                             variant="text"
                             sx={{ my: 1, mx: 1.5 }}
                             onClick={() => {
+                                const time = `${hours < 10 ? `0${hours}` : hours}:${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
+                                meetings.find(m => m.id === mid).time = time;
                                 disconnectUser();
                             }}
                         >

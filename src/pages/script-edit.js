@@ -3,7 +3,6 @@ import { Box, Container, Button } from '@mui/material';
 import { ScriptEditToolbar } from '../components/summary-step/script-edit-toolbar';
 import { ScriptEditResult } from '../components/summary-step/script-edit-result';
 import { AppLayout } from '../components/app-layout';
-import { meetings } from '../__mocks__/meetings';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { useContext, useEffect } from 'react';
@@ -11,10 +10,8 @@ import { UserContext } from '../utils/context/context';
 
 const ScriptEdit = () => {
     const router = useRouter();
-    const { mid, time } = router.query;
+    const { mid } = router.query;
     const { isLogin } = useContext(UserContext);
-
-    meetings.find(meeting => meeting.id === mid).time = time;
 
     useEffect(() => {
         if (!isLogin) {
