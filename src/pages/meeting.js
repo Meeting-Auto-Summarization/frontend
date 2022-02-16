@@ -6,9 +6,9 @@ import { AppLayout } from "../components/app-layout";
 import { useContext, useEffect, useState, useRef } from 'react';
 import { UserContext } from '../utils/context/context';
 import { io } from "socket.io-client";
-import Peer from 'peerjs';
+//import Peer from 'peerjs';
 
-const MeetingProgrsssPage = () => {
+const MeetingProgressPage = () => {
     const { isLogin } = useContext(UserContext);
 
     useEffect(() => {
@@ -21,19 +21,23 @@ const MeetingProgrsssPage = () => {
         return null;
     }
 
+
     //화상회의 관련
     const socket = io.connect('http://localhost:3001',
         { cors: { origin: 'http://localhost:3001' } });//서버랑 연결
-    const peer = new Peer();
+    //const peer = new Peer();
+    if (typeof navigator !== "undefined") {
+        const Peer = require("peerjs").default
+        const peer=new Peer();
+    }
     const [peers, setPeers] = useState([]);//peers
     const video = useRef();
     const { userNick } = useContext(UserContext);
     const [messageList, setMessageList] = useState([]);
-    const connectToNewUser = (userId, stream, remoteNick) => {//중간에 누군가 들어옴
+    const connectToNewUser = (userId, stream, remoteNick) => {
         const call = peer.call(userId, stream, { metadata: { "receiverNick": remoteNick, "senderNick": userNick } });
         //call객체 생성(dest-id,my-mediaStream)
         //들어온 상대방에게 call요청 보냄
-        console.log(call);
         call.on('stream', (userVideoStream) => {
             //새로 들어온 사람이 answer했을 때 stream이벤트 발생함
             setPeers(arr => {
@@ -50,9 +54,6 @@ const MeetingProgrsssPage = () => {
             console.log("close");
         });
     }
-    const disconnectUser = () => {
-        console.log("방나감");
-    }
     useEffect(() => {
         socket.on("msg", (userNick, msg) => {
             //stt메시지 받음
@@ -65,16 +66,11 @@ const MeetingProgrsssPage = () => {
             socket.emit('join-room', '1234', id, userNick);
             console.log(userNick);
         });
+        
         navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
             stream.getVideoTracks().forEach((track) => {
                 track.enabled = !track.enabled;
             })
-            /* socket.on("stopStream", () => {
-                 console.log("stop_stream");
-                 stream.getTracks().forEach(function (track) {
-                     track.stop();
-                 });
-             })*/
             video.current.srcObject = stream;//내 비디오 넣어줌
             peer.on('call', (call) => {
                 //중간에 입장했을때 방에 있던 사람에게 call요청 받았을 때
@@ -88,7 +84,7 @@ const MeetingProgrsssPage = () => {
                         if (arr.findIndex(v => v.id === call.peer) < 0)
                             return [...arr, { id: call.peer, nick: call.metadata.senderNick, call: call, stream: userVideoStream }];
                         else {
-                            arr[arr.findIndex(v => v.id === call.peer)] = { id: call.peer, nick: call.metadata.receiverNick, call: call, stream: userVideoStream };
+                            arr[arr.findIndex(v => v.id === call.peer)] = { id: call.peer, nick: call.metadata.senderNick, call: call, stream: userVideoStream };
                             return [...arr];
                         }
                     });
@@ -118,31 +114,63 @@ const MeetingProgrsssPage = () => {
     const handleCameraChange = (deviceId) => {
         const camerasConstraint = {
             audio: true,
-            video: { deviceId: { exact: deviceId } }
+            video: { deviceId: deviceId  }
         };
+        const myStream = video.current.srcObject;
         navigator.mediaDevices.getUserMedia(camerasConstraint).then((stream) => {
             video.current.srcObject = stream;
+            if(!myStream.getVideoTracks()[0].enabled){
+                stream.getVideoTracks().forEach((track)=>{
+                    track.enabled=false;
+                })
+            }
+            for(let i=0;i<peers.length;i++){
+                console.log(peers[i].call.peerConnection.getSenders())
+                const cameraSender=peers[i].call.peerConnection.getSenders().find((sender)=>sender.track.kind==="video");
+                cameraSender.replaceTrack(stream.getVideoTracks()[0]);
+                console.log(cameraSender);
+            }
         });
     }
     const handleAudioChange = (deviceId) => {
         const audioConstraint = {
-            audio: { deviceId: { exact: deviceId } },
+            audio: { deviceId: deviceId },
             video: true
         };
+        const myStream = video.current.srcObject;
+
         navigator.mediaDevices.getUserMedia(audioConstraint).then((stream) => {
             video.current.srcObject = stream;
-            const audioTrack = stream.getAudioTracks()[0];
-            /*this.call.peerConnection.getSenders()[0].replaceTrack()
-            const audioSender = this.call.peerConnection.getSenders().find((sender) => sender.track.kind === "audio");
-            console.log(videoSender);
-            audioSender.replaceTrack(audioTrack);*/
+            if(!myStream.getAudioTracks()[0].enabled){
+                stream.getAudioTracks().forEach((track)=>{
+                    track.enabled=false;
+                })
+            }
+            for(let i=0;i<peers.length;i++){
+                console.log(peers[i].call.peerConnection.getSenders())
+                const audioSender=peers[i].call.peerConnection.getSenders().find((sender)=>sender.track.kind==="audio");
+                console.log(stream.getAudioTracks());
+                audioSender.replaceTrack(stream.getAudioTracks()[0]);
+                console.log(audioSender);
+            }
         });
-
     }
+    const handleLeaveRoom=()=>{
+        let len=peers.length;
+        video.current.srcObject=null;
+        socket.removeAllListeners();
+        setPeers([]);
+        for(let i=0;i<len;i++){
+            peers[i].call.close();
+        }
+        socket.disconnect();
+        peers=null;
+    }
+
+
     useEffect(() => {
         console.log(peers);
     }, [peers])
-
     return (
         <Box
             sx={{
@@ -151,12 +179,7 @@ const MeetingProgrsssPage = () => {
                 height: "100%",
             }}
         >
-            <ProgrssInfo
-                myVideo={video}
-                handleCameraChange={handleCameraChange}
-                handleAudioChange={handleAudioChange}
-                disconnectUser={disconnectUser}
-            />
+            <ProgrssInfo myVideo={video} handleCameraChange={handleCameraChange} handleAudioChange={handleAudioChange} handleLeaveRoom={handleLeaveRoom}/>
             <Grid container spacing={2} sx={{ height: "100%", flex: "1" }}>
                 <MeetingVideo peers={peers} myVideo={video} />
                 <MeetingScripts messageList={messageList} />
@@ -165,10 +188,11 @@ const MeetingProgrsssPage = () => {
     );
 };
 
-MeetingProgrsssPage.getLayout = (page) => (
+MeetingProgressPage.getLayout = (page) => (
     <AppLayout>
         {page}
     </AppLayout>
 );
 
-export default MeetingProgrsssPage;
+export default MeetingProgressPage;
+

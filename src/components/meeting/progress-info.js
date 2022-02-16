@@ -33,13 +33,13 @@ const ProgressInfoButton = styled(Button)({
     },
 });
 
-export function ProgrssInfo(props) {
+export function ProgrssInfo({myVideo,handleCameraChange, handleAudioChange ,handleLeaveRoom} ) {
     const [micOn, setMicOn] = useState(true);
     const [cameraOn, setCameraOn] = useState(false);
     const [cameras, setCameras] = useState([]);
     const [microphones, setMicrophones] = useState([]);
-    let { myVideo, disconnectUser } = props;
-    const { handleCameraChange, handleAudioChange } = props;
+    const [currentCamera,setCurrentCamera]=useState(0);
+    const [currentMic,setCurrentMic]=useState(0);
     const handleMicOnOff = () => {
         const myStream = myVideo.current.srcObject;
         myStream.getAudioTracks().forEach((track) => {
@@ -58,24 +58,24 @@ export function ProgrssInfo(props) {
     const [cameraMenu, setCameraMenu] = useState(null);
     const openMicMenu = Boolean(micMenu);
     const openCameraMenu = Boolean(cameraMenu);
-    const handleMicMenuClose = () => {
+    const handleMicMenuClose = (idx) => {
         setMicMenu(null);
+        if(idx>-1){
+            handleAudioChange(microphones[idx].deviceId);
+            setCurrentMic(idx);
+        }
     };
     const handleMicMenu = (event) => {
         setMicMenu(event.currentTarget);
     };
 
-    /* const handleCameraChange = (idx) => {
-         myVideo.current.srcObject =
-         const videoTrack = myStream.getVideoTracks()[0];
-         const videoSender = myPeerConnection.getSenders().find((sender) => sender.track.kind === "video");
-         console.log(videoSender);
-         videoSender.replaceTrack(videoTrack);
-         
-     }*/
 
     const handleCameraMenuClose = () => {
         setCameraMenu(null);
+        if(idx>-1){
+            handleCameraChange(microphones[idx].deviceId);
+            setCurrentCamera(idx);
+        }
     };
     const handleCameraMenu = (event) => {
         setCameraMenu(event.currentTarget);
@@ -187,10 +187,15 @@ export function ProgrssInfo(props) {
                         >
                             {
                                 microphones.map((item, idx) => {
+                                    if(currentMic===idx){
                                     return (<MenuItem onClick={(e) => {
-                                        handleMicMenuClose();
-                                        handleAudioChange(item.deviceId);
+                                        handleMicMenuClose(idx);
+                                    }} selected={true} >{item.label}</MenuItem>);
+                                }else{
+                                    return (<MenuItem onClick={(e) => {
+                                        handleMicMenuClose(idx);
                                     }} >{item.label}</MenuItem>);
+                                }
                                 })
                             }
                         </Menu>
@@ -250,7 +255,15 @@ export function ProgrssInfo(props) {
                         >
                             {
                                 cameras.map((item, idx) => {
-                                    return (<MenuItem onClick={handleCameraMenuClose}>{item.label}</MenuItem>)
+                                    if(currentCamera===idx){
+                                    return (<MenuItem onClick={(e) => {
+                                        handleCameraMenuClose(idx);
+                                    }} selected={true}>{item.label}</MenuItem>)
+                                }else{
+                                    return (<MenuItem onClick={(e) => {
+                                        handleCameraMenuClose(idx);
+                                    }}>{item.label}</MenuItem>)
+                                }
                                 })
                             }
                         </Menu>
@@ -288,7 +301,8 @@ export function ProgrssInfo(props) {
                         href={{
                             pathname: `/script-edit`, // 라우팅 id
                             query: {
-                                mid: meetingID
+                                mid: meetingID,
+                                time: `${hours < 10 ? `0${hours}` : hours}:${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}`
                             } // props 
                         }}
                         as={`/script-edit`}
@@ -296,11 +310,7 @@ export function ProgrssInfo(props) {
                         <ProgressInfoButton
                             variant="text"
                             sx={{ my: 1, mx: 1.5 }}
-                            onClick={() => {
-                                const time = `${hours < 10 ? `0${hours}` : hours}:${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
-                                meetings.find(m => m.id === mid).time = time;
-                                disconnectUser();
-                            }}
+                            onClick={handleLeaveRoom}
                         >
                             회의 종료
                         </ProgressInfoButton>
