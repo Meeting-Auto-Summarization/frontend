@@ -109,6 +109,7 @@ const MeetingProgressPage = () => {
                 }))
             });
         });
+
     }, [])
     //장치 관련
     const handleCameraChange = (deviceId) => {
@@ -121,6 +122,11 @@ const MeetingProgressPage = () => {
             video.current.srcObject = stream;
             if(!myStream.getVideoTracks()[0].enabled){
                 stream.getVideoTracks().forEach((track)=>{
+                    track.enabled=false;
+                })
+            }
+            if(!myStream.getAudioTracks()[0].enabled){
+                stream.getAudioTracks().forEach((track)=>{
                     track.enabled=false;
                 })
             }
@@ -141,6 +147,11 @@ const MeetingProgressPage = () => {
 
         navigator.mediaDevices.getUserMedia(audioConstraint).then((stream) => {
             video.current.srcObject = stream;
+            if(!myStream.getVideoTracks()[0].enabled){
+                stream.getVideoTracks().forEach((track)=>{
+                    track.enabled=false;
+                })
+            }
             if(!myStream.getAudioTracks()[0].enabled){
                 stream.getAudioTracks().forEach((track)=>{
                     track.enabled=false;
@@ -155,9 +166,13 @@ const MeetingProgressPage = () => {
             }
         });
     }
-    const handleLeaveRoom=()=>{
+    function handleLeaveRoom(){
         let len=peers.length;
-        video.current.srcObject=null;
+        video.current.srcObject.getTracks().forEach((track)=>{
+            track.stop();
+        })
+        //video.current.srcObject=null;
+
         socket.removeAllListeners();
         setPeers([]);
         for(let i=0;i<len;i++){
@@ -166,7 +181,6 @@ const MeetingProgressPage = () => {
         socket.disconnect();
         peers=null;
     }
-
 
     useEffect(() => {
         console.log(peers);
