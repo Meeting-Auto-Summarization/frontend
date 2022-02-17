@@ -93,7 +93,7 @@ export const ScriptsResultCard = ({mid}) => {
                                                     color="text.primary"
                                                     sx={{ display: "inline" }}
                                                 >
-                                                    {line.name}
+                                                    {line.nick}
                                                 </Typography>
                                             </Grid>
                                             <Grid item xs={2}>

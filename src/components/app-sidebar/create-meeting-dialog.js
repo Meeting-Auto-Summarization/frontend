@@ -11,12 +11,12 @@ const marks = [
 
 export const CreateMeetingDialog = (props) => {
     const { onClose, onSubmit, open } = props;
-    const meetingNameRef = useRef('');
+    const titleRef = useRef('');
     const [limitNum, setLimitNum] = useState(4);
 
     const handleSubmit = () => {
-        const meetingName = meetingNameRef.current.value;
-        onSubmit(meetingName, limitNum);
+        const title = titleRef.current.value;
+        onSubmit(title, limitNum);
         onClose();
     };
 
@@ -29,7 +29,7 @@ export const CreateMeetingDialog = (props) => {
                         label="회의 제목"
                         variant="outlined"
                         sx={{ mt: '10px' }} 
-                        inputRef={meetingNameRef} />
+                        inputRef={titleRef} />
                 </Box>
                 <Box m={1}>
                     <Typography>인원 제한</Typography>

@@ -40,6 +40,8 @@ export function ProgrssInfo(props) {
     const [microphones, setMicrophones] = useState([]);
     let { myVideo, disconnectUser, parentCallback } = props;
     const { handleCameraChange, handleAudioChange } = props;
+    const { meetingID, userNick } = useContext(UserContext);
+    const meeting = meetings.find(m => m.id === meetingID);
     
     const handleMicOnOff = () => {
         const myStream = myVideo.current.srcObject;
@@ -79,12 +81,10 @@ export function ProgrssInfo(props) {
     const handleCameraMenuClose = () => {
         setCameraMenu(null);
     };
-    
+
     const handleCameraMenu = (event) => {
         setCameraMenu(event.currentTarget);
     };
-
-    const { meetingID } = useContext(UserContext);
 
     const getDevices = () => {
         try {
@@ -301,13 +301,15 @@ export function ProgrssInfo(props) {
                             variant="text"
                             sx={{ my: 1, mx: 1.5 }}
                             onClick={() => {
-                                const time = `${hours < 10 ? `0${hours}` : hours}:${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
-                                meetings.find(m => m.id === meetingID).time = time;
+                                meeting.time = `${hours < 10 ? `0${hours}` : hours}:${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
                                 parentCallback();
                                 disconnectUser();
                             }}
                         >
-                            회의 종료
+                            {meeting.hostNick === userNick
+                                ? '회의 종료'
+                                : '회의 나가기'
+                            }
                         </ProgressInfoButton>
                     </Link>
                 </Box>

@@ -76,7 +76,7 @@ export const AppSidebar = (props) => {
 		setIsOpenCreateDialog(false);
     };
 
-	const handleSubmitCreateDialog = (meetingName, limitNum) => {
+	const handleSubmitCreateDialog = (title, limitNum) => {
 		const mid = uuid();
 
 		let now = new Date();
@@ -84,8 +84,9 @@ export const AppSidebar = (props) => {
 
 		meetings.push({
 			id: mid,
-			meetingName: meetingName,
+			title: title,
 			members: [userNick],
+			hostNick: userNick,
 			date: date,
 			time: '00:00',
 			scripts: [],

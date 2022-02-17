@@ -97,7 +97,7 @@ export const ScriptEditResult = ({ mid, ...rest }) => {
                                         </TableCell>
                                         <TableCell  onClick={(event) => handleClick(event, line.id)}>
                                             <Typography color="textPrimary" variant="h6">
-                                                {line.name}
+                                                {line.nick}
                                             </Typography>
                                         </TableCell>
                                         <TableCell onClick={(event) => handleClick(event, line.id)}>

@@ -12,7 +12,7 @@ export function MeetingResultHeader({mid}) {
                     color="text.primary"
                     sx={{ display: "inline" }}
                 >
-                    {meeting.meetingName}
+                    {meeting.title}
                 </Typography>
             </Grid>
             <Grid item xs={6} align="right">

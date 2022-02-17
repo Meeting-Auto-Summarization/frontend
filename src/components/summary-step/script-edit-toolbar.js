@@ -24,7 +24,7 @@ export const ScriptEditToolbar = ({mid, description}) => {
                         >
                             <Box marginBottom={1.5} sx={{ float: 'left' }}>
                                 <Typography variant="h4">
-                                    {meeting.meetingName}
+                                    {meeting.title}
                                 </Typography>
                                 <Typography variant="h6" >
                                     {description}

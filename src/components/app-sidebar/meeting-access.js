@@ -24,7 +24,7 @@ export const MeetingAccess = () => {
                 color="neutral.300"
                 variant="body2"
             >
-                {meetings.filter(meeting => meeting.id === meetingID)[0].meetingName}
+                {meetings.filter(meeting => meeting.id === meetingID)[0].title}
             </Typography>
             <Box
                 sx={{

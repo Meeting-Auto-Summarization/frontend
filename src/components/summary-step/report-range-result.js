@@ -110,7 +110,7 @@ export const ReportRangeResult = ({ mid, ...rest }) => {
                                             </TableCell>
                                             <TableCell sx={{ width: "12%" }}>
                                                 <Typography color="textPrimary" variant="h6">
-                                                    {line.name}
+                                                    {line.nick}
                                                 </Typography>
                                             </TableCell>
                                             <TableCell sx={{ width: "12%" }}>

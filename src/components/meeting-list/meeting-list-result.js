@@ -48,7 +48,7 @@ export const MeetingListResult = ({meeting, ...rest}) => {
                                                 textOverflow: 'ellipsis'
                                             }}
                                         >
-                                            {meeting.meetingName}
+                                            {meeting.title}
                                         </Typography>
                                         <Typography
                                             align="left"
