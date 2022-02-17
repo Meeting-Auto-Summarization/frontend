@@ -38,7 +38,7 @@ export function ProgrssInfo(props) {
     const [cameraOn, setCameraOn] = useState(false);
     const [cameras, setCameras] = useState([]);
     const [microphones, setMicrophones] = useState([]);
-    let { myVideo, disconnectUser } = props;
+    let { myVideo, disconnectUser, parentCallback } = props;
     const { handleCameraChange, handleAudioChange } = props;
     
     const handleMicOnOff = () => {
@@ -59,9 +59,11 @@ export function ProgrssInfo(props) {
     const [cameraMenu, setCameraMenu] = useState(null);
     const openMicMenu = Boolean(micMenu);
     const openCameraMenu = Boolean(cameraMenu);
+
     const handleMicMenuClose = () => {
         setMicMenu(null);
     };
+
     const handleMicMenu = (event) => {
         setMicMenu(event.currentTarget);
     };
@@ -77,11 +79,13 @@ export function ProgrssInfo(props) {
     const handleCameraMenuClose = () => {
         setCameraMenu(null);
     };
+    
     const handleCameraMenu = (event) => {
         setCameraMenu(event.currentTarget);
     };
 
     const { meetingID } = useContext(UserContext);
+
     const getDevices = () => {
         try {
             navigator.mediaDevices.enumerateDevices().then((devices) => {
@@ -98,12 +102,14 @@ export function ProgrssInfo(props) {
             console.log(e);
         }
     }
+
     useEffect(() => {
         getDevices();
     }, []);
     const [hours, setHours] = useState(0);
     const [minutes, setMinutes] = useState(0);
     const [seconds, setSeconds] = useState(0);
+
     useEffect(() => {
         const countdown = setInterval(() => {
             if (parseInt(seconds) < 59) {
@@ -297,6 +303,7 @@ export function ProgrssInfo(props) {
                             onClick={() => {
                                 const time = `${hours < 10 ? `0${hours}` : hours}:${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
                                 meetings.find(m => m.id === meetingID).time = time;
+                                parentCallback();
                                 disconnectUser();
                             }}
                         >

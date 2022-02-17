@@ -57,14 +57,6 @@ const ScriptEdit = () => {
                         boxShadow: '0px -5px 3px 3px rgba(0, 0, 0, 0.1)'
                     }}
                 >
-                    <Button
-                        variant="contained"
-                        size="large"
-                        sx={{ marginRight: 2 }}
-                        onClick={() => router.back()}
-                    >
-                        Prev Step
-                    </Button>
                     <Link
                         href={{
                             pathname: `/report-form-setting`, // 라우팅 id

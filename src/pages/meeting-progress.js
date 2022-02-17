@@ -1,15 +1,16 @@
 import { Grid, Box } from "@mui/material";
+import { useContext, useEffect, useState, useRef } from 'react';
+import { io } from "socket.io-client";
+import { AppLayout } from "../components/app-layout";
 import { MeetingScripts } from "../components/meeting/meeting-scripts";
 import { MeetingVideo } from "../components/meeting/meeting-video";
 import { ProgrssInfo } from "../components/meeting/progress-info";
-import { AppLayout } from "../components/app-layout";
-import { useContext, useEffect, useState, useRef } from 'react';
 import { UserContext } from '../utils/context/context';
-import { io } from "socket.io-client";
+import { meetings } from '../__mocks__/meetings';
 import Peer from 'peerjs';
 
 const MeetingProgress = () => {
-    const { isLogin } = useContext(UserContext);
+    const { isLogin, userNick, meetingId } = useContext(UserContext);
 
     useEffect(() => {
         if (!isLogin) {
@@ -29,6 +30,7 @@ const MeetingProgress = () => {
     const video = useRef();
     const { userNick } = useContext(UserContext);
     const [messageList, setMessageList] = useState([]);
+
     const connectToNewUser = (userId, stream, remoteNick) => {//중간에 누군가 들어옴
         const call = peer.call(userId, stream, { metadata: { "receiverNick": remoteNick, "senderNick": userNick } });
         //call객체 생성(dest-id,my-mediaStream)
@@ -50,21 +52,25 @@ const MeetingProgress = () => {
             console.log("close");
         });
     }
+
     const disconnectUser = () => {
         console.log("방나감");
     }
+
     useEffect(() => {
         socket.on("msg", (userNick, msg) => {
             //stt메시지 받음
             setMessageList(arr => [...arr, { isCheck: false, nick: userNick, message: msg }])
             console.log(msg);
         });
+
         // peer서버와 정상적으로 통신이 된 경우 open event 발생
         peer.on('open', (id) => {//userid가 peer로 인해 생성됨
             console.log("open");
             socket.emit('join-room', '1234', id, userNick);
             console.log(userNick);
         });
+
         navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
             stream.getVideoTracks().forEach((track) => {
                 track.enabled = !track.enabled;
@@ -101,6 +107,7 @@ const MeetingProgress = () => {
                 connectToNewUser(userId, stream, remoteNick);
             });
         });
+
         //disconnect 받으면 -> call object를 peers에서 가져와 해당 call close()함
         socket.on('user-disconnected', (userId) => {
             console.log("user-disconnected ");
@@ -114,6 +121,7 @@ const MeetingProgress = () => {
             });
         });
     }, [])
+
     //장치 관련
     const handleCameraChange = (deviceId) => {
         const camerasConstraint = {
@@ -124,6 +132,7 @@ const MeetingProgress = () => {
             video.current.srcObject = stream;
         });
     }
+
     const handleAudioChange = (deviceId) => {
         const audioConstraint = {
             audio: { deviceId: { exact: deviceId } },
@@ -139,9 +148,15 @@ const MeetingProgress = () => {
         });
 
     }
+
     useEffect(() => {
         console.log(peers);
     }, [peers])
+
+    const handleSubmitScript = () => {
+        // meetings.find(m => m.id === meetingId).scripts = messageList;
+        console.log(messageList);
+    };
 
     return (
         <Box
@@ -156,6 +171,7 @@ const MeetingProgress = () => {
                 handleCameraChange={handleCameraChange}
                 handleAudioChange={handleAudioChange}
                 disconnectUser={disconnectUser}
+                parentCallback={handleSubmitScript}
             />
             <Grid container spacing={2} sx={{ height: "100%", flex: "1" }}>
                 <MeetingVideo peers={peers} myVideo={video} />
