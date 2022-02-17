@@ -7,6 +7,7 @@ import { MeetingVideo } from "../components/meeting/meeting-video";
 import { ProgrssInfo } from "../components/meeting/progress-info";
 import { UserContext } from '../utils/context/context';
 import { meetings } from '../__mocks__/meetings';
+import { v4 as uuid } from 'uuid';
 import Peer from 'peerjs';
 
 const MeetingProgress = () => {
@@ -154,8 +155,20 @@ const MeetingProgress = () => {
     }, [peers])
 
     const handleSubmitScript = () => {
-        // meetings.find(m => m.id === meetingId).scripts = messageList;
-        console.log(messageList);
+        var submitList = messageList;
+
+        for (var line of messageList) {
+            const newLine = {
+                id: uuid(),
+                isCheck: line.isCheck,
+                name: line.nick,
+                time: '00:00',
+                content: line.message
+            };
+
+            line = newLine;
+        }
+        meetings.find(m => m.id === meetingId).scripts = submitList;
     };
 
     return (
