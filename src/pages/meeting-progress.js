@@ -11,7 +11,7 @@ import { v4 as uuid } from 'uuid';
 import Peer from 'peerjs';
 
 const MeetingProgress = () => {
-    const { isLogin, userNick, meetingId } = useContext(UserContext);
+    const { isLogin, userNick, meetingID } = useContext(UserContext);
 
     useEffect(() => {
         if (!isLogin) {
@@ -29,7 +29,6 @@ const MeetingProgress = () => {
     const peer = new Peer();
     const [peers, setPeers] = useState([]);//peers
     const video = useRef();
-    const { userNick } = useContext(UserContext);
     const [messageList, setMessageList] = useState([]);
 
     const connectToNewUser = (userId, stream, remoteNick) => {//중간에 누군가 들어옴
@@ -72,7 +71,7 @@ const MeetingProgress = () => {
             console.log(userNick);
         });
 
-        navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
+        navigator.mediaDevices.getUserMedia({ video: true, audio: false }).then((stream) => {
             stream.getVideoTracks().forEach((track) => {
                 track.enabled = !track.enabled;
             })
@@ -152,12 +151,14 @@ const MeetingProgress = () => {
 
     useEffect(() => {
         console.log(peers);
-    }, [peers])
+    }, [peers]);
 
     const handleSubmitScript = () => {
         var submitList = messageList;
 
-        for (var line of messageList) {
+        for (var i = 0; i < messageList.length; i++) {
+            const line = submitList[i];
+
             const newLine = {
                 id: uuid(),
                 isCheck: line.isCheck,
@@ -166,9 +167,10 @@ const MeetingProgress = () => {
                 content: line.message
             };
 
-            line = newLine;
+            submitList[i] = newLine;
         }
-        meetings.find(m => m.id === meetingId).scripts = submitList;
+
+        meetings.find(m => m.id === meetingID).scripts = submitList;
     };
 
     return (

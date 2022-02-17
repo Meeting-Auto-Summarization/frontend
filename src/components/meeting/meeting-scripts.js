@@ -36,7 +36,7 @@ export function MeetingScripts({messageList}) {
     );
 
     useEffect(() => {
-        console.log(messageList);
+        // console.log(messageList);
     }, [messageList])
 
     return (

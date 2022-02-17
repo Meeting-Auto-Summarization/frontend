@@ -251,9 +251,9 @@ export const AppSidebar = (props) => {
 			open={open}
 			PaperProps={{
 				sx: {
-				backgroundColor: 'neutral.900',
-				color: '#FFFFFF',
-				width: 280
+					backgroundColor: 'neutral.900',
+					color: '#FFFFFF',
+					width: 280
 				}
 			}}
 			sx={{ zIndex: (theme) => theme.zIndex.appBar + 100 }}
