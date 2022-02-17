@@ -1,12 +1,13 @@
-import { Box, Typography } from '@mui/material';
-import { meetings } from 'src/__mocks__/meetings';
+import { Box, Typography } from "@mui/material";
+import { meetings } from '../../__mocks__/meetings';
 
-export const ScriptEditToolbar = ({mid, description}) => {
-    const meeting = meetings.find(m => m.id === mid);
+export function MeetingResultToolbar({mid}) {
+    const meeting = meetings.find(meeting => meeting.id === mid)
 
     return (
         <Box
             sx={{
+                height: '100%',
                 alignItems: 'center',
                 display: 'flex',
                 justifyContent: 'space-between',
@@ -17,15 +18,13 @@ export const ScriptEditToolbar = ({mid, description}) => {
             <Box
                 sx={{ 
                     width: '100%',
-                    m: 1
+                    m: 1,
+                    mb: 4.5
                 }}
             >
                 <Box marginBottom={1.5} sx={{ float: 'left' }}>
                     <Typography variant="h4">
                         {meeting.title}
-                    </Typography>
-                    <Typography variant="h6" >
-                        {description}
                     </Typography>
                 </Box>
                 <Box paddingTop={1} sx={{ float: 'right' }}>
@@ -44,4 +43,4 @@ export const ScriptEditToolbar = ({mid, description}) => {
             </Box>
         </Box>
     );
-};
+}

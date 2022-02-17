@@ -2,7 +2,6 @@ import { Box, Typography } from '@mui/material';
 
 export const MeetingListToolbar = () => {
     return(
-    <Box>
         <Box
             sx={{
                 alignItems: 'center',
@@ -16,7 +15,6 @@ export const MeetingListToolbar = () => {
                 Meeting List
             </Typography>
         </Box>
-    </Box>
     );
 };
   

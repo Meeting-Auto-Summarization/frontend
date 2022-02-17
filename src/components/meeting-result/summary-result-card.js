@@ -11,7 +11,6 @@ import {
 import { useState } from "react";
 import { meetings } from "../../__mocks__/meetings";
 import { ExportPopup } from "./export-popup";
-import { v4 as uuid } from 'uuid';
 
 const SummaryCard = styled(Card)({
     background: "#FEFEEE",
@@ -45,39 +44,44 @@ export function SummaryResultCard({mid}) {
         setOpen(false);
     };
 
-    console.log(titleList)
-    console.log(summaryList)
-
     return (
         <SummaryCard sx={{ mt: 1 }}>
-            <CardHeader title="Summary" />
-            <CardContent>
-                <Grid align="left" sx={{ overflow: "auto", height: "25vh" }}>
-                    {titleList.map((title, idx) => (
-                        <Grid
-                            key={idx}
-                            item
-                        >
-                            <Grid
-                                key={uuid()}
-                            >
-                                <Typography variant="h6">
-                                    {`${idx + 1}. ${title}`}
-                                </Typography>
-                            </Grid>
-                            {summaryList[idx].map((content, num) => (
-                                <Grid
-                                    key={uuid()}
-                                >
-                                    <Typography variant="value">
-                                        {/* {`\u00a0\u00a0\u00a0${num + 1}) ${content}`} */}
-                                        {`\u00a0\u00a0\u00a0 ${content}`}
-                                    </Typography>
-                                </Grid>
-                            ))}
-                        </Grid>
-                    ))}
-                </Grid>
+            <CardHeader
+                title="Summary"
+                align="center"
+                titleTypographyProps={{
+                    variant: "h4"
+                }}
+            />
+            <CardContent
+                sx={{
+                    paddingTop: 0,
+                    paddingX: 5,
+                    height: '50vh',
+                    overflow: 'auto'
+                }}
+            >
+                {titleList.map((headTitle, idx) => {
+                    console.log(headTitle)
+                    return(
+                        <>
+                            {headTitle.map((subTitle, subidx) => {
+                                return(
+                                    <>
+                                        {subidx === 0
+                                            ? <Typography variant="h5">{`${idx + 1}. ${subTitle}`}</Typography>
+                                            : <Typography variant="h6" ml={4}>{`${String.fromCharCode(subidx + 97)}. ${subTitle}`}</Typography>
+                                        }
+                                        {subidx === 0
+                                            ? <Typography variant="subtitle1" ml={4} mb={1}>{`${summaryList[idx][subidx]}`}</Typography>
+                                            : <Typography variant="subtitle1" ml={8} mb={1}>{`${summaryList[idx][subidx]}`}</Typography>
+                                        }
+                                    </>
+                                );
+                            })}
+                        </>
+                    );
+                })}
             </CardContent>
             <CardActions>
                 <SummaryCardButton onClick={handleClickOpen}>Export</SummaryCardButton>

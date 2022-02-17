@@ -101,24 +101,24 @@ export const ReportRangeResult = ({ mid, ...rest }) => {
                                         >
                                             <TableCell
                                                 padding="checkbox"
-                                                sx={{ width: "3%" }}
+                                                width="3%"
                                             >
                                                 <Checkbox
                                                     id={line.id}
                                                     checked={selected.indexOf(line.id) !== -1}
                                                 />
                                             </TableCell>
-                                            <TableCell sx={{ width: "12%" }}>
+                                            <TableCell width="12%">
                                                 <Typography color="textPrimary" variant="h6">
                                                     {line.nick}
                                                 </Typography>
                                             </TableCell>
-                                            <TableCell sx={{ width: "12%" }}>
+                                            <TableCell width="12%">
                                                 <Typography color="textPrimary" variant="body1">
                                                     {line.time}
                                                 </Typography>
                                             </TableCell>
-                                            <TableCell sx={{ width: "65%" }}>
+                                            <TableCell width="65%">
                                                 <Typography color="textPrimary" variant="body1">
                                                     {line.content}
                                                 </Typography>

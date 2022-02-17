@@ -7,7 +7,12 @@ import {
     CardHeader,
     CardActions,
     Button,
-    Box,
+    Table,
+    TableHead,
+    TableRow,
+    TableCell,
+    tableCellClasses,
+    TableBody
 } from "@mui/material";
 import { useState } from "react";
 import { meetings } from "../../__mocks__/meetings";
@@ -32,6 +37,29 @@ const ScriptsCardButton = styled(Button)({
     },
 });
 
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+    [`&.${tableCellClasses.head}`]: {
+        backgroundColor: "#cfa1cf",
+        color: theme.palette.common.white,
+    },
+    [`&.${tableCellClasses.body}`]: {
+        fontSize: 14,
+    },
+}));
+
+const StyledTableRow = styled(TableRow)(({ theme }) => ({
+    '&:nth-of-type(odd)': {
+        backgroundColor: "#ffe8ff",
+    },
+    '&:nth-of-type(even)': {
+        backgroundColor: "#ffdbff",
+    },
+    // hide last border
+    '&:last-child td, &:last-child th': {
+      border: 0,
+    },
+}));
+
 export const ScriptsResultCard = ({mid}) => {
     const scripts = meetings.find(m => m.id === mid).scripts;
     const [open, setOpen] = useState(false);
@@ -46,82 +74,78 @@ export const ScriptsResultCard = ({mid}) => {
     
     return (
         <ScriptsCard sx={{ mt: 1 }}>
-            <CardHeader title="Scripts" align="center" />
-                <CardContent>
-                    <Grid container>
-                        <Grid item container>
-                            <Grid item xs={2}>
-                                <Typography
-                                    variant="h6"
-                                    color="text.primary"
-                                    sx={{ display: "inline" }}
+            <CardHeader
+                title="Scripts"
+                align="center"
+                titleTypographyProps={{
+                    variant: "h4"
+                }}
+            />
+            <CardContent
+                sx={{
+                    paddingTop: 0,
+                    height: '50vh',
+                    overflow: 'auto'
+                }}
+            >
+                <Table>
+                    <TableHead
+                        sx={{
+                            background: '#FF7BA9'
+                        }}
+                    >
+                        <TableRow>
+                            <StyledTableCell>
+                                Name
+                            </StyledTableCell>
+                            <StyledTableCell>
+                                Time
+                            </StyledTableCell>
+                            <StyledTableCell>
+                                Content
+                            </StyledTableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {scripts.map((line) => {
+                            return(
+                                <StyledTableRow
+                                    hover
+                                    key={line.id}
                                 >
-                                    Name
-                                </Typography>
-                            </Grid>
-                            <Grid item xs={2}>
-                                <Typography
-                                variant="h6"
-                                color="text.primary"
-                                sx={{ display: "inline" }}
-                                >
-                                    Time
-                                </Typography>
-                            </Grid>
-                            <Grid item xs={8}>
-                                <Typography
-                                    variant="h6"
-                                    color="text.primary"
-                                    sx={{ display: "inline" }}
-                                >
-                                    Contents
-                                </Typography>
-                            </Grid>
-                        </Grid>
-                        <Grid item container sx={{ overflow: "auto", height: "25vh" }}>
-                            <Box width="100%">
-                                {scripts.map((line) => {
-                                    return(
-                                        <Grid
-                                            key={line.id}
-                                            container
-                                            display="flex"
+                                    <StyledTableCell width="16%" sx={{ paddingY: 1 }}>
+                                        <Typography
+                                            variant="h6"
+                                            color="text.primary"
+                                            sx={{ display: "inline" }}
                                         >
-                                            <Grid item xs={2}>
-                                                <Typography
-                                                    variant="value"
-                                                    color="text.primary"
-                                                    sx={{ display: "inline" }}
-                                                >
-                                                    {line.nick}
-                                                </Typography>
-                                            </Grid>
-                                            <Grid item xs={2}>
-                                                <Typography
-                                                    variant="value"
-                                                    color="text.primary"
-                                                    sx={{ display: "inline" }}
-                                                >
-                                                    {`\u00a0`}
-                                                    {line.time}
-                                                </Typography>
-                                            </Grid>
-                                            <Grid item xs={8} align="left">
-                                                <Typography
-                                                    variant="value"
-                                                    color="text.primary"
-                                                    sx={{ display: "inline" }}
-                                                >
-                                                    {line.content}
-                                                </Typography>
-                                            </Grid>
-                                        </Grid>
-                                    );
-                                })}
-                            </Box>
-                        </Grid>
-                    </Grid>
-                </CardContent>
+                                            {line.nick}
+                                        </Typography>
+                                    </StyledTableCell>
+                                    <StyledTableCell width="16%" sx={{ paddingY: 1 }}>
+                                        <Typography
+                                            variant="subtitle1"
+                                            color="text.primary"
+                                            sx={{ display: "inline" }}
+                                        >
+                                            {line.time}
+                                        </Typography>
+                                    </StyledTableCell>
+                                    <StyledTableCell width="68%" sx={{ paddingY: 1 }}>
+                                        <Typography
+                                            variant="body1"
+                                            color="text.primary"
+                                            sx={{ display: "inline" }}
+                                        >
+                                            {line.content}
+                                        </Typography>
+                                    </StyledTableCell>
+                                </StyledTableRow>
+                            );
+                        })}
+                    </TableBody>
+                </Table>  
+            </CardContent>
             <CardActions>
                 <Link
                     href={{

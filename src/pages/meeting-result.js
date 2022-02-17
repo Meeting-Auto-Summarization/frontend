@@ -1,5 +1,5 @@
-import { Container } from "@mui/material";
-import { MeetingResultHeader } from "../components/meeting-result/meeting-result-header";
+import { Box, Container, Grid } from "@mui/material";
+import { MeetingResultToolbar } from "../components/meeting-result/meeting-result-toolbar";
 import { ScriptsResultCard } from "../components/meeting-result/scripts-result-card";
 import { SummaryResultCard } from "../components/meeting-result/summary-result-card";
 import { AppLayout } from "../components/app-layout";
@@ -24,11 +24,36 @@ const MeetingResult = () => {
 
     return (
         <>
-            <Container>
-                <MeetingResultHeader mid={mid} />
-                <ScriptsResultCard mid={mid} />
-                <SummaryResultCard mid={mid} />
-            </Container>
+            <Box
+                component="main"
+                sx={{
+                    flexGrow: 1,
+                    pt: 8
+                }}
+            >
+                <Container maxWidth={false}>
+                    <MeetingResultToolbar mid={mid} />
+                    <Grid
+                        container
+                        spacing={3}
+                    >
+                        <Grid
+                            item
+                            sm={12}
+                            md={6}
+                        >
+                            <ScriptsResultCard mid={mid} />
+                        </Grid>
+                        <Grid
+                            item
+                            sm={12}
+                            md={6}
+                        >
+                            <SummaryResultCard mid={mid} />
+                        </Grid>
+                    </Grid>
+                </Container>
+            </Box>
         </>
     );
 };
