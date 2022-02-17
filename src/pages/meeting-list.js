@@ -18,9 +18,9 @@ const MeetingList = () => {
         }
     });
 
-    if (!isLogin) {
+    /*if (!isLogin) {
         return null;
-    }
+    }*/
 
     const [limit, setLimit] = useState(6);
     const [page, setPage] = useState(1);
@@ -47,9 +47,6 @@ const MeetingList = () => {
         setPage(newPage);
     }
 
-    if (!isLogin) {
-        return null;
-    }
 
     return (
         <>

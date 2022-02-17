@@ -34,13 +34,13 @@ const UserContextProvider = ({children}) => {
         meetingID, setMeetingID
     ]);
     const getLoginInfo=()=>{
-        axios.get('http://localhost:3001/auth',{withCredentials:true}).then(response=>{
+        axios.get('http://localhost:3001/auth', { withCredentials: true }).then(response=>{
             console.log(isLogin);
             if(response.data===false){
                 setIsLogin(false);
             }
             else{
-                setIsLogin(response.data);
+                setIsLogin(true);
                 console.log(response)
                 setUserNick(response.data.name);
                 setUserFirstName(response.data.firstName);
@@ -54,7 +54,12 @@ const UserContextProvider = ({children}) => {
     }
     useEffect(()=>{
         getLoginInfo() 
+        console.log("rendering");
     },[])
+    useEffect(()=>{
+        console.log("isLogin")
+        console.log(isLogin);
+    },[isLogin])
     return (
         <UserContext.Provider value={value}>
             {children}
