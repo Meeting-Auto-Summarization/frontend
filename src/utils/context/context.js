@@ -1,10 +1,13 @@
-import { createContext, useState, useMemo } from 'react';
+import { createContext, useState, useMemo,useEffect} from 'react';
+import axios from "axios"
 
 export const UserContext = createContext({});
 
 const UserContextProvider = ({children}) => {
+    
+
     const [isLogin, setIsLogin] = useState(true);
-    const [userEmail, setUserEmail] = useState('');
+    const [userEmail, setUserEmail] = useState();
     const [userNick, setUserNick] = useState('');
     const [userFirstName, setUserFirstName] = useState('');
     const [userLastName, setUserLastName] = useState('');
@@ -32,7 +35,28 @@ const UserContextProvider = ({children}) => {
         userAvatar, setUserAvatar,
         meetingID, setMeetingID
     ]);
-
+    const getLoginInfo=()=>{
+        axios.get('http://localhost:3001/auth',{withCredentials:true}).then(response=>{
+            console.log(isLogin);
+            if(response.data===false){
+                setIsLogin(false);
+            }
+            else{
+                setIsLogin(response.data);
+                console.log(response)
+                setUserNick(response.data.name);
+                setUserFirstName(response.data.firstName);
+                setUserLastName(response.data.lastName);
+                setUserEmail(response.data.email);
+                setUserAvatar(response.data.avatar);
+            }
+        }).catch(err=>{
+            console.log(err);
+        });
+    }
+    useEffect(()=>{
+        getLoginInfo() 
+    },[])
     return (
         <UserContext.Provider value={value}>
             {children}

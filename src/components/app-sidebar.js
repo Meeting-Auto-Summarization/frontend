@@ -38,10 +38,10 @@ const items = [
 		title: 'Settings'
 	},
 	{
-		href: '/',
+		href: 'http://localhost:3001/auth/logout',
 		icon: (<LockIcon fontSize="small" />),
 		title: 'Logout'
-	},
+	 },
 	{
 		href: '/register',
 		icon: (<UserAddIcon fontSize="small" />),

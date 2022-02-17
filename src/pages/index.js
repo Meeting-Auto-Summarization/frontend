@@ -120,7 +120,9 @@ const Login = () => {
                                             fullWidth
                                             color="error"
                                             startIcon={<GoogleIcon />}
-                                            onClick={renderProps.onClick}
+                                            onClick={()=>{
+                                                window.location.href="http://localhost:3001/auth/google"
+                                            }}
                                             size="large"
                                             variant="contained"
                                             disabled={renderProps.disabled}
