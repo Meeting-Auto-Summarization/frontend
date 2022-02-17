@@ -33,13 +33,11 @@ const ProgressInfoButton = styled(Button)({
     },
 });
 
-export function ProgrssInfo({myVideo,handleCameraChange, handleAudioChange ,handleLeaveRoom} ) {
+export function ProgrssInfo({myVideo, handleCameraChange, handleAudioChange, handleLeaveRoom, parentCallback}) {
     const [micOn, setMicOn] = useState(true);
     const [cameraOn, setCameraOn] = useState(false);
     const [cameras, setCameras] = useState([]);
     const [microphones, setMicrophones] = useState([]);
-    let { myVideo, parentCallback } = props;
-    const { handleCameraChange, handleAudioChange } = props;
     const [currentCamera,setCurrentCamera] = useState(0);
     const [currentMic,setCurrentMic] = useState(0);
     const { meetingID, userNick } = useContext(UserContext);
