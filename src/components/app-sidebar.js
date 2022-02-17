@@ -2,7 +2,7 @@ import { useState, useEffect, useContext } from 'react';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import PropTypes from 'prop-types';
-import { Box, Button, Divider, Drawer, Typography, useMediaQuery } from '@mui/material';
+import { Box, Button, Divider, Drawer, Grid, Typography, useMediaQuery } from '@mui/material';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import { Cog as CogIcon } from '../icons/cog';
 import { Lock as LockIcon } from '../icons/lock';
@@ -176,12 +176,39 @@ export const AppSidebar = (props) => {
 								borderRadius: 1
 							}}
 						>
-                            <Button variant="contained" onClick={ !isMeeting ? handleOpenCreateDialog : handleOpenOngoingDialog } sx={{ mr: 1 }}>
-                                <Typography sx={{ fontWeight: 'bold', fontSize: '0.8vw'}}>회의 생성</Typography>
-                            </Button>
-                            <Button variant="contained" onClick={ !isMeeting ? handleOpenJoinDialog : handleOpenOngoingDialog }>
-                                <Typography sx={{ fontWeight: 'bold', fontSize: '0.8vw'}}>회의 참여</Typography>
-                            </Button>
+							<Grid
+								container
+								spacing={1}
+							>
+								<Grid
+									item
+									xs={12}
+									sm={12}
+									md={6}
+								>
+									<Button
+									 	variant="contained"
+										onClick={ !isMeeting ? handleOpenCreateDialog : handleOpenOngoingDialog }
+										fullWidth
+									>
+										<Typography fontSize="100%" sx={{ fontWeight: 'bold' }}>회의 생성</Typography>
+									</Button>
+								</Grid>
+								<Grid
+									item
+									xs={12}
+									sm={12}
+									md={6}
+								>
+									<Button
+										variant="contained"
+										onClick={ !isMeeting ? handleOpenJoinDialog : handleOpenOngoingDialog }
+										fullWidth
+									>
+										<Typography fontSize="100%" sx={{ fontWeight: 'bold'}}>회의 참여</Typography>
+									</Button>
+								</Grid>
+							</Grid>
                             <CreateMeetingDialog
                                 open={isOpenCreateDialog}
                                 onClose={handleCloseCreateDialog}
