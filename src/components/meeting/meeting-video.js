@@ -22,7 +22,7 @@ function Video({text, stream}) {
 
 export function MeetingVideo({peers, myVideo}) {
     return(
-        <Grid item xs={8} spacing={1}>
+        <Grid container item xs={8} spacing={1}>
             <Grid container item sx={{ height: "100%" }} spacing={0.5}>
                 {peers.length <= 4
                     ? peers.map((item, idx) => {
@@ -44,7 +44,7 @@ export function MeetingVideo({peers, myVideo}) {
                             </Grid>
                         ))}
                 <Grid item xs={12} sx={{ mb: 1 }}>
-                    <Paper align sx={{ height: "80%", width: "30%", float: "right" }}>
+                    <Paper sx={{ height: "80%", width: "30%", float: "right" }}>
                         <video
                             ref={myVideo}
                             width="100%"

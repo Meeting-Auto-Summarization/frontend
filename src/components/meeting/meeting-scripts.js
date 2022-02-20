@@ -40,7 +40,7 @@ export function MeetingScripts({messageList}) {
     }, [messageList])
 
     return (
-        <Grid item spacing={1} xs={4}>
+        <Grid item container spacing={1} xs={4}>
             <Box>
                 <Box display="flex">
                 <Typography

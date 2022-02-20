@@ -47,7 +47,6 @@ const MeetingList = () => {
         setPage(newPage);
     }
 
-
     return (
         <>
             <Head>

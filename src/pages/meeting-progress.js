@@ -8,10 +8,10 @@ import { ProgrssInfo } from "../components/meeting/progress-info";
 import { UserContext } from '../utils/context/context';
 import { meetings } from '../__mocks__/meetings';
 import { v4 as uuid } from 'uuid';
-import Peer from 'peerjs';
+//import Peer from 'peerjs';
 
 const MeetingProgress = () => {
-    const { isLogin, userNick, meetingID } = useContext(UserContext);
+    const { isLogin, userNick, meetingID} = useContext(UserContext);
 
     useEffect(() => {
         if (!isLogin) {
@@ -173,7 +173,15 @@ const MeetingProgress = () => {
             }
         });
     }
-    function handleLeaveRoom(){
+
+    const handleLeaveRoom=(meetingID,hours,minutes,seconds)=>{
+        video.current.srcObject.getTracks().forEach((track)=>{
+            track.stop();
+        });
+        self.close();
+        opener.handleShowResult(meetingID,hours,minutes,seconds);
+    }
+    /*function handleLeaveRoom(){
         let len=peers.length;
         video.current.srcObject.getTracks().forEach((track)=>{
             track.stop();
@@ -187,7 +195,7 @@ const MeetingProgress = () => {
         }
         socket.disconnect();
         peers=null;
-    }
+    }*/
 
     useEffect(() => {
         console.log(peers);
