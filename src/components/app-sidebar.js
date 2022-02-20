@@ -20,7 +20,6 @@ import { OngoingDialog } from './app-sidebar/ongoing-dialog';
 import { meetings } from '../__mocks__/meetings';
 import { v4 as uuid } from 'uuid';
 
-
 const items = [
     {
 		href: '/meeting-list',
@@ -38,10 +37,10 @@ const items = [
 		title: 'Settings'
 	},
 	{
-		href: '/',
+		href: 'http://localhost:3001/auth/logout',
 		icon: (<LockIcon fontSize="small" />),
 		title: 'Logout'
-	},
+	 },
 	{
 		href: '/register',
 		icon: (<UserAddIcon fontSize="small" />),

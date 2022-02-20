@@ -1,66 +1,17 @@
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { useFormik } from 'formik';
-import * as Yup from 'yup';
 import { Box, Button, Container, Grid, Typography } from '@mui/material';
 import { Facebook as FacebookIcon } from '../icons/facebook';
 import { Google as GoogleIcon } from '../icons/google';
 import GoogleLogin from 'react-google-login';
-import { useContext } from 'react';
-import { UserContext } from '../utils/context/context';
 
 const Login = () => {
-    const {
-        setIsLogin,
-        setUserEmail,
-        setUserNick,
-        setUserAvatar,
-        setUserFirstName,
-        setUserLastName
-    } = useContext(UserContext);
-
     const router = useRouter();
-    const formik = useFormik({
-        initialValues: {
-            email: 'demo@devias.io',
-            password: 'Password123'
-        },
-        validationSchema: Yup.object({
-            email: Yup
-                .string()
-                .email(
-                    'Must be a valid email')
-                .max(255)
-                .required(
-                    'Email is required'),
-            password: Yup
-                .string()
-                .max(255)
-                .required(
-                    'Password is required')
-        }),
-        onSubmit: () => {
-            router.push('/meeting-list');
-        }
-    });
-
-    const responseGoogle = (response) => {
-        const profile = response.getBasicProfile();
-        
-        setIsLogin(true);
-        setUserEmail(profile.getEmail());
-        setUserNick(profile.getName());
-        setUserFirstName(profile.getGivenName());
-        setUserLastName(profile.getFamilyName());
-        setUserAvatar(profile.getImageUrl());
-
-        formik.handleSubmit();
-    }
 
     return (
         <>
             <Head>
-                <title>Login | Material Kit</title>
+                <title>Login | MAS</title>
             </Head>
             <Box
                 component="main"
@@ -83,7 +34,7 @@ const Login = () => {
                             width: 440
                         }}
                     />
-                    <form onSubmit={formik.handleSubmit}>
+                    <form>
                         <Box sx={{ my: 3 }}>
                             <Typography
                                 color="textPrimary"
@@ -105,7 +56,6 @@ const Login = () => {
                                     color="info"
                                     fullWidth
                                     startIcon={<FacebookIcon />}
-                                    onClick={formik.handleSubmit}
                                     size="large"
                                     variant="contained"
                                 >
@@ -120,7 +70,9 @@ const Login = () => {
                                             fullWidth
                                             color="error"
                                             startIcon={<GoogleIcon />}
-                                            onClick={renderProps.onClick}
+                                            onClick={() => {
+                                                window.location.href="http://localhost:3001/auth/google"
+                                            }}
                                             size="large"
                                             variant="contained"
                                             disabled={renderProps.disabled}
@@ -129,8 +81,6 @@ const Login = () => {
                                         </Button>
                                     )}
                                     buttonText="Login"
-                                    onSuccess={responseGoogle}
-                                    onFailure={responseGoogle}
                                     cookiePolicy={'single_host_origin'}
                                 />
                             </Grid>
