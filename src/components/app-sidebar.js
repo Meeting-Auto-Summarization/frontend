@@ -66,15 +66,7 @@ export const AppSidebar = (props) => {
     const [isOpenJoinDialog, setIsOpenJoinDialog] = useState(false);
 	const [isOpenOngoingDialog, setIsOpenOngoingDialog] = useState(false);
 	const [meetingCode, setMeetingCode] = useState('');
-	const { userNick, isMeeting, setIsMeeting, setMeetingID } = useContext(UserContext);
-
-    const handleOpenCreateDialog = () => {
-        setIsOpenCreateDialog(true);
-    };
-
-    const handleCloseCreateDialog = () => {
-		setIsOpenCreateDialog(false);
-    };
+	const { userNick, isMeeting, meetingID, setIsMeeting, setMeetingID } = useContext(UserContext);
 
 	const handleSubmitCreateDialog = (title, limitNum) => {
 		const mid = uuid();
@@ -117,24 +109,43 @@ export const AppSidebar = (props) => {
 		setIsOpenCodeDialog(true);
     };
 
-	const handleCloseCodeDialog = () => {
-		setIsOpenCodeDialog(false);
+	const handleSubmitJoinDialog = (code) => {
+		var form = document.createElement('form');
+		
+		form.setAttribute('id', 'sendID');
+		form.setAttribute('action', 'meeting-progress');
+		form.setAttribute('method', 'post');
+		form.setAttribute('target', 'sendID');
+		form.setAttribute('mid', meetingID);
+		form.setAttribute('mcode', code);
+		document.body.appendChild(form);
+		
+		form.submit();
+		window.open('', 'sendID');
 	};
 
-    const handleOpenJoinDialog = () => {
+	const handleOpenCreateDialog = () => {
+        setIsOpenCreateDialog(true);
+    };
+
+	const handleOpenJoinDialog = () => {
         setIsOpenJoinDialog(true);
     };
-	
-    const handleCloseJoinDialog = (value) => {
-        setIsOpenJoinDialog(false);
-    };
-
-	const handleSubmitJoinDialog = (value) => {
-		console.log(value);
-	};
 
 	const handleOpenOngoingDialog = () => {
         setIsOpenOngoingDialog(true);
+    };
+
+	const handleCloseCreateDialog = () => {
+		setIsOpenCreateDialog(false);
+    };
+
+	const handleCloseCodeDialog = () => {
+		setIsOpenCodeDialog(false);
+	};
+	
+    const handleCloseJoinDialog = (value) => {
+        setIsOpenJoinDialog(false);
     };
 
     const handleCloseOngoingDialog = () => {
@@ -264,7 +275,7 @@ export const AppSidebar = (props) => {
 				))}
 				</Box>
 				<Divider sx={{ borderColor: '#2D3748' }} />
-				{ isMeeting && <MeetingAccess /> }
+				{ isMeeting && <MeetingAccess callback={() => { window.open('/meeting-progress'); }} /> }
 			</Box>
 		</>
 	);

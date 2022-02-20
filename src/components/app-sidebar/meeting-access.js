@@ -1,13 +1,14 @@
 import { Box, Typography, Button } from '@mui/material';
-//import NextLink from 'next/link';
 import { useContext } from 'react';
 import { UserContext } from '../../utils/context/context';
 import { meetings } from '../../__mocks__/meetings';
 import { useRouter } from 'next/router';
-export const MeetingAccess = () => {
+
+export const MeetingAccess = ({callback}) => {
     const { meetingID } = useContext(UserContext);
-    const router=useRouter();
-    window.handleShowResult=function handleShowResult(meetingID,hours,minutes,seconds){
+    const router = useRouter();
+
+    window.handleShowResult = function handleShowResult(meetingID,hours,minutes,seconds){
         //if, host면=결과페이지로
         router.push({
             pathname: `/script-edit`, // 라우팅 id
@@ -17,6 +18,7 @@ export const MeetingAccess = () => {
             } // props 
         })
     }
+
     return (
         <Box
             sx={{
@@ -52,21 +54,16 @@ export const MeetingAccess = () => {
                     src="/static/images/sidebar_pro.png"
                 />
             </Box>
-            {/*<NextLink
-                href="/meeting-progress"
-                passHref
-            >*/}
-                <Button
-                    color="secondary"
-                    component="a"
-                    fullWidth
-                    sx={{ mt: 2, fontSize: 18 }}
-                    variant="contained"
-                    onClick={()=>{window.open("/meeting-progress")}}
-                >
-                    회의 접속
+            <Button
+                color="secondary"
+                component="a"
+                fullWidth
+                sx={{ mt: 2, fontSize: 18 }}
+                variant="contained"
+                onClick={callback}
+            >
+                회의 접속
                 </Button>
-            {/*</NextLink>*/}
         </Box>
     );
 };

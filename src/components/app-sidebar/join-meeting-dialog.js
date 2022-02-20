@@ -1,4 +1,3 @@
-import NextLink from 'next/link';
 import { useRef } from 'react';
 import { Dialog, DialogContent, DialogActions, Box, Typography, TextField, Button } from '@mui/material';
 
@@ -24,12 +23,7 @@ export const JoinMeetingDialog = (props) => {
                         inputRef={meetingCodeRef} />
                 </Box>
                 <DialogActions>
-                    <NextLink
-                        href="/meeting-progress"
-                        passHref
-                    >
-                        <Button variant="contained" onClick={handleSubmit}>회의 참여</Button>
-                    </NextLink>
+                    <Button variant="contained" onClick={handleSubmit}>회의 참여</Button>
                 </DialogActions>
             </DialogContent>
         </Dialog>

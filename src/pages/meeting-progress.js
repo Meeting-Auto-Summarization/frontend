@@ -1,20 +1,19 @@
 import { Grid, Box } from "@mui/material";
 import { useContext, useEffect, useState, useRef } from 'react';
+import { useRouter } from 'next/router';
 import { io } from "socket.io-client";
-import { AppLayout } from "../components/app-layout";
 import { MeetingScripts } from "../components/meeting/meeting-scripts";
 import { MeetingVideo } from "../components/meeting/meeting-video";
 import { ProgrssInfo } from "../components/meeting/progress-info";
 import { UserContext } from '../utils/context/context';
 import { meetings } from '../__mocks__/meetings';
 import { v4 as uuid } from 'uuid';
-<<<<<<< HEAD
-=======
-//import Peer from 'peerjs';
->>>>>>> origin/front2
 
 const MeetingProgress = () => {
-    const { isLogin, userNick, meetingID} = useContext(UserContext);
+    const router = useRouter();
+    const [meetingID, setMeetingID] = useState('');
+    const [meetingCode, setMeetingCode] = useState('');
+    const { isLogin, userNick } = useContext(UserContext);
 
     useEffect(() => {
         if (!isLogin) {
@@ -37,6 +36,19 @@ const MeetingProgress = () => {
     const [peers, setPeers] = useState([]); // peers
     const video = useRef();
     const [messageList, setMessageList] = useState([]);
+
+    useEffect(() => {
+        const mid = window.opener.document.getElementById('sendID').getAttribute('mid');
+        const mcode = window.opener.document.getElementById('sendID').getAttribute('mcode');
+        setMeetingID(mid);
+        setMeetingCode(mcode);
+
+        console.log(mcode);
+        peer.on('open', (id) => { // userid가 peer로 인해 생성됨
+            console.log("open");
+            socket.emit('join-room', mcode, id, userNick);
+        });
+    });
     
     const connectToNewUser = (userId, stream, remoteNick) => {
         const call = peer.call(userId, stream, { metadata: { "receiverNick": remoteNick, "senderNick": userNick } });
@@ -67,11 +79,7 @@ const MeetingProgress = () => {
         });
 
         // peer서버와 정상적으로 통신이 된 경우 open event 발생
-        peer.on('open', (id) => { // userid가 peer로 인해 생성됨
-            console.log("open");
-            socket.emit('join-room', 'qnwben', id, userNick);
-            console.log(userNick);
-        });
+        console.log(meetingCode);
 
         navigator.mediaDevices.getUserMedia({ video: true, audio: false }).then((stream) => {
             stream.getVideoTracks().forEach((track) => {
@@ -235,7 +243,7 @@ const MeetingProgress = () => {
                 handleCameraChange={handleCameraChange}
                 handleAudioChange={handleAudioChange}
                 handleLeaveRoom={handleLeaveRoom}
-                parentCallback={handleSubmitScript}
+                meetingID={meetingID}
             />
             <Grid container spacing={2} sx={{ height: "100%", flex: "1" }}>
                 <MeetingVideo peers={peers} myVideo={video} />
@@ -244,11 +252,5 @@ const MeetingProgress = () => {
         </Box>
     );
 };
-
-MeetingProgress.getLayout = (page) => (
-    <AppLayout>
-        {page}
-    </AppLayout>
-);
 
 export default MeetingProgress;

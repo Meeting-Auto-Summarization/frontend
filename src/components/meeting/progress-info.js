@@ -33,16 +33,16 @@ const ProgressInfoButton = styled(Button)({
     },
 });
 
-export function ProgrssInfo({myVideo, handleCameraChange, handleAudioChange, handleLeaveRoom, parentCallback}) {
+export function ProgrssInfo({myVideo, handleCameraChange, handleAudioChange, handleLeaveRoom, meetingID}) {
     const [micOn, setMicOn] = useState(true);
     const [cameraOn, setCameraOn] = useState(false);
     const [cameras, setCameras] = useState([]);
     const [microphones, setMicrophones] = useState([]);
     const [currentCamera,setCurrentCamera] = useState(0);
     const [currentMic,setCurrentMic] = useState(0);
-    const { meetingID, userNick } = useContext(UserContext);
+    const { userNick } = useContext(UserContext);
     const meeting = meetings.find(m => m.id === meetingID);
-    //const meeting=meetings[0];
+
     const handleMicOnOff = () => {
         const myStream = myVideo.current.srcObject;
         myStream.getAudioTracks().forEach((track) => {
@@ -321,10 +321,11 @@ export function ProgrssInfo({myVideo, handleCameraChange, handleAudioChange, han
                                 handleLeaveRoom(meetingID,hours,minutes,seconds);
                             }}
                         >
-                            {meeting.hostNick === userNick
+                            {/* {meeting.hostNick === userNick
                                 ? '회의 종료'
                                 : '회의 나가기'
-                            }
+                            } */}
+                            회의 종료
                         </ProgressInfoButton>
                     </Link>
                 </Box>
