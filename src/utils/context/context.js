@@ -1,4 +1,4 @@
-import { createContext, useState, useMemo,useEffect} from 'react';
+import { createContext, useState, useMemo, useEffect } from 'react';
 import axios from "axios"
 
 export const UserContext = createContext({});
@@ -33,34 +33,37 @@ const UserContextProvider = ({children}) => {
         userAvatar, setUserAvatar,
         meetingID, setMeetingID
     ]);
-    const getLoginInfo=()=>{
-        axios.get('http://localhost:3001/auth', { withCredentials: true }).then(response=>{
-            console.log(isLogin);
-            if(response.data===false){
-                setIsLogin(false);
+
+    const getLoginInfo = () => {
+        axios.get('http://localhost:3001/auth', { withCredentials: true }).then(response => {
+            setIsLogin(response.data != '');
+
+            if (response.data == '') {
+                return;
             }
-            else{
-                setIsLogin(true);
-                console.log(response)
-                setUserNick(response.data.name);
-                setUserFirstName(response.data.firstName);
-                setUserLastName(response.data.lastName);
-                setUserEmail(response.data.email);
-                setUserAvatar(response.data.avatar);
-            }
-        }).catch(err=>{
+
+            console.log(response)
+            setUserNick(response.data.name);
+            setUserFirstName(response.data.firstName);
+            setUserLastName(response.data.lastName);
+            setUserEmail(response.data.email);
+            setUserAvatar(response.data.avatar);
+        }).catch(err => {
             console.log(err);
         });
     }
-    useEffect(()=>{
+
+    useEffect(() => {
         getLoginInfo() 
         console.log("rendering");
-    },[])
-    useEffect(()=>{
+    }, [])
+
+    useEffect(() => {
         console.log("isLogin")
         console.log(isLogin);
-    },[isLogin])
-    return (
+    }, [isLogin])
+
+    return(
         <UserContext.Provider value={value}>
             {children}
         </UserContext.Provider>

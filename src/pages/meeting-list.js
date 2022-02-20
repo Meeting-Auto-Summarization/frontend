@@ -18,10 +18,6 @@ const MeetingList = () => {
         }
     });
 
-    /*if (!isLogin) {
-        return null;
-    }*/
-
     const [limit, setLimit] = useState(6);
     const [page, setPage] = useState(1);
 
@@ -51,7 +47,7 @@ const MeetingList = () => {
         <>
             <Head>
                 <title>
-                    Meeting List
+                    Meeting List | MAS
                 </title>
             </Head>
             <Box

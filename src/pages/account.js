@@ -25,7 +25,7 @@ const Account = () => {
         <>
             <Head>
                 <title>
-                    Account | Material Kit
+                    Account | MAS
                 </title>
             </Head>
             <Box
