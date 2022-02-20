@@ -42,7 +42,7 @@ export function ProgrssInfo({myVideo, handleCameraChange, handleAudioChange, han
     const [currentMic,setCurrentMic] = useState(0);
     const { meetingID, userNick } = useContext(UserContext);
     const meeting = meetings.find(m => m.id === meetingID);
-
+    //const meeting=meetings[0];
     const handleMicOnOff = () => {
         const myStream = myVideo.current.srcObject;
         myStream.getAudioTracks().forEach((track) => {
@@ -105,6 +105,7 @@ export function ProgrssInfo({myVideo, handleCameraChange, handleAudioChange, han
 
     useEffect(() => {
         getDevices();
+        console.log(meetings);
     }, []);
     const [hours, setHours] = useState(0);
     const [minutes, setMinutes] = useState(0);
@@ -194,11 +195,11 @@ export function ProgrssInfo({myVideo, handleCameraChange, handleAudioChange, han
                             {
                                 microphones.map((item, idx) => {
                                     if(currentMic===idx){
-                                    return (<MenuItem onClick={(e) => {
+                                    return (<MenuItem key={item.deviceId} onClick={(e) => {
                                         handleMicMenuClose(idx);
                                     }} selected={true} >{item.label}</MenuItem>);
                                 }else{
-                                    return (<MenuItem onClick={(e) => {
+                                    return (<MenuItem key={item.deviceId} onClick={(e) => {
                                         handleMicMenuClose(idx);
                                     }} >{item.label}</MenuItem>);
                                 }
@@ -261,11 +262,11 @@ export function ProgrssInfo({myVideo, handleCameraChange, handleAudioChange, han
                             {
                                 cameras.map((item, idx) => {
                                     if(currentCamera===idx){
-                                    return (<MenuItem onClick={(e) => {
+                                    return (<MenuItem key={item.deviceId} onClick={(e) => {
                                         handleCameraMenuClose(idx);
                                     }} selected={true}>{item.label}</MenuItem>)
                                 }else{
-                                    return (<MenuItem onClick={(e) => {
+                                    return (<MenuItem key={item.deviceId} onClick={(e) => {
                                         handleCameraMenuClose(idx);
                                     }}>{item.label}</MenuItem>)
                                 }
@@ -316,8 +317,8 @@ export function ProgrssInfo({myVideo, handleCameraChange, handleAudioChange, han
                             sx={{ my: 1, mx: 1.5 }}
                             onClick={() => {
                                 meeting.time = `${hours < 10 ? `0${hours}` : hours}:${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
-                                parentCallback();
-                                handleLeaveRoom();
+                                //parentCallback();
+                                handleLeaveRoom(meetingID,hours,minutes,seconds);
                             }}
                         >
                             {meeting.hostNick === userNick
