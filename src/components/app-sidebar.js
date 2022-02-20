@@ -20,7 +20,7 @@ import { OngoingDialog } from './app-sidebar/ongoing-dialog';
 import { meetings } from '../__mocks__/meetings';
 import { v4 as uuid } from 'uuid';
 import { io } from "socket.io-client";
-
+import axios from "axios";
 const items = [
     {
 		href: '/meeting-list',
@@ -82,6 +82,19 @@ export const AppSidebar = (props) => {
 		let now = new Date();
 		const date = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}`;
 
+		axios.post('http://localhost:3001/db/createMeeting', {
+			id: mid,
+			title: title,
+			members: [userNick],
+			hostNick: userNick,//hostId
+			date: date,
+			code:'1234',
+			capacity:limitNum,
+		},{ withCredentials: true })
+		.then(response =>{
+			//회의 생성완료후 할 작업 
+
+		});
 		meetings.push({
 			id: mid,
 			title: title,
@@ -107,9 +120,9 @@ export const AppSidebar = (props) => {
 			const peer = new Peer();
 		}
 
-		peer.on('open', () => { // userid가 peer로 인해 생성됨
+		peer.on('open', (id) => { // userid가 peer로 인해 생성됨
             console.log("open");
-            socket.emit('join-room', code);
+            socket.emit('join-room', code,id,userNick,false);
         });
 
 		console.log(code);
