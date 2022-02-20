@@ -70,11 +70,7 @@ const Login = () => {
                                             fullWidth
                                             color="error"
                                             startIcon={<GoogleIcon />}
-<<<<<<< HEAD
                                             onClick={() => {
-=======
-                                            onClick={()=>{
->>>>>>> 476d557142ba4cdc68d1f2452ca1814a62d2419e
                                                 window.location.href="http://localhost:3001/auth/google"
                                             }}
                                             size="large"

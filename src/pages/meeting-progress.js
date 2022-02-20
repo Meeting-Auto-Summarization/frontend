@@ -8,7 +8,6 @@ import { ProgrssInfo } from "../components/meeting/progress-info";
 import { UserContext } from '../utils/context/context';
 import { meetings } from '../__mocks__/meetings';
 import { v4 as uuid } from 'uuid';
-import Peer from 'peerjs';
 
 const MeetingProgress = () => {
     const { isLogin, userNick, meetingID } = useContext(UserContext);
@@ -23,25 +22,24 @@ const MeetingProgress = () => {
         return null;
     }
 
-
-    //화상회의 관련
+    // 화상회의 관련
     const socket = io.connect('http://localhost:3001',
-        { cors: { origin: 'http://localhost:3001' } });//서버랑 연결
-    //const peer = new Peer();
+        { cors: { origin: 'http://localhost:3001' } }); // 서버랑 연결
+    // const peer = new Peer();
     if (typeof navigator !== "undefined") {
         const Peer = require("peerjs").default
-        const peer=new Peer();
+        const peer = new Peer();
     }
-    const [peers, setPeers] = useState([]);//peers
+    const [peers, setPeers] = useState([]); // peers
     const video = useRef();
     const [messageList, setMessageList] = useState([]);
     
     const connectToNewUser = (userId, stream, remoteNick) => {
         const call = peer.call(userId, stream, { metadata: { "receiverNick": remoteNick, "senderNick": userNick } });
-        //call객체 생성(dest-id,my-mediaStream)
-        //들어온 상대방에게 call요청 보냄
+        // call객체 생성(dest-id,my-mediaStream)
+        // 들어온 상대방에게 call요청 보냄
         call.on('stream', (userVideoStream) => {
-            //새로 들어온 사람이 answer했을 때 stream이벤트 발생함
+            // 새로 들어온 사람이 answer했을 때 stream이벤트 발생함
             setPeers(arr => {
                 if (arr.findIndex(v => v.id === userId) < 0)
                     return [...arr, { id: userId, nick: call.metadata.receiverNick, call: call, stream: userVideoStream }];
@@ -52,22 +50,22 @@ const MeetingProgress = () => {
             });
         });
         call.on('close', () => {
-            //상대가 나가서 close 이벤트 발생
+            // 상대가 나가서 close 이벤트 발생
             console.log("close");
         });
     }
     
     useEffect(() => {
         socket.on("msg", (userNick, msg) => {
-            //stt메시지 받음
+            // stt메시지 받음
             setMessageList(arr => [...arr, { isCheck: false, nick: userNick, message: msg }])
             console.log(msg);
         });
 
         // peer서버와 정상적으로 통신이 된 경우 open event 발생
-        peer.on('open', (id) => {//userid가 peer로 인해 생성됨
+        peer.on('open', (id) => { // userid가 peer로 인해 생성됨
             console.log("open");
-            socket.emit('join-room', '1234', id, userNick);
+            socket.emit('join-room', 'qnwben', id, userNick);
             console.log(userNick);
         });
 
@@ -75,15 +73,15 @@ const MeetingProgress = () => {
             stream.getVideoTracks().forEach((track) => {
                 track.enabled = !track.enabled;
             })
-            video.current.srcObject = stream;//내 비디오 넣어줌
+            video.current.srcObject = stream; // 내 비디오 넣어줌
             peer.on('call', (call) => {
-                //중간에 입장했을때 방에 있던 사람에게 call요청 받았을 때
-                call.answer(stream);//call요청 수락
+                // 중간에 입장했을때 방에 있던 사람에게 call요청 받았을 때
+                call.answer(stream); // call요청 수락
 
                 // answer가 발생하면 stream이라는 이벤트를 통해 다른 유저의 stream 받아옴
                 call.on('stream', (userVideoStream) => {
-                    //중간에 입장하여 상대방 받아옴
-                    //상대방의 stream을 내 브라우저에 추가 
+                    // 중간에 입장하여 상대방 받아옴
+                    // 상대방의 stream을 내 브라우저에 추가 
                     setPeers(arr => {
                         if (arr.findIndex(v => v.id === call.peer) < 0)
                             return [...arr, { id: call.peer, nick: call.metadata.senderNick, call: call, stream: userVideoStream }];
@@ -95,14 +93,14 @@ const MeetingProgress = () => {
                 });
             });
 
-            //내가 있는 방에 새로운 유저 접속하면 server가 user-connected 입장한 userid와 함께 emit함
+            // 내가 있는 방에 새로운 유저 접속하면 server가 user-connected 입장한 userid와 함께 emit함
             socket.on('user-connected', (userId, remoteNick) => {
-                //새로운 user 연결하는 작업
+                // 새로운 user 연결하는 작업
                 connectToNewUser(userId, stream, remoteNick);
             });
         });
 
-        //disconnect 받으면 -> call object를 peers에서 가져와 해당 call close()함
+        // disconnect 받으면 -> call object를 peers에서 가져와 해당 call close()함
         socket.on('user-disconnected', (userId) => {
             console.log("user-disconnected ");
             setPeers(arr => {
@@ -114,10 +112,9 @@ const MeetingProgress = () => {
                 }))
             });
         });
-
     }, [])
 
-    //장치 관련
+    // 장치 관련
     const handleCameraChange = (deviceId) => {
         const camerasConstraint = {
             audio: true,

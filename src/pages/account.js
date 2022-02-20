@@ -11,7 +11,7 @@ const Account = () => {
     const userContext = useContext(UserContext);
     const router = useRouter();
     
-    useEffect(() => {
+    useEffect(() => {        
         if (!userContext.isLogin) {
             router.push('/not-login');
         }

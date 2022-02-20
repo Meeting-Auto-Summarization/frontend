@@ -19,6 +19,7 @@ import { JoinMeetingDialog } from './app-sidebar/join-meeting-dialog';
 import { OngoingDialog } from './app-sidebar/ongoing-dialog';
 import { meetings } from '../__mocks__/meetings';
 import { v4 as uuid } from 'uuid';
+import { io } from "socket.io-client";
 
 const items = [
     {
@@ -90,12 +91,28 @@ export const AppSidebar = (props) => {
 			time: '00:00',
 			scripts: [],
 			reports: {}
-		})
+		});
 
 		setMeetingID(mid);
 		setIsMeeting(true);
 
-		setMeetingCode(Math.random().toString(36).substr(2,6));
+		const code = Math.random().toString(36).substr(2,6);
+		setMeetingCode(code);
+
+		const socket = io.connect('http://localhost:3001',
+        { cors: { origin: 'http://localhost:3001' } }); // 서버랑 연결
+
+		if (typeof navigator !== "undefined") {
+			const Peer = require("peerjs").default
+			const peer = new Peer();
+		}
+
+		peer.on('open', () => { // userid가 peer로 인해 생성됨
+            console.log("open");
+            socket.emit('join-room', code);
+        });
+
+		console.log(code);
 
 		setIsOpenCodeDialog(true);
     };
@@ -141,9 +158,9 @@ export const AppSidebar = (props) => {
 		<>
 			<Box
 				sx={{
-				display: 'flex',
-				flexDirection: 'column',
-				height: '100%'
+					display: 'flex',
+					flexDirection: 'column',
+					height: '100%'
 				}}
 			>
 				<div>
@@ -258,11 +275,11 @@ export const AppSidebar = (props) => {
 			anchor="left"
 			open
 			PaperProps={{
-			sx: {
-				backgroundColor: 'neutral.900',
-				color: '#FFFFFF',
-				width: 280
-			}
+				sx: {
+					backgroundColor: 'neutral.900',
+					color: '#FFFFFF',
+					width: 280
+				}
 			}}
 			variant="permanent"
 		>

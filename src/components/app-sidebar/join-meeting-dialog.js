@@ -1,5 +1,6 @@
-import { Dialog, DialogContent, DialogActions, Box, Typography, TextField, Button } from '@mui/material';
+import NextLink from 'next/link';
 import { useRef } from 'react';
+import { Dialog, DialogContent, DialogActions, Box, Typography, TextField, Button } from '@mui/material';
 
 export const JoinMeetingDialog = (props) => {
     const { onClose, onSubmit, open } = props;
@@ -23,7 +24,12 @@ export const JoinMeetingDialog = (props) => {
                         inputRef={meetingCodeRef} />
                 </Box>
                 <DialogActions>
-                    <Button variant="contained" onClick={handleSubmit}>회의 참여</Button>
+                    <NextLink
+                        href="/meeting-progress"
+                        passHref
+                    >
+                        <Button variant="contained" onClick={handleSubmit}>회의 참여</Button>
+                    </NextLink>
                 </DialogActions>
             </DialogContent>
         </Dialog>
