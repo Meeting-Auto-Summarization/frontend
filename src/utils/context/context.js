@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { createContext, useState, useMemo, useEffect } from 'react';
+=======
+import { createContext, useState, useMemo,useEffect} from 'react';
+>>>>>>> 476d557142ba4cdc68d1f2452ca1814a62d2419e
 import axios from "axios"
 
 export const UserContext = createContext({});
@@ -33,6 +37,7 @@ const UserContextProvider = ({children}) => {
         userAvatar, setUserAvatar,
         meetingID, setMeetingID
     ]);
+<<<<<<< HEAD
 
     const getLoginInfo = () => {
         axios.get('http://localhost:3001/auth', { withCredentials: true }).then(response => {
@@ -64,6 +69,31 @@ const UserContextProvider = ({children}) => {
     }, [isLogin])
 
     return(
+=======
+    const getLoginInfo=()=>{
+        axios.get('http://localhost:3001/auth',{withCredentials:true}).then(response=>{
+            console.log(isLogin);
+            if(response.data===false){
+                setIsLogin(false);
+            }
+            else{
+                setIsLogin(response.data);
+                console.log(response)
+                setUserNick(response.data.name);
+                setUserFirstName(response.data.firstName);
+                setUserLastName(response.data.lastName);
+                setUserEmail(response.data.email);
+                setUserAvatar(response.data.avatar);
+            }
+        }).catch(err=>{
+            console.log(err);
+        });
+    }
+    useEffect(()=>{
+        getLoginInfo() 
+    },[])
+    return (
+>>>>>>> 476d557142ba4cdc68d1f2452ca1814a62d2419e
         <UserContext.Provider value={value}>
             {children}
         </UserContext.Provider>
