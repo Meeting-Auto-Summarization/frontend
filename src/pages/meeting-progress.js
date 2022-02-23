@@ -6,13 +6,12 @@ import { MeetingScripts } from "../components/meeting/meeting-scripts";
 import { MeetingVideo } from "../components/meeting/meeting-video";
 import { ProgrssInfo } from "../components/meeting/progress-info";
 import { UserContext } from '../utils/context/context';
-import { meetings } from '../__mocks__/meetings';
-import { v4 as uuid } from 'uuid';
+import axios from 'axios';
 
 const MeetingProgress = () => {
     const router = useRouter();
-    const [meetingID, setMeetingID] = useState('');
-    const [meetingCode, setMeetingCode] = useState('');
+    const [meetingId, setMeetingId] = useState(''); 
+    const [isHost, setIsHost] = useState(null);
     const { isLogin, userNick } = useContext(UserContext);
 
     useEffect(() => {
@@ -28,25 +27,44 @@ const MeetingProgress = () => {
     // 화상회의 관련
     const socket = io.connect('http://localhost:3001',
         { cors: { origin: 'http://localhost:3001' } }); // 서버랑 연결
-    // const peer = new Peer();
     if (typeof navigator !== "undefined") {
         const Peer = require("peerjs").default
         const peer = new Peer();
     }
     const [peers, setPeers] = useState([]); // peers
     const video = useRef();
-    const [messageList, setMessageList] = useState([]);
+    const [messageList, setMessageList] = useState([
+        {
+            isCheck: false,
+            nick: '고건준',
+            message: '안녕'
+        },
+        {
+            isCheck: false,
+            nick: '권기준',
+            message: '안녕'
+        },
+        {
+            isCheck: false,
+            nick: '주영환',
+            message: '안녕'
+        },
+    ]);
 
     useEffect(() => {
-        const mid = window.opener.document.getElementById('sendID').getAttribute('mid');
-        const mcode = window.opener.document.getElementById('sendID').getAttribute('mcode');
-        setMeetingID(mid);
-        setMeetingCode(mcode);
+        axios.get(`http://localhost:3001/db/currentMeeting`, { withCredentials : true }).then(res => {
+            const mid = res.data;
+            setMeetingId(mid);
 
-        console.log(mcode);
-        peer.on('open', (id) => { // userid가 peer로 인해 생성됨
-            console.log("open");
-            socket.emit('join-room', mcode, id, userNick);
+            peer.on('open', (id) => { // userid가 peer로 인해 생성됨
+                console.log("open");
+                socket.emit('join-room', mid, id, userNick);
+            });
+        });
+
+        axios.get(`http://localhost:3001/db/isHost`, { withCredentials: true }).then(res => {
+            setIsHost(res.data);
+            console.log(res.data);
         });
     });
     
@@ -79,7 +97,7 @@ const MeetingProgress = () => {
         });
 
         // peer서버와 정상적으로 통신이 된 경우 open event 발생
-        console.log(meetingCode);
+        console.log('open');
 
         navigator.mediaDevices.getUserMedia({ video: true, audio: false }).then((stream) => {
             stream.getVideoTracks().forEach((track) => {
@@ -164,16 +182,16 @@ const MeetingProgress = () => {
         navigator.mediaDevices.getUserMedia(audioConstraint).then((stream) => {
             video.current.srcObject = stream;
             if(!myStream.getVideoTracks()[0].enabled){
-                stream.getVideoTracks().forEach((track)=>{
+                stream.getVideoTracks().forEach((track) => {
                     track.enabled=false;
                 })
             }
             if(!myStream.getAudioTracks()[0].enabled){
-                stream.getAudioTracks().forEach((track)=>{
+                stream.getAudioTracks().forEach((track) => {
                     track.enabled=false;
                 })
             }
-            for(let i=0;i<peers.length;i++){
+            for(let i = 0; i < peers.length; i++){
                 console.log(peers[i].call.peerConnection.getSenders())
                 const audioSender=peers[i].call.peerConnection.getSenders().find((sender)=>sender.track.kind==="audio");
                 console.log(stream.getAudioTracks());
@@ -183,43 +201,27 @@ const MeetingProgress = () => {
         });
     }
 
-    const handleLeaveRoom=(meetingID,hours,minutes,seconds)=>{
+    const handleLeaveRoom = ()=>{
         video.current.srcObject.getTracks().forEach((track)=>{
             track.stop();
         });
+        opener.goSummaryStep();
         self.close();
-        opener.handleShowResult(meetingID,hours,minutes,seconds);
     }
-    /*function handleLeaveRoom(){
-        let len=peers.length;
-        video.current.srcObject.getTracks().forEach((track)=>{
-            track.stop();
-        })
-        //video.current.srcObject=null;
-
-        socket.removeAllListeners();
-        setPeers([]);
-        for(let i=0;i<len;i++){
-            peers[i].call.close();
-        }
-        socket.disconnect();
-        peers=null;
-    }*/
 
     useEffect(() => {
         console.log(peers);
     }, [peers]);
 
-    const handleSubmitScript = () => {
+    const handleSubmitScript = (time) => {
         var submitList = messageList;
 
         for (var i = 0; i < messageList.length; i++) {
             const line = submitList[i];
 
             const newLine = {
-                id: uuid(),
                 isCheck: line.isCheck,
-                name: line.nick,
+                nick: line.nick,
                 time: '00:00',
                 content: line.message
             };
@@ -227,7 +229,19 @@ const MeetingProgress = () => {
             submitList[i] = newLine;
         }
 
-        meetings.find(m => m.id === meetingID).scripts = submitList;
+        console.log(submitList);
+
+        axios.post(`http://localhost:3001/db/submitMeeting`, {
+            time: time,
+            text: submitList
+        }, { withCredentials: true }).then(res => {
+            console.log(res);
+            handleLeaveRoom();
+        });
+
+        axios.get(`http://localhost:3001/db/setIsMeetingFalse`, { withCredentials: true }).then(res => {
+            console.log(res.data);
+        });
     };
 
     return (
@@ -242,8 +256,8 @@ const MeetingProgress = () => {
                 myVideo={video}
                 handleCameraChange={handleCameraChange}
                 handleAudioChange={handleAudioChange}
-                handleLeaveRoom={handleLeaveRoom}
-                meetingID={meetingID}
+                isHost={isHost}
+                parentCallback={handleSubmitScript}
             />
             <Grid container spacing={2} sx={{ height: "100%", flex: "1" }}>
                 <MeetingVideo peers={peers} myVideo={video} />

@@ -1,23 +1,13 @@
 import { Box, Typography, Button } from '@mui/material';
-import { useContext } from 'react';
-import { UserContext } from '../../utils/context/context';
-import { meetings } from '../../__mocks__/meetings';
-import { useRouter } from 'next/router';
+import axios from 'axios';
+import { useState } from 'react';
 
 export const MeetingAccess = ({callback}) => {
-    const { meetingID } = useContext(UserContext);
-    const router = useRouter();
+    const [title, setTitle] = useState('');
 
-    window.handleShowResult = function handleShowResult(meetingID,hours,minutes,seconds){
-        //if, host면=결과페이지로
-        router.push({
-            pathname: `/script-edit`, // 라우팅 id
-            query: {
-                mid: meetingID,
-                time: `${hours < 10 ? `0${hours}` : hours}:${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}`
-            } // props 
-        })
-    }
+    axios.get('http://localhost:3001/db/currentMeetingTitle', { withCredentials: true }).then(res => {
+        setTitle(res.data);
+    });
 
     return (
         <Box
@@ -36,7 +26,7 @@ export const MeetingAccess = ({callback}) => {
                 color="neutral.300"
                 variant="body2"
             >
-                {meetings.filter(meeting => meeting.id === meetingID)[0].title}
+                {title}
             </Typography>
             <Box
                 sx={{

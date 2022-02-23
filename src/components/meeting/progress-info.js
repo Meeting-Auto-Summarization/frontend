@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import {
     Button,
     styled,
@@ -16,10 +17,6 @@ import {
     MicOff,
     VideocamOff,
 } from "@mui/icons-material";
-import { useState, useContext, useEffect } from 'react';
-import Link from 'next/link';
-import { UserContext } from '../../utils/context/context';
-import { meetings } from '../../__mocks__/meetings';
 
 const ProgressInfoButton = styled(Button)({
     background: "#E63946",
@@ -33,15 +30,13 @@ const ProgressInfoButton = styled(Button)({
     },
 });
 
-export function ProgrssInfo({myVideo, handleCameraChange, handleAudioChange, handleLeaveRoom, meetingID}) {
+export function ProgrssInfo({myVideo, handleCameraChange, handleAudioChange, isHost, parentCallback}) {
     const [micOn, setMicOn] = useState(true);
     const [cameraOn, setCameraOn] = useState(false);
     const [cameras, setCameras] = useState([]);
     const [microphones, setMicrophones] = useState([]);
     const [currentCamera,setCurrentCamera] = useState(0);
     const [currentMic,setCurrentMic] = useState(0);
-    const { userNick } = useContext(UserContext);
-    const meeting = meetings.find(m => m.id === meetingID);
 
     const handleMicOnOff = () => {
         const myStream = myVideo.current.srcObject;
@@ -50,6 +45,7 @@ export function ProgrssInfo({myVideo, handleCameraChange, handleAudioChange, han
         });
         setMicOn(!micOn);
     };
+
     const handleCameraOnOff = () => {
         const myStream = myVideo.current.srcObject;
         myStream.getVideoTracks().forEach((track) => {
@@ -57,6 +53,7 @@ export function ProgrssInfo({myVideo, handleCameraChange, handleAudioChange, han
         })
         setCameraOn(!cameraOn);
     };
+    
     const [micMenu, setMicMenu] = useState(null);
     const [cameraMenu, setCameraMenu] = useState(null);
     const openMicMenu = Boolean(micMenu);
@@ -105,30 +102,26 @@ export function ProgrssInfo({myVideo, handleCameraChange, handleAudioChange, han
 
     useEffect(() => {
         getDevices();
-        console.log(meetings);
     }, []);
+
     const [hours, setHours] = useState(0);
     const [minutes, setMinutes] = useState(0);
     const [seconds, setSeconds] = useState(0);
+    const [time, setTime] = useState(0);
 
     useEffect(() => {
         const countdown = setInterval(() => {
-            if (parseInt(seconds) < 59) {
-                setSeconds(parseInt(seconds) + 1);
-            }
-            if (parseInt(seconds) === 59) {
-                if (parseInt(minutes) === 59) {
-                    setHours(parseInt(hours) + 1);
-                    setMinutes(0);
-                    setSeconds(0);
-                } else {
-                    setMinutes(parseInt(minutes) + 1);
-                    setSeconds(0);
-                }
-            }
+            const newSec = parseInt(time % 60);
+            const newMin = parseInt((time / 60) % 60);
+            const newHours = parseInt(time / 3600);
+
+            setSeconds(newSec);
+            setMinutes(newMin);
+            setHours(newHours);
+            setTime(time += 1);
         }, 1000);
         return () => clearInterval(countdown);
-    }, [minutes, seconds]);
+    }, [time]);
 
     return (
         <Box>
@@ -302,32 +295,16 @@ export function ProgrssInfo({myVideo, handleCameraChange, handleAudioChange, han
                         :
                         {seconds < 10 ? `0${seconds}` : seconds}
                     </Typography>
-                    <Link
-                        href={{
-                            pathname: `/script-edit`, // 라우팅 id
-                            query: {
-                                mid: meetingID,
-                                time: `${hours < 10 ? `0${hours}` : hours}:${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}`
-                            } // props 
-                        }}
-                        as={`/script-edit`}
+                    <ProgressInfoButton
+                        variant="text"
+                        sx={{ my: 1, mx: 1.5 }}
+                        onClick={() => parentCallback(time)}
                     >
-                        <ProgressInfoButton
-                            variant="text"
-                            sx={{ my: 1, mx: 1.5 }}
-                            onClick={() => {
-                                meeting.time = `${hours < 10 ? `0${hours}` : hours}:${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
-                                //parentCallback();
-                                handleLeaveRoom(meetingID,hours,minutes,seconds);
-                            }}
-                        >
-                            {/* {meeting.hostNick === userNick
-                                ? '회의 종료'
-                                : '회의 나가기'
-                            } */}
-                            회의 종료
-                        </ProgressInfoButton>
-                    </Link>
+                        {isHost
+                            ? '회의 종료'
+                            : '회의 나가기'
+                        }
+                    </ProgressInfoButton>
                 </Box>
             </Box>
         </Box>

@@ -10,7 +10,6 @@ import { UserContext } from '../utils/context/context';
 
 const ScriptEdit = () => {
     const router = useRouter();
-    const { mid } = router.query;
     const { isLogin } = useContext(UserContext);
 
     useEffect(() => {
@@ -38,9 +37,9 @@ const ScriptEdit = () => {
                 }}
             >
                 <Container maxWidth={false}>
-                    <ScriptEditToolbar mid={mid} description={"Script 수정"}/>
+                    <ScriptEditToolbar description={"Script 수정"} />
                     <Box sx={{ mt: 3 }}>
-                        <ScriptEditResult mid={mid} />
+                        <ScriptEditResult />
                     </Box>
                 </Container>
                 <Box sx={{
@@ -60,9 +59,7 @@ const ScriptEdit = () => {
                     <Link
                         href={{
                             pathname: `/report-form-setting`, // 라우팅 id
-                            query: { mid: mid }, // props 
                         }}
-                        as={`/report-form-setting`}
                     >
                         <Button variant="contained" size="large" sx={{ marginRight: 2 }}>Next Step</Button>
                     </Link>

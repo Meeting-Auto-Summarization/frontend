@@ -9,7 +9,6 @@ import { UserContext } from '../utils/context/context';
 
 const MeetingResult = () => {
     const router = useRouter();
-    const { mid } = router.query;
     const { isLogin } = useContext(UserContext);
 
     useEffect(() => {
@@ -32,7 +31,7 @@ const MeetingResult = () => {
                 }}
             >
                 <Container maxWidth={false}>
-                    <MeetingResultToolbar mid={mid} />
+                    <MeetingResultToolbar />
                     <Grid
                         container
                         spacing={3}
@@ -42,14 +41,14 @@ const MeetingResult = () => {
                             sm={12}
                             md={6}
                         >
-                            <ScriptsResultCard mid={mid} />
+                            <ScriptsResultCard />
                         </Grid>
                         <Grid
                             item
                             sm={12}
                             md={6}
                         >
-                            <SummaryResultCard mid={mid} />
+                            <SummaryResultCard />
                         </Grid>
                     </Grid>
                 </Container>

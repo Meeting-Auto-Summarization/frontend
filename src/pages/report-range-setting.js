@@ -7,10 +7,10 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { useContext, useEffect } from 'react';
 import { UserContext } from '../utils/context/context';
+import axios from 'axios';
 
 const ReportRangeSetting = () => {
     const router = useRouter();
-    const { mid } = router.query;
     const { isLogin } = useContext(UserContext);
 
     useEffect(() => {
@@ -38,9 +38,9 @@ const ReportRangeSetting = () => {
                 }}
             >
                 <Container maxWidth={false}>
-                    <ScriptEditToolbar mid={mid} description={"보고서에 포함될 스크립트 범위 지정"}/>
+                    <ScriptEditToolbar description={"보고서에 포함될 스크립트 범위 지정"}/>
                     <Box sx={{ mt: 3 }}>
-                        <ReportRangeResult mid={mid} />
+                        <ReportRangeResult />
                     </Box>
                 </Container>
                 <Box sx={{
@@ -68,14 +68,17 @@ const ReportRangeSetting = () => {
                     <Link
                         href={{
                             pathname: `/meeting-result`, // 라우팅 id
-                            query: { mid: mid }, // props 
                         }}
-                        as={`/meeting-result`}
                     >
                         <Button
                             variant="contained"
                             size="large"
                             sx={{ marginRight: 2 }}
+                            onClick={() => {
+                                axios.get(`http://localhost:3001/db/deleteCurrentMeetingId`, { withCredentials: true }).then(res => {
+                                    console.log(res);
+                                });
+                            }}
                         >
                             Summarizing!!
                         </Button>

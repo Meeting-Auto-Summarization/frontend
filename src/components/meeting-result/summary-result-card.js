@@ -2,14 +2,13 @@ import {
     Button,
     styled,
     Typography,
-    Grid,
     Card,
     CardContent,
     CardHeader,
     CardActions,
 } from "@mui/material";
-import { useState } from "react";
-import { meetings } from "../../__mocks__/meetings";
+import axios from "axios";
+import { useEffect, useState } from "react";
 import { ExportPopup } from "./export-popup";
 
 const SummaryCard = styled(Card)({
@@ -30,10 +29,36 @@ const SummaryCardButton = styled(Button)({
     },
 });
 
-export function SummaryResultCard({mid}) {
-    const reports = meetings.find(m => m.id === mid).reports;
-    const titleList = reports.title;
-    const summaryList = reports.summary;
+export function SummaryResultCard() {
+    const [titleList, setTitleList] = useState([]);
+    const [summaryList, setSummaryList] = useState([]);
+
+    useEffect(() => {
+        axios.get(`http://localhost:3001/db/currentMeetingReport`, { withCredentials: true }).then(res => {
+            const report = res.data;
+            const tempTitleList = new Array(report.length);
+            const tempSummaryList = new Array(report.length);
+
+            for (var i = 0; i < report.length; i++) {
+                tempTitleList[i] = new Array(report[i].length);
+                tempSummaryList[i] = new Array(report[i].length);
+            }
+
+            for (var i = 0; i < tempTitleList.length; i++) {
+                for (var j = 0; j < tempTitleList[i].length; j++) {
+                    tempTitleList[i][j] = report[i][j].title;
+                    tempSummaryList[i][j] = report[i][j].summary;
+                }
+            }
+
+            setTitleList(tempTitleList);
+            setSummaryList(tempSummaryList);
+
+            console.log(tempTitleList);
+            console.log(tempSummaryList);
+        });
+    }, []);
+    
     
     const [open, setOpen] = useState(false);
 
@@ -72,10 +97,10 @@ export function SummaryResultCard({mid}) {
                                             ? <Typography variant="h5">{`${idx + 1}. ${subTitle}`}</Typography>
                                             : <Typography variant="h6" ml={4}>{`${String.fromCharCode(subidx + 97)}. ${subTitle}`}</Typography>
                                         }
-                                        {subidx === 0
+                                        {/* {subidx === 0
                                             ? <Typography variant="subtitle1" ml={4} mb={1}>{`${summaryList[idx][subidx]}`}</Typography>
                                             : <Typography variant="subtitle1" ml={8} mb={1}>{`${summaryList[idx][subidx]}`}</Typography>
-                                        }
+                                        } */}
                                     </>
                                 );
                             })}

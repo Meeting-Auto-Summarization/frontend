@@ -1,7 +1,6 @@
 import {
     styled,
     Typography,
-    Grid,
     Card,
     CardContent,
     CardHeader,
@@ -14,10 +13,10 @@ import {
     tableCellClasses,
     TableBody
 } from "@mui/material";
-import { useState } from "react";
-import { meetings } from "../../__mocks__/meetings";
+import { useState, useEffect } from "react";
 import { ExportPopup } from "./export-popup";
 import Link from 'next/link';
+import axios from "axios";
 
 const ScriptsCard = styled(Card)({
     background: "#FFF3FF",
@@ -60,8 +59,16 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
     },
 }));
 
-export const ScriptsResultCard = ({mid}) => {
-    const scripts = meetings.find(m => m.id === mid).scripts;
+export const ScriptsResultCard = () => {
+    const [scripts, setScripts] = useState([]);
+
+    useEffect(() => {
+        axios.get(`http://localhost:3001/db/currentMeetingScript`, { withCredentials: true }).then(res => {
+            setScripts(res.data);
+            console.log(res.data);
+        });
+    }, []);
+
     const [open, setOpen] = useState(false);
 
     const handleClickOpen = () => {
@@ -150,9 +157,7 @@ export const ScriptsResultCard = ({mid}) => {
                 <Link
                     href={{
                         pathname: `/script-edit`, // 라우팅 id
-                        query: { mid: mid }, // props 
                     }}
-                    as={`/script-edit`}
                 >
                     <ScriptsCardButton>Modify</ScriptsCardButton>
                 </Link>

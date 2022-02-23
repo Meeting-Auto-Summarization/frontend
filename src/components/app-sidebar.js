@@ -17,9 +17,7 @@ import { CreateMeetingDialog } from './app-sidebar/create-meeting-dialog';
 import { MeetingCodeDialog } from './app-sidebar/meeting-code-dialog';
 import { JoinMeetingDialog } from './app-sidebar/join-meeting-dialog';
 import { OngoingDialog } from './app-sidebar/ongoing-dialog';
-import { meetings } from '../__mocks__/meetings';
-import { v4 as uuid } from 'uuid';
-import { io } from "socket.io-client";
+import axios from "axios";
 
 const items = [
     {
@@ -61,96 +59,44 @@ export const AppSidebar = (props) => {
 		defaultMatches: true,
 		noSsr: false
 	});
+	
     const [isOpenCreateDialog, setIsOpenCreateDialog] = useState(false);
     const [isOpenCodeDialog, setIsOpenCodeDialog] = useState(false);
     const [isOpenJoinDialog, setIsOpenJoinDialog] = useState(false);
 	const [isOpenOngoingDialog, setIsOpenOngoingDialog] = useState(false);
+
 	const [meetingCode, setMeetingCode] = useState('');
-	const { userNick, isMeeting, meetingID, setIsMeeting, setMeetingID } = useContext(UserContext);
+	const [isMeeting, setIsMeeting] = useState(false);
+	const { userNick } = useContext(UserContext);
 
 	const handleSubmitCreateDialog = (title, limitNum) => {
-		const mid = uuid();
-
-		let now = new Date();
-		const date = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()}`;
-
-		meetings.push({
-			id: mid,
-			title: title,
-			members: [userNick],
-			hostNick: userNick,
-			date: date,
-			time: '00:00',
-			scripts: [],
-			reports: {}
-		});
-
-		setMeetingID(mid);
-		setIsMeeting(true);
-
 		const code = Math.random().toString(36).substr(2,6);
 		setMeetingCode(code);
-
-		const socket = io.connect('http://localhost:3001',
-        { cors: { origin: 'http://localhost:3001' } }); // 서버랑 연결
-
-		if (typeof navigator !== "undefined") {
-			const Peer = require("peerjs").default
-			const peer = new Peer();
-		}
-
-		peer.on('open', () => { // userid가 peer로 인해 생성됨
-            console.log("open");
-            socket.emit('join-room', code);
-        });
-
 		console.log(code);
+		
+		axios.post('http://localhost:3001/db/createMeeting', {
+			title: title,
+			members: [userNick],
+			hostId: userNick,
+			code: code,
+			capacity: limitNum,
+		}, { withCredentials: true }).then(res => {
+			// 회의 생성완료후 할 작업 
+
+		});
 
 		setIsOpenCodeDialog(true);
     };
 
 	const handleSubmitJoinDialog = (code) => {
-		var form = document.createElement('form');
-		
-		form.setAttribute('id', 'sendID');
-		form.setAttribute('action', 'meeting-progress');
-		form.setAttribute('method', 'post');
-		form.setAttribute('target', 'sendID');
-		form.setAttribute('mid', meetingID);
-		form.setAttribute('mcode', code);
-		document.body.appendChild(form);
-		
-		form.submit();
-		window.open('', 'sendID');
+		axios.get(`http://localhost:3001/db/joinMeeting/${code}`, { withCredentials: true }).then(res => {
+        	if (res.data) {
+				window.open('/meeting-progress');
+			} else {
+				alert('존재하지 않는 코드입니다.')
+			}
+      	});
 	};
-
-	const handleOpenCreateDialog = () => {
-        setIsOpenCreateDialog(true);
-    };
-
-	const handleOpenJoinDialog = () => {
-        setIsOpenJoinDialog(true);
-    };
-
-	const handleOpenOngoingDialog = () => {
-        setIsOpenOngoingDialog(true);
-    };
-
-	const handleCloseCreateDialog = () => {
-		setIsOpenCreateDialog(false);
-    };
-
-	const handleCloseCodeDialog = () => {
-		setIsOpenCodeDialog(false);
-	};
-	
-    const handleCloseJoinDialog = (value) => {
-        setIsOpenJoinDialog(false);
-    };
-
-    const handleCloseOngoingDialog = () => {
-        setIsOpenOngoingDialog(false);
-    };
 
   	useEffect(() => {
 			if (!router.isReady) {
@@ -164,6 +110,19 @@ export const AppSidebar = (props) => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[router.asPath]
   	);
+
+	useEffect(() => {
+		axios.get(`http://localhost:3001/db/isMeeting`, { withCredentials: true }).then(res => {
+			console.log(res.data);
+			setIsMeeting(res.data);
+		});
+	});
+
+	if (typeof window !== "undefined") {
+		window.goSummaryStep = function goSummaryStep() {
+			router.push('/script-edit');
+		};
+	}
 
 	const content = (
 		<>
@@ -215,7 +174,10 @@ export const AppSidebar = (props) => {
 								>
 									<Button
 									 	variant="contained"
-										onClick={ !isMeeting ? handleOpenCreateDialog : handleOpenOngoingDialog }
+										onClick={ !isMeeting
+											? () => setIsOpenCreateDialog(true)
+											: () => setIsOpenOngoingDialog(true)
+										}
 										fullWidth
 									>
 										<Typography fontSize="100%" sx={{ fontWeight: 'bold' }}>회의 생성</Typography>
@@ -229,7 +191,10 @@ export const AppSidebar = (props) => {
 								>
 									<Button
 										variant="contained"
-										onClick={ !isMeeting ? handleOpenJoinDialog : handleOpenOngoingDialog }
+										onClick={ !isMeeting
+											? () => setIsOpenJoinDialog(true)
+											: () => setIsOpenOngoingDialog(true)
+										}
 										fullWidth
 									>
 										<Typography fontSize="100%" sx={{ fontWeight: 'bold'}}>회의 참여</Typography>
@@ -238,22 +203,22 @@ export const AppSidebar = (props) => {
 							</Grid>
                             <CreateMeetingDialog
                                 open={isOpenCreateDialog}
-                                onClose={handleCloseCreateDialog}
+                                onClose={ () => setIsOpenCreateDialog(false) }
 								onSubmit={handleSubmitCreateDialog}
                             />
                             <MeetingCodeDialog
                                 open={isOpenCodeDialog}
 								code={meetingCode}
-                                onClose={handleCloseCodeDialog}
+                                onClose={ () => setIsOpenCodeDialog(false) }
                             />
 							<JoinMeetingDialog
 								open={isOpenJoinDialog}
-								onClose={handleCloseJoinDialog}
+								onClose={ () => setIsOpenJoinDialog(false) }
 								onSubmit={handleSubmitJoinDialog}
 							/>
 							<OngoingDialog
 								open={isOpenOngoingDialog}
-								onClose={handleCloseOngoingDialog}
+								onClose={ () => setIsOpenOngoingDialog(false) }
 							/>
 						</Box>
 					</Box>
@@ -275,7 +240,13 @@ export const AppSidebar = (props) => {
 				))}
 				</Box>
 				<Divider sx={{ borderColor: '#2D3748' }} />
-				{ isMeeting && <MeetingAccess callback={() => { window.open('/meeting-progress'); }} /> }
+				{ isMeeting &&
+					<MeetingAccess
+						callback={() => {
+							window.open('/meeting-progress');
+						}}
+					/>
+				}
 			</Box>
 		</>
 	);

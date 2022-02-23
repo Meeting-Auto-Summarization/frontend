@@ -1,13 +1,18 @@
 import PerfectScrollbar from 'react-perfect-scrollbar';
 import { Card, Checkbox, Table, TableBody, TableCell, TableHead, TableRow, Typography, Grid } from '@mui/material';
-import { useState } from 'react';
-import { meetings } from '../../__mocks__/meetings';
+import { useEffect, useState } from 'react';
 import { ReportTitleList } from './report-title-list';
+import axios from 'axios';
 
-export const ReportRangeResult = ({ mid, ...rest }) => {
-    const meeting = meetings.find(m => m.id === mid); 
-    const scripts = meeting.scripts;
-    const reports = meeting.reports;
+export const ReportRangeResult = () => {
+    const [scripts, setScripts] = useState([]);
+
+    useEffect(() => {
+        axios.get(`http://localhost:3001/db/currentMeetingScript`, { withCredentials: true }).then(res => {
+            setScripts(res.data);
+            console.log(res.data);
+        });
+    }, []);
     
     const [selected, setSelected] = useState([]);
     const [startIndex, setStartIndex] = useState(-1);
@@ -16,7 +21,7 @@ export const ReportRangeResult = ({ mid, ...rest }) => {
         let newSelectedCustomerIds;
     
         if (event.target.checked) {
-          newSelectedCustomerIds = scripts.map(line => line.id);
+          newSelectedCustomerIds = scripts.map(line => line._id);
         } else {
           newSelectedCustomerIds = [];
         }
@@ -28,7 +33,7 @@ export const ReportRangeResult = ({ mid, ...rest }) => {
         const emptyArray = [];
         setSelected(emptyArray);
 
-        const line = scripts.find(line => line.id === id);
+        const line = scripts.find(line => line._id === id);
         const selectedIndex = scripts.indexOf(line);
         setStartIndex(selectedIndex);
 
@@ -38,10 +43,10 @@ export const ReportRangeResult = ({ mid, ...rest }) => {
     };
 
     const handleSelectEnd = (id) => {
-        const line = scripts.find(line => line.id === id);
+        const line = scripts.find(line => line._id === id);
         const selectedIndex = scripts.indexOf(line);
 
-        const newSelected = scripts.slice(startIndex, selectedIndex + 1).map(line => line.id);
+        const newSelected = scripts.slice(startIndex, selectedIndex + 1).map(line => line._id);
         setSelected(newSelected);
         setStartIndex(-1);
     };
@@ -58,7 +63,7 @@ export const ReportRangeResult = ({ mid, ...rest }) => {
                 item
                 xs={8}
             >
-                <Card {...rest}>
+                <Card>
                     <PerfectScrollbar>
                         <Table>
                             <TableHead>
@@ -90,12 +95,12 @@ export const ReportRangeResult = ({ mid, ...rest }) => {
                                     return(
                                         <TableRow
                                             hover
-                                            key={line.id}
+                                            key={line._id}
                                             sx={{ paddingY: '8px'}}
                                             onClick={
                                                 startIndex === -1
-                                                ? () => handleSelectStart(line.id)
-                                                : () => handleSelectEnd(line.id)
+                                                ? () => handleSelectStart(line._id)
+                                                : () => handleSelectEnd(line._id)
                                             }
                                             // selected={selectedCustomerIds.indexOf(customer.id) !== -1}
                                         >
@@ -104,8 +109,8 @@ export const ReportRangeResult = ({ mid, ...rest }) => {
                                                 width="3%"
                                             >
                                                 <Checkbox
-                                                    id={line.id}
-                                                    checked={selected.indexOf(line.id) !== -1}
+                                                    id={line._id}
+                                                    checked={selected.indexOf(line._id) !== -1}
                                                 />
                                             </TableCell>
                                             <TableCell width="12%">
@@ -140,9 +145,7 @@ export const ReportRangeResult = ({ mid, ...rest }) => {
                         p: 3,
                     }}
                 >    
-                    <ReportTitleList
-                        titleList={reports.title}
-                    />
+                    <ReportTitleList />
                 </Card>
             </Grid>
         </Grid>

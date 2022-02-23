@@ -10,8 +10,6 @@ const UserContextProvider = ({children}) => {
     const [userFirstName, setUserFirstName] = useState('');
     const [userLastName, setUserLastName] = useState('');
     const [userAvatar, setUserAvatar] = useState('');
-    const [isMeeting, setIsMeeting] = useState(false);
-    const [meetingID, setMeetingID] = useState('');
 
     const value = useMemo(() => ({
         isLogin, setIsLogin,
@@ -20,8 +18,6 @@ const UserContextProvider = ({children}) => {
         userFirstName, setUserFirstName,
         userLastName, setUserLastName,
         userAvatar, setUserAvatar,
-        isMeeting, setIsMeeting,
-        meetingID, setMeetingID
     }),
     [
         isLogin, setIsLogin,
@@ -29,9 +25,7 @@ const UserContextProvider = ({children}) => {
         userNick, setUserNick,
         userFirstName, setUserFirstName,
         userLastName, setUserLastName,
-        isMeeting, setIsMeeting,
         userAvatar, setUserAvatar,
-        meetingID, setMeetingID
     ]);
 
     const getLoginInfo = () => {

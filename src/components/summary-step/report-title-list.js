@@ -1,7 +1,30 @@
 import { Box, Typography, FormControl, Radio, RadioGroup, FormControlLabel } from '@mui/material';
+import { useState, useEffect } from 'react';
 import { v4 as uuid } from 'uuid';
+import axios from 'axios';
 
-export const ReportTitleList = ({titleList}) => {
+export const ReportTitleList = () => {
+    const [titleList, setTitleList] = useState([]);
+
+    useEffect(() => {
+        axios.get(`http://localhost:3001/db/currentMeetingReport`, { withCredentials: true }).then(res => {
+            const report = res.data;
+            const tempTitleList = new Array(report.length);
+
+            for (var i = 0; i < report.length; i++) {
+                tempTitleList[i] = new Array(report[i].length);
+            }
+
+            for (var i = 0; i < tempTitleList.length; i++) {
+                for (var j = 0; j < tempTitleList[i].length; j++) {
+                    tempTitleList[i][j] = report[i][j].title;
+                }
+            }
+
+            setTitleList(tempTitleList);
+            console.log(tempTitleList);
+        });
+    }, []);
 
     const HeadTitleComp = ({index, content}) => {
         return (

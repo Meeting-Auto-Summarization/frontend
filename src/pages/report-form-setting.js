@@ -6,12 +6,11 @@ import { Box, Container, Button } from '@mui/material';
 import { ScriptEditToolbar } from '../components/summary-step/script-edit-toolbar';
 import { ReportFormResult } from '../components/summary-step/report-form-result';
 import { AppLayout } from '../components/app-layout';
-import { meetings } from '../__mocks__/meetings';
 import { UserContext } from '../utils/context/context';
+import axios from 'axios';
 
 const ReportFormSetting = () => {
     const router = useRouter();
-    const { mid } = router.query;
     const { isLogin } = useContext(UserContext);
     const [reportTitleList, setReportTitleList] = useState([[]]);
     
@@ -25,13 +24,19 @@ const ReportFormSetting = () => {
         }
     });
 
-    const genEmptyArray = (arr) => {
+    const getReportList = (arr) => {
         var newArr = new Array(arr.length);
 
         for (var i = 0; i < arr.length; i++) {
             newArr[i] = new Array(arr[i].length);
-            for (var j = 0; j < arr[i].length; j++) {
-                newArr[i][j] = '';
+        }
+
+        for (var i = 0; i < newArr.length; i++) {
+            for (var j = 0; j < newArr[i].length; j++) {
+                newArr[i][j] = {
+                    title: arr[i][j],
+                    summary: ''
+                }
             }
         }
 
@@ -43,10 +48,11 @@ const ReportFormSetting = () => {
     };
 
     const handleSubmit = () => {
-        const reports = meetings.find(m => m.id === mid).reports;
-        
-        reports.title = reportTitleList;
-        reports.summary = genEmptyArray(reportTitleList);
+        axios.post(`http://localhost:3001/db/currentMeetingReport`, {
+            report: getReportList(reportTitleList)
+        }, { withCredentials: true }).then(res => {
+            console.log(res);
+        });
     }
 
     return(
@@ -64,7 +70,7 @@ const ReportFormSetting = () => {
                 }}
             >
                 <Container maxWidth={false}>
-                    <ScriptEditToolbar mid={mid} description={"Report Form 지정"} />
+                    <ScriptEditToolbar description={"Report Form 지정"} />
                     <ReportFormResult parentCallback={handleCallback} />
                     <Box
                         sx={{
@@ -98,9 +104,7 @@ const ReportFormSetting = () => {
                     <Link
                         href={{
                             pathname: `/report-range-setting`, // 라우팅 id
-                            query: { mid: mid }, // props 
                         }}
-                        as={`/report-range-setting`}
                     >
                         <Button
                             variant="contained"

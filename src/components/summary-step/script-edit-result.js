@@ -1,5 +1,4 @@
 import PerfectScrollbar from 'react-perfect-scrollbar';
-import PropTypes from 'prop-types';
 import {
     Box,
     Card,
@@ -14,12 +13,19 @@ import {
     TextField
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { useState } from 'react';
-import { meetings } from '../../__mocks__/meetings';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 
 export const ScriptEditResult = ({ mid, ...rest }) => {
-    const scripts = meetings.find(m => m.id === mid).scripts;
+    const [scripts, setScripts] = useState([]);
     const [selected, setSelected] = useState([]);
+
+    useEffect(() => {
+        axios.get(`http://localhost:3001/db/currentMeetingScript`, { withCredentials: true }).then(res => {
+            setScripts(res.data);
+            console.log(res.data);
+        });
+    }, []);
 
     const handleClick = (event, id) => {
         console.log(selected)
@@ -127,8 +133,4 @@ export const ScriptEditResult = ({ mid, ...rest }) => {
             </PerfectScrollbar>
         </Card>
     );
-};
-
-ScriptEditResult.propTypes = {
-    meetings: PropTypes.array.isRequired
 };
