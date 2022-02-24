@@ -13,6 +13,7 @@ const MeetingProgress = () => {
     const [isHost, setIsHost] = useState(null);
     const [userNick, setUserNick] = useState('');
     const { isLogin } = useContext(UserContext);
+    const [summaryFlag, setSummaryFlag] = useState(false);
 
     useEffect(() => {
         if (!isLogin) {
@@ -50,6 +51,7 @@ const MeetingProgress = () => {
             message: '안녕'
         },
     ]);
+ 
 
     useEffect(() => {
         axios.get('http://localhost:3001/auth', { withCredentials: true }).then(res => {
@@ -74,14 +76,16 @@ const MeetingProgress = () => {
     useEffect(() => {
         axios.get(`http://localhost:3001/db/isMeeting`, { withCredentials: true }).then(res => {
             console.log(res.data);
-			if (!res.data) {
+         if (!res.data) {
                 self.close();
             }
-		});
+      });
     }, [peers]);
     
-    const connectToNewUser = (userId, stream, remoteNick) => {
-        const call = peer.call(userId, stream, { metadata: { "receiverNick": remoteNick, "senderNick": userNick } });
+    const connectToNewUser = async(userId, stream, remoteNick) => {
+        const {data}=await axios.get('http://localhost:3001/auth', { withCredentials: true });
+        console.log(data);//userNick넣어줘야함
+        const call = peer.call(userId, stream, { metadata: { "receiverNick": remoteNick, "senderNick": data.name } });
         // call객체 생성(dest-id,my-mediaStream)
         // 들어온 상대방에게 call요청 보냄
         call.on('stream', (userVideoStream) => {
@@ -102,6 +106,15 @@ const MeetingProgress = () => {
     }
     
     useEffect(() => {
+        socket.on("summaryOffer", (roomName, summaryFlag) => {
+            setSummaryFlag(summaryFlag);
+            console.log("userNick");
+            console.log(userNick);
+            socket.emit("summaryStateChange", roomName, summaryFlag);
+        });
+        socket.on("initSummaryFlag",(flag)=>{
+            setSummaryFlag(flag);
+        })
         socket.on("msg", (userNick, msg) => {
             // stt메시지 받음
             setMessageList(arr => [...arr, { isCheck: false, nick: userNick, message: msg }])
@@ -260,6 +273,11 @@ const MeetingProgress = () => {
             handleLeaveRoom();
         });
     };
+    function handleSummaryOnOff(summaryFlag) {
+        axios.get("http://localhost:3001/db/currentMeetingId", { withCredentials: true }).then(response => {
+            socket.emit("summaryAlert", response.data, summaryFlag);
+        })
+    }
 
     return (
         <Box
@@ -278,7 +296,8 @@ const MeetingProgress = () => {
             />
             <Grid container spacing={2} sx={{ height: "100%", flex: "1" }}>
                 <MeetingVideo peers={peers} myVideo={video} />
-                <MeetingScripts messageList={messageList} />
+                <MeetingScripts messageList={messageList} handleSummaryOnOff={handleSummaryOnOff} 
+                summaryFlag={summaryFlag} setSummaryFlag={setSummaryFlag}/>
             </Grid>
         </Box>
     );

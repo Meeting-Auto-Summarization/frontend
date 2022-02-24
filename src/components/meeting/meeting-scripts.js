@@ -14,12 +14,13 @@ const SummaryButton = styled(Button)({
     },
 });
 
-export function MeetingScripts({messageList}) {
-    const [summaryFlag, setSummaryFlag] = useState(false);
+export function MeetingScripts({messageList, handleSummaryOnOff,summaryFlag,setSummaryFlag }) {
     const handleSummaryButton = () => {
         if (summaryFlag) {
+            handleSummaryOnOff(false);
             setSummaryFlag(false);
         } else {
+            handleSummaryOnOff(true);
             setSummaryFlag(true);
         }
     };
@@ -57,7 +58,7 @@ export function MeetingScripts({messageList}) {
                         onClick={handleSummaryButton}
                         sx={{ my: 1, mx: 1.5 }}
                     >
-                        요약시작
+                        요약중지
                     </SummaryButton>
                 ) : (
                     <SummaryButton
@@ -66,7 +67,7 @@ export function MeetingScripts({messageList}) {
                         onClick={handleSummaryButton}
                         sx={{ my: 1, mx: 1.5 }}
                     >
-                        요약중지
+                        요약시작
                     </SummaryButton>
                 )}
                 </Box>
@@ -129,4 +130,3 @@ export function MeetingScripts({messageList}) {
         </Grid>
     );
 }
-
