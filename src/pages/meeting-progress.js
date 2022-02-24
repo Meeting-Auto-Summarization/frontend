@@ -78,7 +78,7 @@ const MeetingProgress = () => {
                 self.close();
             }
 		});
-    }, []);
+    }, [peers]);
     
     const connectToNewUser = (userId, stream, remoteNick) => {
         const call = peer.call(userId, stream, { metadata: { "receiverNick": remoteNick, "senderNick": userNick } });

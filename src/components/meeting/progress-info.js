@@ -298,7 +298,7 @@ export function ProgrssInfo({myVideo, handleCameraChange, handleAudioChange, isH
                     <ProgressInfoButton
                         variant="text"
                         sx={{ my: 1, mx: 1.5 }}
-                        onClick={() => parentCallback(time)}
+                        onClick={() => parentCallback(time, isHost)}
                     >
                         {isHost
                             ? '회의 종료'
