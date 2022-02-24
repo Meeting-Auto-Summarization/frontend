@@ -10,9 +10,9 @@ import axios from 'axios';
 
 const MeetingProgress = () => {
     const router = useRouter();
-    const [meetingId, setMeetingId] = useState(''); 
     const [isHost, setIsHost] = useState(null);
-    const { isLogin, userNick } = useContext(UserContext);
+    const [userNick, setUserNick] = useState('');
+    const { isLogin } = useContext(UserContext);
 
     useEffect(() => {
         if (!isLogin) {
@@ -40,7 +40,7 @@ const MeetingProgress = () => {
             message: '안녕'
         },
         {
-            isCheck: false,
+            isCheck: true,
             nick: '권기준',
             message: '안녕'
         },
@@ -52,21 +52,33 @@ const MeetingProgress = () => {
     ]);
 
     useEffect(() => {
-        axios.get(`http://localhost:3001/db/currentMeeting`, { withCredentials : true }).then(res => {
-            const mid = res.data;
-            setMeetingId(mid);
+        axios.get('http://localhost:3001/auth', { withCredentials: true }).then(res => {
+            const meetingId = res.data.currentMeetingId;
+            const nick = res.data.name;
+            setUserNick(nick);
 
             peer.on('open', (id) => { // userid가 peer로 인해 생성됨
                 console.log("open");
-                socket.emit('join-room', mid, id, userNick);
+                socket.emit('join-room', meetingId, id, nick);
             });
+        }).catch(err => {
+            console.log(err);
         });
 
         axios.get(`http://localhost:3001/db/isHost`, { withCredentials: true }).then(res => {
             setIsHost(res.data);
             console.log(res.data);
         });
-    });
+    }, []);
+
+    useEffect(() => {
+        axios.get(`http://localhost:3001/db/isMeeting`, { withCredentials: true }).then(res => {
+            console.log(res.data);
+			if (!res.data) {
+                self.close();
+            }
+		});
+    }, []);
     
     const connectToNewUser = (userId, stream, remoteNick) => {
         const call = peer.call(userId, stream, { metadata: { "receiverNick": remoteNick, "senderNick": userNick } });
@@ -213,7 +225,16 @@ const MeetingProgress = () => {
         console.log(peers);
     }, [peers]);
 
-    const handleSubmitScript = (time) => {
+    const handleSubmitScript = (time, isHost) => {
+        if (!isHost) {
+            self.close();
+            return;
+        }
+
+        axios.get(`http://localhost:3001/db/setIsMeetingFalse`, { withCredentials: true }).then(res => {
+            console.log(res.data);
+        });
+
         var submitList = messageList;
 
         for (var i = 0; i < messageList.length; i++) {
@@ -237,10 +258,6 @@ const MeetingProgress = () => {
         }, { withCredentials: true }).then(res => {
             console.log(res);
             handleLeaveRoom();
-        });
-
-        axios.get(`http://localhost:3001/db/setIsMeetingFalse`, { withCredentials: true }).then(res => {
-            console.log(res.data);
         });
     };
 

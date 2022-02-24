@@ -1,10 +1,9 @@
 import Head from 'next/head';
-import { Box, Container, Button } from '@mui/material';
+import { Box, Container } from '@mui/material';
 import { ScriptEditToolbar } from '../components/summary-step/script-edit-toolbar';
 import { ScriptEditResult } from '../components/summary-step/script-edit-result';
 import { AppLayout } from '../components/app-layout';
 import { useRouter } from 'next/router';
-import Link from 'next/link';
 import { useContext, useEffect } from 'react';
 import { UserContext } from '../utils/context/context';
 
@@ -42,28 +41,7 @@ const ScriptEdit = () => {
                         <ScriptEditResult />
                     </Box>
                 </Container>
-                <Box sx={{
-                        width: '100%',
-                        height: 100,
-                        background: 'white',
-                        position: 'fixed',
-                        left: 0,
-                        bottom: 0,
-                        zIndex: 1000,
-                        display: 'flex',
-                        justifyContent: 'right',
-                        alignItems: 'center',
-                        boxShadow: '0px -5px 3px 3px rgba(0, 0, 0, 0.1)'
-                    }}
-                >
-                    <Link
-                        href={{
-                            pathname: `/report-form-setting`, // 라우팅 id
-                        }}
-                    >
-                        <Button variant="contained" size="large" sx={{ marginRight: 2 }}>Next Step</Button>
-                    </Link>
-                </Box>
+                
             </Box>
         </>
     );
