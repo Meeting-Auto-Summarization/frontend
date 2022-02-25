@@ -97,8 +97,6 @@ export const ScriptEditResult = () => {
             temp.slice(temp.findIndex(i => i._id === del), 1);
         }
 
-        
-
         axios.post('http://localhost:3001/db/currentMeetingScript',
             { script: script },
             { withCredentials: true }).then(res => {
@@ -144,6 +142,10 @@ export const ScriptEditResult = () => {
                             </TableHead>
                             <TableBody>
                                 {script.map((line, idx) => {
+                                    const time = line.time;
+                                    const seconds = parseInt(time % 60);
+                                    const minutes = parseInt((time / 60) % 60);
+                                    const hours = parseInt(time / 3600);
                                     const isItemSelected = isSelected(line._id);
                                     const isItemDeleted = isDeleted(line._id);
 
@@ -174,7 +176,10 @@ export const ScriptEditResult = () => {
                                             </TableCell>
                                             <TableCell onClick={() => handleSelect(isItemDeleted, line._id)}>
                                                 <Typography color="textPrimary" variant="body1">
-                                                    {line.time}
+                                                    {hours != 0 && `${hours}:`}
+                                                    {minutes < 10 ? `0${minutes}` : minutes}
+                                                    :
+                                                    {seconds < 10 ? `0${seconds}` : seconds}
                                                 </Typography>
                                             </TableCell>
                                             <TableCell sx={{ paddingX: 0 }}>

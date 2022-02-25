@@ -120,7 +120,7 @@ export const AppSidebar = (props) => {
 
 	if (typeof window !== "undefined") {
 		window.goSummaryStep = function goSummaryStep() {
-			router.push('/script-edit');
+			router.push({ path: '/script-edit', replace: true });
 		};
 	}
 
