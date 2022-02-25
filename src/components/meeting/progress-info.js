@@ -30,13 +30,26 @@ const ProgressInfoButton = styled(Button)({
     },
 });
 
-export function ProgrssInfo({myVideo, handleCameraChange, handleAudioChange, isHost, parentCallback}) {
+export function ProgrssInfo({myVideo, handleCameraChange, handleAudioChange, isHost, time, parentCallback}) {
     const [micOn, setMicOn] = useState(true);
     const [cameraOn, setCameraOn] = useState(false);
     const [cameras, setCameras] = useState([]);
     const [microphones, setMicrophones] = useState([]);
     const [currentCamera,setCurrentCamera] = useState(0);
     const [currentMic,setCurrentMic] = useState(0);
+    const [hours, setHours] = useState(0);
+    const [minutes, setMinutes] = useState(0);
+    const [seconds, setSeconds] = useState(0);
+
+    useEffect(() => {
+        const newSec = parseInt(time % 60);
+        const newMin = parseInt((time / 60) % 60);
+        const newHours = parseInt(time / 3600);
+
+        setSeconds(newSec);
+        setMinutes(newMin);
+        setHours(newHours);
+    }, [time]);
 
     const handleMicOnOff = () => {
         const myStream = myVideo.current.srcObject;
@@ -103,25 +116,6 @@ export function ProgrssInfo({myVideo, handleCameraChange, handleAudioChange, isH
     useEffect(() => {
         getDevices();
     }, []);
-
-    const [hours, setHours] = useState(0);
-    const [minutes, setMinutes] = useState(0);
-    const [seconds, setSeconds] = useState(0);
-    const [time, setTime] = useState(0);
-
-    useEffect(() => {
-        const countdown = setInterval(() => {
-            const newSec = parseInt(time % 60);
-            const newMin = parseInt((time / 60) % 60);
-            const newHours = parseInt(time / 3600);
-
-            setSeconds(newSec);
-            setMinutes(newMin);
-            setHours(newHours);
-            setTime(time += 1);
-        }, 1000);
-        return () => clearInterval(countdown);
-    }, [time]);
 
     return (
         <Box>
@@ -298,7 +292,7 @@ export function ProgrssInfo({myVideo, handleCameraChange, handleAudioChange, isH
                     <ProgressInfoButton
                         variant="text"
                         sx={{ my: 1, mx: 1.5 }}
-                        onClick={() => parentCallback(time, isHost)}
+                        onClick={() => parentCallback(isHost)}
                     >
                         {isHost
                             ? '회의 종료'

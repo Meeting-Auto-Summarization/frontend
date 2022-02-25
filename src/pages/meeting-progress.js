@@ -25,6 +25,33 @@ const MeetingProgress = () => {
         return null;
     }
 
+    // 회의 진행 시간
+    const [time, setTime] = useState(0);
+
+    // 회의 생성 시점과 현재 시점의 차이를 계산하여 회의 진행 시간 초기 설정
+    useEffect(() => {
+        axios.get(`http://localhost:3001/db/currentMeetingDate`, { withCredentials: true }).then(res => {
+            console.log(res.data);
+            const createDate = new Date(Date.parse(res.data));
+            const nowDate = new Date();
+            const diff = (nowDate.getTime() - createDate.getTime()) / 1000;
+
+            console.log(createDate);
+            console.log(nowDate);
+            console.log(diff);
+
+            setTime(diff);
+        });
+    }, []);
+
+    // 1초마다 회의 시간 갱신
+    useEffect(() => {
+        const countdown = setInterval(() => {
+            setTime(time += 1);
+        }, 1000);
+        return () => clearInterval(countdown);
+    }, [time]);
+
     // 화상회의 관련
     const socket = io.connect('http://localhost:3001',
         { cors: { origin: 'http://localhost:3001' } }); // 서버랑 연결
@@ -38,17 +65,20 @@ const MeetingProgress = () => {
         {
             isCheck: false,
             nick: '고건준',
-            message: '안녕'
+            message: '안녕',
+            time: 30
         },
         {
             isCheck: true,
             nick: '권기준',
-            message: '안녕'
+            message: '안녕',
+            time: 30
         },
         {
             isCheck: false,
             nick: '주영환',
-            message: '안녕'
+            message: '안녕',
+            time: 30
         },
     ]);
  
@@ -117,7 +147,12 @@ const MeetingProgress = () => {
         })
         socket.on("msg", (userNick, msg) => {
             // stt메시지 받음
-            setMessageList(arr => [...arr, { isCheck: false, nick: userNick, message: msg }])
+            setMessageList(arr => [...arr, {
+                isCheck: false,
+                nick: userNick,
+                message: msg,
+                time: time
+            }])
             console.log(msg);
         });
 
@@ -238,7 +273,7 @@ const MeetingProgress = () => {
         console.log(peers);
     }, [peers]);
 
-    const handleSubmitScript = (time, isHost) => {
+    const handleSubmitScript = (isHost) => {
         if (!isHost) {
             self.close();
             return;
@@ -256,7 +291,7 @@ const MeetingProgress = () => {
             const newLine = {
                 isCheck: line.isCheck,
                 nick: line.nick,
-                time: '00:00',
+                time: line.time,
                 content: line.message
             };
 
@@ -273,6 +308,7 @@ const MeetingProgress = () => {
             handleLeaveRoom();
         });
     };
+
     function handleSummaryOnOff(summaryFlag) {
         axios.get("http://localhost:3001/db/currentMeetingId", { withCredentials: true }).then(response => {
             socket.emit("summaryAlert", response.data, summaryFlag);
@@ -292,12 +328,27 @@ const MeetingProgress = () => {
                 handleCameraChange={handleCameraChange}
                 handleAudioChange={handleAudioChange}
                 isHost={isHost}
+                time={time}
                 parentCallback={handleSubmitScript}
             />
-            <Grid container spacing={2} sx={{ height: "100%", flex: "1" }}>
-                <MeetingVideo peers={peers} myVideo={video} />
-                <MeetingScripts messageList={messageList} handleSummaryOnOff={handleSummaryOnOff} 
-                summaryFlag={summaryFlag} setSummaryFlag={setSummaryFlag}/>
+            <Grid
+                container
+                spacing={2}
+                sx={{
+                    height: "100%",
+                    flex: "1"
+                }}
+            >
+                <MeetingVideo
+                    peers={peers}
+                    myVideo={video}
+                />
+                <MeetingScripts
+                    messageList={messageList}
+                    handleSummaryOnOff={handleSummaryOnOff} 
+                    summaryFlag={summaryFlag}
+                    setSummaryFlag={setSummaryFlag}
+                />
             </Grid>
         </Box>
     );

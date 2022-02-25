@@ -14,7 +14,7 @@ const SummaryButton = styled(Button)({
     },
 });
 
-export function MeetingScripts({messageList, handleSummaryOnOff,summaryFlag,setSummaryFlag }) {
+export function MeetingScripts({messageList, handleSummaryOnOff, summaryFlag, setSummaryFlag}) {
     const handleSummaryButton = () => {
         if (summaryFlag) {
             handleSummaryOnOff(false);
@@ -44,88 +44,95 @@ export function MeetingScripts({messageList, handleSummaryOnOff,summaryFlag,setS
         <Grid item container spacing={1} xs={4}>
             <Box>
                 <Box display="flex">
-                <Typography
-                    variant="h6"
-                    align="left"
-                    sx={{ m: 2, flexGrow: 1, display: "inline" }}
-                >
-                    회의 명
-                </Typography>
-                {summaryFlag ? (
+                    <Typography
+                        variant="h6"
+                        align="left"
+                        sx={{ m: 2, flexGrow: 1, display: "inline" }}
+                    >
+                        회의 명
+                    </Typography>
                     <SummaryButton
                         href="#!"
                         variant="contained"
                         onClick={handleSummaryButton}
                         sx={{ my: 1, mx: 1.5 }}
                     >
-                        요약중지
+                        {summaryFlag
+                            ? "요약중지"
+                            : "요약시작"
+                        }
                     </SummaryButton>
-                ) : (
-                    <SummaryButton
-                        href="#!"
-                        variant="contained"
-                        onClick={handleSummaryButton}
-                        sx={{ my: 1, mx: 1.5 }}
-                    >
-                        요약시작
-                    </SummaryButton>
-                )}
                 </Box>
-                <Box backgroundColor="#F1FAEE" sx={{ height: 20 }} />
-                <Grid
-                    item
-                    container
-                    sx={{ overflow: "auto", height: "100%", minHeight: "100px" }}
+                <Box
+                    backgroundColor="#F1FAEE"
                 >
-                {messageList.map((item) => {
-                    return(
-                        <Grid
-                            container
-                            xs={12}
-                        >
-                            <Grid item xs={2} md={1}>
-                                <Checkbox
-                                    onChange={(e) => onCheckedElement(e.target.checked, item)}
-                                    checked={!!checkedList.includes(item)}
-                                    inputProps={{
-                                        "aria-label": "controlled",
-                                    }}
-                                    sx={{ padding: 0 }}
-                                />
-                            </Grid>
-                            <Grid item xs={3} md={2}>
-                                <Typography
-                                    variant="value"
-                                    color="text.primary"
-                                    sx={{ display: "inline" }}
+                    <Grid
+                        item
+                        container
+                        sx={{
+                            overflow: "auto",
+                            height: "100%",
+                            minHeight: "100px"
+                        }}
+                    >
+                        {messageList.map((item) => {
+                            const time = item.time;
+                            const seconds = parseInt(time % 60);
+                            const minutes = parseInt((time / 60) % 60);
+                            const hours = parseInt(time / 3600);
+                            
+                            return(
+                                <Grid
+                                    container
+                                    xs={12}
                                 >
-                                    00:00
-                                </Typography>
-                            </Grid>
-                            <Grid item xs={3} md={2}>
-                                <Typography
-                                    variant="value"
-                                    color="text.primary"
-                                    sx={{ display: "inline" }}
-                                >
-                                    {item.nick}
-                                </Typography>
-                            </Grid>
-                            <Grid item xs={4} md={6} align="left">
-                                <Typography
-                                    variant="value"
-                                    color="text.primary"
-                                    sx={{
-                                        display: "inline",
-                                    }}
-                                >
-                                    {item.message}
-                                </Typography>
-                            </Grid>
-                        </Grid>
-                        );
-                    })}
-                </Grid>
+                                    <Grid item xs={2} md={1}>
+                                        <Checkbox
+                                            onChange={(e) => onCheckedElement(e.target.checked, item)}
+                                            checked={!!checkedList.includes(item)}
+                                            inputProps={{
+                                                "aria-label": "controlled",
+                                            }}
+                                            sx={{ padding: 0 }}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={3} md={2}>
+                                        <Typography
+                                            variant="value"
+                                            color="text.primary"
+                                            sx={{ display: "inline" }}
+                                        >
+                                            {hours != 0 && `${hours}:`}
+                                            {minutes < 10 ? `0${minutes}` : minutes}
+                                            :
+                                            {seconds < 10 ? `0${seconds}` : seconds}
+                                        </Typography>
+                                    </Grid>
+                                    <Grid item xs={3} md={2}>
+                                        <Typography
+                                            variant="value"
+                                            color="text.primary"
+                                            sx={{ display: "inline" }}
+                                        >
+                                            {item.nick}
+                                        </Typography>
+                                    </Grid>
+                                    <Grid item xs={4} md={6} align="left">
+                                        <Typography
+                                            variant="value"
+                                            color="text.primary"
+                                            sx={{
+                                                display: "inline",
+                                            }}
+                                        >
+                                            {item.message}
+                                        </Typography>
+                                    </Grid>
+                                </Grid>
+                            );
+                        })}
+                    </Grid>
+                </Box>
             </Box>
         </Grid>
     );
