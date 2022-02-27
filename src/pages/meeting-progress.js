@@ -4,16 +4,22 @@ import { useRouter } from 'next/router';
 import { io } from "socket.io-client";
 import { MeetingScripts } from "../components/meeting/meeting-scripts";
 import { MeetingVideo } from "../components/meeting/meeting-video";
-import { ProgrssInfo } from "../components/meeting/progress-info";
+import { ProgressInfo } from "../components/meeting/progress-info";
 import { UserContext } from '../utils/context/context';
 import axios from 'axios';
 
 const MeetingProgress = () => {
     const router = useRouter();
-    const [isHost, setIsHost] = useState(null);
+    const [isHost, setIsHost] = useState();
     const [userNick, setUserNick] = useState('');
-    const { isLogin } = useContext(UserContext);
     const [summaryFlag, setSummaryFlag] = useState(false);
+    const [time, setTime] = useState(0);
+    const [code, setCode] = useState('');
+    const [title, setTitle] = useState('');
+    const { isLogin } = useContext(UserContext);
+    
+    const socket = io.connect('http://localhost:3001',
+    { cors: { origin: 'http://localhost:3001' } }); // 서버랑 연결
 
     useEffect(() => {
         if (!isLogin) {
@@ -24,25 +30,35 @@ const MeetingProgress = () => {
     if (!isLogin) {
         return null;
     }
-
-    // 회의 진행 시간
-    const [time, setTime] = useState(0);
-
-    // 회의 생성 시점과 현재 시점의 차이를 계산하여 회의 진행 시간 초기 설정
-    useEffect(() => {
-        axios.get(`http://localhost:3001/db/currentMeetingDate`, { withCredentials: true }).then(res => {
-            console.log(res.data);
-            const createDate = new Date(Date.parse(res.data));
-            const nowDate = new Date();
-            const diff = (nowDate.getTime() - createDate.getTime()) / 1000;
-
-            console.log(createDate);
-            console.log(nowDate);
-            console.log(diff);
-
-            setTime(diff);
-        });
-    }, []);
+    
+     // 화상회의 관련        
+     if (typeof navigator !== "undefined") {
+        const Peer = require("peerjs").default
+        const peer = new Peer();
+    }
+    
+    const [peers, setPeers] = useState([]); // peers
+    const video = useRef();
+    const [messageList, setMessageList] = useState([
+        {
+            isCheck: false,
+            nick: '고건준',
+            content: '안녕',
+            time: 30
+        },
+        {
+            isCheck: true,
+            nick: '권기준',
+            content: 'asdfasdfasdfdasfasdfasdfadsdsafasdfasdfasdasdfasdfasdfdasfasdfasdfadsdsafasdfasdfasd',
+            time: 30
+        },
+        {
+            isCheck: false,
+            nick: '주영환',
+            content: '안녕',
+            time: 30
+        },
+    ]);
 
     // 1초마다 회의 시간 갱신
     useEffect(() => {
@@ -52,38 +68,27 @@ const MeetingProgress = () => {
         return () => clearInterval(countdown);
     }, [time]);
 
-    // 화상회의 관련
-    const socket = io.connect('http://localhost:3001',
-        { cors: { origin: 'http://localhost:3001' } }); // 서버랑 연결
-    if (typeof navigator !== "undefined") {
-        const Peer = require("peerjs").default
-        const peer = new Peer();
-    }
-    const [peers, setPeers] = useState([]); // peers
-    const video = useRef();
-    const [messageList, setMessageList] = useState([
-        {
-            isCheck: false,
-            nick: '고건준',
-            message: '안녕',
-            time: 30
-        },
-        {
-            isCheck: true,
-            nick: '권기준',
-            message: '안녕',
-            time: 30
-        },
-        {
-            isCheck: false,
-            nick: '주영환',
-            message: '안녕',
-            time: 30
-        },
-    ]);
- 
-
     useEffect(() => {
+        axios.get('http://localhost:3001/db/currentMeeting', { withCredentials: true }).then(res => {
+            console.log(res.data);
+            const meeting = res.data.meeting;
+
+            console.log(meeting)
+
+            setCode(meeting.code);
+            setTitle(meeting.title);
+
+            const createDate = new Date(Date.parse(meeting.date));
+            const nowDate = new Date();
+            const diff = parseInt((nowDate.getTime() - createDate.getTime()) / 1000);
+
+            setTime(diff);
+        });
+
+        axios.get(`http://localhost:3001/db/isHost`, { withCredentials: true }).then(res => {
+            setIsHost(res.data);
+        });
+
         axios.get('http://localhost:3001/auth', { withCredentials: true }).then(res => {
             const meetingId = res.data.currentMeetingId;
             const nick = res.data.name;
@@ -96,61 +101,34 @@ const MeetingProgress = () => {
         }).catch(err => {
             console.log(err);
         });
+    }, []);
 
-        axios.get(`http://localhost:3001/db/isHost`, { withCredentials: true }).then(res => {
-            setIsHost(res.data);
+    useEffect(() => {
+        axios.get(`http://localhost:3001/db/currentMeetingScript`, { withCredentials: true }).then(res => {
+            setMessageList(res.data);
             console.log(res.data);
         });
     }, []);
 
     useEffect(() => {
-        axios.get(`http://localhost:3001/db/isMeeting`, { withCredentials: true }).then(res => {
-            console.log(res.data);
-         if (!res.data) {
-                self.close();
-            }
-      });
-    }, [peers]);
-    
-    const connectToNewUser = async(userId, stream, remoteNick) => {
-        const {data}=await axios.get('http://localhost:3001/auth', { withCredentials: true });
-        console.log(data);//userNick넣어줘야함
-        const call = peer.call(userId, stream, { metadata: { "receiverNick": remoteNick, "senderNick": data.name } });
-        // call객체 생성(dest-id,my-mediaStream)
-        // 들어온 상대방에게 call요청 보냄
-        call.on('stream', (userVideoStream) => {
-            // 새로 들어온 사람이 answer했을 때 stream이벤트 발생함
-            setPeers(arr => {
-                if (arr.findIndex(v => v.id === userId) < 0)
-                    return [...arr, { id: userId, nick: call.metadata.receiverNick, call: call, stream: userVideoStream }];
-                else {
-                    arr[arr.findIndex(v => v.id === userId)] = { id: userId, nick: call.metadata.receiverNick, call: call, stream: userVideoStream };
-                    return [...arr];
-                }
-            });
-        });
-        call.on('close', () => {
-            // 상대가 나가서 close 이벤트 발생
-            console.log("close");
-        });
-    }
-    
-    useEffect(() => {
+   
         socket.on("summaryOffer", (roomName, summaryFlag) => {
             setSummaryFlag(summaryFlag);
             console.log("userNick");
             console.log(userNick);
             socket.emit("summaryStateChange", roomName, summaryFlag);
         });
-        socket.on("initSummaryFlag",(flag)=>{
+
+        socket.on("initSummaryFlag", (flag) => {
             setSummaryFlag(flag);
-        })
+        });
+
         socket.on("msg", (userNick, msg) => {
             // stt메시지 받음
             setMessageList(arr => [...arr, {
                 isCheck: false,
                 nick: userNick,
-                message: msg,
+                content: msg,
                 time: time
             }])
             console.log(msg);
@@ -159,7 +137,7 @@ const MeetingProgress = () => {
         // peer서버와 정상적으로 통신이 된 경우 open event 발생
         console.log('open');
 
-        navigator.mediaDevices.getUserMedia({ video: true, audio: false }).then((stream) => {
+        navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
             stream.getVideoTracks().forEach((track) => {
                 track.enabled = !track.enabled;
             })
@@ -203,6 +181,38 @@ const MeetingProgress = () => {
             });
         });
     }, [])
+
+
+    useEffect(() => {
+        axios.get(`http://localhost:3001/db/isMeeting`, { withCredentials: true }).then(res => {    
+            if (!res.data) {
+                self.close();
+            }
+      });
+    }, [peers]);
+    
+    const connectToNewUser = async(userId, stream, remoteNick) => {
+        const {data}=await axios.get('http://localhost:3001/auth', { withCredentials: true });
+        console.log(data);//userNick넣어줘야함
+        const call = peer.call(userId, stream, { metadata: { "receiverNick": remoteNick, "senderNick": data.name } });
+        // call객체 생성(dest-id,my-mediaStream)
+        // 들어온 상대방에게 call요청 보냄
+        call.on('stream', (userVideoStream) => {
+            // 새로 들어온 사람이 answer했을 때 stream이벤트 발생함
+            setPeers(arr => {
+                if (arr.findIndex(v => v.id === userId) < 0)
+                    return [...arr, { id: userId, nick: call.metadata.receiverNick, call: call, stream: userVideoStream }];
+                else {
+                    arr[arr.findIndex(v => v.id === userId)] = { id: userId, nick: call.metadata.receiverNick, call: call, stream: userVideoStream };
+                    return [...arr];
+                }
+            });
+        });
+        call.on('close', () => {
+            // 상대가 나가서 close 이벤트 발생
+            console.log("close");
+        });
+    }
 
     // 장치 관련
     const handleCameraChange = (deviceId) => {
@@ -261,7 +271,7 @@ const MeetingProgress = () => {
         });
     }
 
-    const handleLeaveRoom = ()=>{
+    const handleLeaveRoom = () => {
         video.current.srcObject.getTracks().forEach((track)=>{
             track.stop();
         });
@@ -274,35 +284,21 @@ const MeetingProgress = () => {
     }, [peers]);
 
     const handleSubmitScript = (isHost) => {
+        opener.location.reload();
+
         if (!isHost) {
+            opener.endMeeting();
             self.close();
             return;
         }
 
-        axios.get(`http://localhost:3001/db/setIsMeetingFalse`, { withCredentials: true }).then(res => {
+        axios.get(`http://localhost:3001/db/setIsMeetingAllFalse`, { withCredentials: true }).then(res => {
             console.log(res.data);
         });
 
-        var submitList = messageList;
-
-        for (var i = 0; i < messageList.length; i++) {
-            const line = submitList[i];
-
-            const newLine = {
-                isCheck: line.isCheck,
-                nick: line.nick,
-                time: line.time,
-                content: line.message
-            };
-
-            submitList[i] = newLine;
-        }
-
-        console.log(submitList);
-
         axios.post(`http://localhost:3001/db/submitMeeting`, {
             time: time,
-            text: submitList
+            text: messageList
         }, { withCredentials: true }).then(res => {
             console.log(res);
             handleLeaveRoom();
@@ -318,37 +314,45 @@ const MeetingProgress = () => {
     return (
         <Box
             sx={{
-                display: "flex",
-                flexDirection: "column",
                 height: "100%",
+                display: "flex",
+                flexDirection: "column"
             }}
         >
-            <ProgrssInfo
+            <style global jsx>
+                {`html, body, body > div:first-child, div#__next, div#__next > div { height: 100%; }`}
+            </style>
+            <ProgressInfo
                 myVideo={video}
                 handleCameraChange={handleCameraChange}
                 handleAudioChange={handleAudioChange}
                 isHost={isHost}
                 time={time}
+                code={code}
                 parentCallback={handleSubmitScript}
             />
             <Grid
                 container
-                spacing={2}
                 sx={{
-                    height: "100%",
+                    height: "calc(100% - 90px)",
                     flex: "1"
                 }}
             >
-                <MeetingVideo
-                    peers={peers}
-                    myVideo={video}
-                />
-                <MeetingScripts
-                    messageList={messageList}
-                    handleSummaryOnOff={handleSummaryOnOff} 
-                    summaryFlag={summaryFlag}
-                    setSummaryFlag={setSummaryFlag}
-                />
+                <Grid item xs={8.5}>
+                    <MeetingVideo
+                        peers={peers}
+                        myVideo={video}
+                    />
+                </Grid>
+                <Grid item xs={3.5}>
+                    <MeetingScripts
+                        messageList={messageList}
+                        handleSummaryOnOff={handleSummaryOnOff} 
+                        summaryFlag={summaryFlag}
+                        setSummaryFlag={setSummaryFlag}
+                        title={title}
+                    />
+                </Grid>
             </Grid>
         </Box>
     );

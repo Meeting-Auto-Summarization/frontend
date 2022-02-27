@@ -19,7 +19,7 @@ export const ScriptEditToolbar = ({description}) => {
             tempMeeting.date = new Date(Date.parse(tempMeeting.date)).toLocaleString();
             tempMeeting.members = members;
 
-            setMeeting(tempMeeting)
+            setMeeting(tempMeeting);
         });        
     }, []);
 
@@ -33,7 +33,7 @@ export const ScriptEditToolbar = ({description}) => {
                 m: -1
             }}
         >
-            {meeting && 
+            {meeting &&
                 <Box
                     sx={{ 
                         width: '100%',

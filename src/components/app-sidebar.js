@@ -82,7 +82,7 @@ export const AppSidebar = (props) => {
 			capacity: limitNum,
 		}, { withCredentials: true }).then(res => {
 			// 회의 생성완료후 할 작업 
-
+			setIsMeeting(true);
 		});
 
 		setIsOpenCodeDialog(true);
@@ -91,6 +91,9 @@ export const AppSidebar = (props) => {
 	const handleSubmitJoinDialog = (code) => {
 		axios.get(`http://localhost:3001/db/joinMeeting/${code}`, { withCredentials: true }).then(res => {
         	if (res.data) {
+				axios.get(`http://localhost:3001/db/isMeeting`, { withCredentials: true }).then(res => {
+					setIsMeeting(res.data);
+				});
 				window.open('/meeting-progress');
 			} else {
 				alert('존재하지 않는 코드입니다.')
@@ -113,14 +116,19 @@ export const AppSidebar = (props) => {
 
 	useEffect(() => {
 		axios.get(`http://localhost:3001/db/isMeeting`, { withCredentials: true }).then(res => {
-			console.log(res.data);
 			setIsMeeting(res.data);
 		});
-	});
+	}, []);
 
 	if (typeof window !== "undefined") {
 		window.goSummaryStep = function goSummaryStep() {
-			router.push({ path: '/script-edit', replace: true });
+			router.push('/script-edit');
+		};
+
+		window.endMeeting = function endMeeting() {			
+			axios.get(`http://localhost:3001/db/setIsMeetingAllFalse`, { withCredentials: true }).then(res => {
+                console.log(res.data);
+            });
 		};
 	}
 
@@ -285,7 +293,7 @@ export const AppSidebar = (props) => {
 			sx={{ zIndex: (theme) => theme.zIndex.appBar + 100 }}
 			variant="temporary"
 		>
-		{content}
+			{content}
 		</Drawer>
 	);
 };
