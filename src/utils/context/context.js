@@ -3,7 +3,7 @@ import axios from "axios"
 
 export const UserContext = createContext({});
 
-const UserContextProvider = ({children}) => {
+const UserContextProvider = ({ children }) => {
     const [isLogin, setIsLogin] = useState(true);
     const [userEmail, setUserEmail] = useState();
     const [userNick, setUserNick] = useState('');
@@ -19,17 +19,17 @@ const UserContextProvider = ({children}) => {
         userLastName, setUserLastName,
         userAvatar, setUserAvatar,
     }),
-    [
-        isLogin, setIsLogin,
-        userEmail, setUserEmail,
-        userNick, setUserNick,
-        userFirstName, setUserFirstName,
-        userLastName, setUserLastName,
-        userAvatar, setUserAvatar,
-    ]);
+        [
+            isLogin, setIsLogin,
+            userEmail, setUserEmail,
+            userNick, setUserNick,
+            userFirstName, setUserFirstName,
+            userLastName, setUserLastName,
+            userAvatar, setUserAvatar,
+        ]);
 
     const getLoginInfo = () => {
-        axios.get('http://localhost:3001/auth', { withCredentials: true }).then(response => {
+        axios.get('http://localhost:3001/auth/user-info', { withCredentials: true }).then(response => {
             setIsLogin(response.data != '');
 
             if (response.data == '') {
@@ -48,7 +48,7 @@ const UserContextProvider = ({children}) => {
     }
 
     useEffect(() => {
-        getLoginInfo() 
+        getLoginInfo()
         console.log("rendering");
     }, [])
 
@@ -57,7 +57,7 @@ const UserContextProvider = ({children}) => {
         console.log(isLogin);
     }, [isLogin])
 
-    return(
+    return (
         <UserContext.Provider value={value}>
             {children}
         </UserContext.Provider>
