@@ -25,6 +25,11 @@ export const MeetingAccess = ({callback}) => {
             <Typography
                 color="neutral.300"
                 variant="body2"
+                sx={{
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
+                }}
             >
                 {title}
             </Typography>
