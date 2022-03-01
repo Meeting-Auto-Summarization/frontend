@@ -186,7 +186,6 @@ export function ProgressInfo({myVideo, handleCameraChange, handleAudioChange, is
         getDevices();
     }, []);
 
-    console.log(members);
 
     return (
         <MeetingNavBar position="static">

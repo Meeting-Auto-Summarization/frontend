@@ -89,17 +89,19 @@ const MeetingProgress = () => {
             setIsHost(res.data);
         });
 
-        axios.get('http://localhost:3001/auth/meeting-info', { withCredentials: true }).then(res => {
-            const meetingId = res.data.currentMeetingId;
-            const nick = res.data.name;
-            setUserNick(nick);
-
-            peer.on('open', (id) => { // userid가 peer로 인해 생성됨
-                console.log("open");
-                socket.emit('join-room', meetingId, id, nick);
+      
+        peer.on('open', (id) => { // userid가 peer로 인해 생성됨
+            console.log("open");
+            axios.get('http://localhost:3001/auth/meeting-info', { withCredentials: true }).then(res => {
+                const {currentMeetingId}=res.data;
+                const nick = res.data.name;
+                setUserNick(nick);
+                console.log("debug");
+                console.log(currentMeetingId);
+                socket.emit('join-room', currentMeetingId, id, nick);
+            }).catch(err => {
+                console.log(err);
             });
-        }).catch(err => {
-            console.log(err);
         });
     }, []);
 
@@ -112,17 +114,14 @@ const MeetingProgress = () => {
 
     useEffect(() => {
    
-        socket.on("summaryOffer", (roomName, summaryFlag) => {
+        socket.on("summaryOffer", (summaryFlag) => {
             setSummaryFlag(summaryFlag);
-            console.log("userNick");
-            console.log(userNick);
-            socket.emit("summaryStateChange", roomName, summaryFlag);
         });
         socket.on("initSummaryFlag", (flag) => {
             setSummaryFlag(flag);
         });
 
-        socket.on("msg", (userNick, msg) => {
+        socket.on("msg", (userNick,time, msg) => {
             // stt메시지 받음
             setMessageList(arr => [...arr, {
                 isCheck: false,
@@ -267,6 +266,7 @@ const MeetingProgress = () => {
                 console.log(audioSender);
             }
         });
+        socket.emit("deviceChange",summaryFlag,deviceId);
     }
 
     const handleLeaveRoom = () => {
