@@ -46,7 +46,7 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     },
 }));
 
-const StyledTableRow = styled(TableRow)(({ theme }) => ({
+const StyledTableRow = styled(TableRow)({
     '&:nth-of-type(odd)': {
         backgroundColor: "#ffe8ff",
     },
@@ -57,7 +57,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
     '&:last-child td, &:last-child th': {
       border: 0,
     },
-}));
+});
 
 export const ScriptsResultCard = () => {
     const [scripts, setScripts] = useState([]);
@@ -115,6 +115,11 @@ export const ScriptsResultCard = () => {
                     </TableHead>
                     <TableBody>
                         {scripts.map((line) => {
+                            const time = line.time;
+                            const seconds = parseInt(time % 60);
+                            const minutes = parseInt((time / 60) % 60);
+                            const hours = parseInt(time / 3600);
+                            
                             return(
                                 <StyledTableRow
                                     hover
@@ -135,14 +140,17 @@ export const ScriptsResultCard = () => {
                                             color="text.primary"
                                             sx={{ display: "inline" }}
                                         >
-                                            {line.time}
+                                            {hours != 0 && `${hours}:`}
+                                            {minutes < 10 ? `0${minutes}` : minutes}
+                                            :
+                                            {seconds < 10 ? `0${seconds}` : seconds}
                                         </Typography>
                                     </StyledTableCell>
                                     <StyledTableCell width="68%" sx={{ paddingY: 1 }}>
                                         <Typography
                                             variant="body1"
                                             color="text.primary"
-                                            sx={{ display: "inline" }}
+                                            sx={{ display: "inline", wordBreak: "break-all" }}
                                         >
                                             {line.content}
                                         </Typography>
