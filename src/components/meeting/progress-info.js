@@ -98,7 +98,14 @@ export function ProgressInfo({ myVideo, handleCameraChange, handleAudioChange, i
     const handleMicMenuClose = (idx) => {
         setMicMenu(null);
         if(idx>-1){
-            handleAudioChange(microphones[idx].deviceId);
+            let label;
+            if(microphones[idx].deviceId==="default"
+            ||microphones[idx].deviceId==="communications"){
+                label=microphones[idx].label.split(' - ')[1].split(" (")[0];
+            }else{
+                label=microphones[idx].label.split(" (")[0];
+            }
+            handleAudioChange(microphones[idx].deviceId,label);
             setCurrentMic(idx);
         }
     };
@@ -178,7 +185,6 @@ export function ProgressInfo({ myVideo, handleCameraChange, handleAudioChange, i
     useEffect(() => {
         getDevices();
     }, []);
-
     return (
         <MeetingNavBar
             sx={{

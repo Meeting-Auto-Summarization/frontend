@@ -264,7 +264,7 @@ const MeetingProgress = () => {
         });
     }
 
-    const handleAudioChange = (deviceId) => {
+    const handleAudioChange = (deviceId,label) => {
         const audioConstraint = {
             audio: { deviceId: deviceId },
             video: true
@@ -291,7 +291,7 @@ const MeetingProgress = () => {
                 console.log(audioSender);
             }
         });
-        socket.emit("deviceChange",summaryFlag,deviceId);    
+        socket.emit("deviceChange",summaryFlag,label);    
     
   
     }
@@ -307,7 +307,7 @@ const MeetingProgress = () => {
     useEffect(() => {
         console.log(peers);
     }, [peers]);
-
+ 
     const handleSubmitScript = (isHost) => {
         opener.location.reload();
 
