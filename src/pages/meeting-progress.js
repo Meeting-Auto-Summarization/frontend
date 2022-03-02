@@ -337,6 +337,9 @@ const MeetingProgress = () => {
         if(summaryFlag)
         socket.emit("micOnOff",micStatus);
     }
+    function handleServerScript(index,isChecked){
+        socket.emit("handleCheck",index,isChecked);
+    }
 
     return (
         <>
@@ -412,6 +415,7 @@ const MeetingProgress = () => {
                     summaryFlag={summaryFlag}
                     setSummaryFlag={setSummaryFlag}
                     title={title}
+                    handleServerScript={handleServerScript}
                 />
             </Drawer>
             

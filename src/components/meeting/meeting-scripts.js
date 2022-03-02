@@ -61,7 +61,7 @@ const StyledTableRow = styled(TableRow)({
     },
 });
 
-export function MeetingScripts({ messageList, handleSummaryOnOff, summaryFlag, setSummaryFlag, title }) {
+export function MeetingScripts({ messageList, handleSummaryOnOff, summaryFlag, setSummaryFlag, title ,handleServerScript}) {
     const handleSummaryButton = () => {
         if (summaryFlag) {
             handleSummaryOnOff(false);
@@ -79,6 +79,7 @@ export function MeetingScripts({ messageList, handleSummaryOnOff, summaryFlag, s
         .then(res => {
             console.log(res.data);
         });
+       // handleServerScript(index,e.target.checked);
     };
 
     return (
