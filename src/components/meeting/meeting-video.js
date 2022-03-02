@@ -104,7 +104,7 @@ export function MeetingVideo({peers, myVideo}) {
                 sx={{
                     display: "flex",
                     width: "24%",
-                    height: "27%",
+                    minWidht: '150px',
                     backgroundColor: "#000000",
                     position: "absolute",
                     right: 0,

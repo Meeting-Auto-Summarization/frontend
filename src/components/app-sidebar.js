@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect } from 'react';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import PropTypes from 'prop-types';
@@ -11,7 +11,6 @@ import { UserAdd as UserAddIcon } from '../icons/user-add';
 import { XCircle as XCircleIcon } from '../icons/x-circle';
 import { Logo } from './logo';
 import { NavItem } from './nav-item';
-import { UserContext } from '../utils/context/context';
 import { MeetingAccess } from './app-sidebar/meeting-access';
 import { CreateMeetingDialog } from './app-sidebar/create-meeting-dialog';
 import { MeetingCodeDialog } from './app-sidebar/meeting-code-dialog';
@@ -67,25 +66,18 @@ export const AppSidebar = (props) => {
 
 	const [meetingCode, setMeetingCode] = useState('');
 	const [isMeeting, setIsMeeting] = useState(false);
-	const { userNick } = useContext(UserContext);
 
 	const handleSubmitCreateDialog = (title, limitNum) => {
-		const code = Math.random().toString(36).substr(2,6);
-		setMeetingCode(code);
-		console.log(code);
-		
 		axios.post('http://localhost:3001/db/createMeeting', {
 			title: title,
-			members: [userNick],
-			hostId: userNick,
-			code: code,
+			// code: code,
 			capacity: limitNum,
 		}, { withCredentials: true }).then(res => {
 			// 회의 생성완료후 할 작업 
 			setIsMeeting(true);
+			setMeetingCode(res.data);
+			setIsOpenCodeDialog(true);
 		});
-
-		setIsOpenCodeDialog(true);
     };
 
 	const handleSubmitJoinDialog = (code) => {
@@ -96,7 +88,7 @@ export const AppSidebar = (props) => {
 				});
 				window.open('/meeting-progress');
 			} else {
-				alert('존재하지 않는 코드입니다.')
+				alert('존재하지 않거나 이미 종료된 회의입니다.')
 			}
       	});
 	};
@@ -121,10 +113,6 @@ export const AppSidebar = (props) => {
 	}, []);
 
 	if (typeof window !== "undefined") {
-		window.goSummaryStep = function goSummaryStep() {
-			router.push('/script-edit');
-		};
-
 		window.endMeeting = function endMeeting() {			
 			axios.get(`http://localhost:3001/db/setIsMeetingAllFalse`, { withCredentials: true }).then(res => {
                 console.log(res.data);

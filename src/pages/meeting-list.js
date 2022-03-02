@@ -1,12 +1,12 @@
 import Head from 'next/head'
 import { Box, Container, Grid, Pagination } from '@mui/material';
 import { AppLayout } from 'src/components/app-layout';
-import { meetings } from 'src/__mocks__/meetings';
 import { MeetingListResult } from 'src/components/meeting-list/meeting-list-result';
 import { MeetingListToolbar } from 'src/components/meeting-list/meeting-list-toolbar';
 import { useState, useEffect, useContext } from 'react';
 import { UserContext } from '../utils/context/context';
 import { useRouter } from 'next/router';
+import axios from 'axios';
 
 const MeetingList = () => {
     const { isLogin } = useContext(UserContext);
@@ -20,8 +20,27 @@ const MeetingList = () => {
 
     const [limit, setLimit] = useState(6);
     const [page, setPage] = useState(1);
+    const [meetings, setMeetings] = useState([]);
 
     useEffect(() => {
+        axios.get(`http://localhost:3001/db/meetingList`, { withCredentials: true }).then(res => {
+            const data = res.data;
+            console.log(res)
+            let meetingList = [];
+
+            for (var i = 0; i < data.length; i++) {
+                const tempMeeting = data[i].meeting;
+
+                const date = new Date(Date.parse(tempMeeting.date));
+                tempMeeting.date = `${date.toLocaleDateString()} ${date.toLocaleTimeString().slice(3)}`;
+                tempMeeting.members = data[i].members;
+
+                meetingList.push(tempMeeting);
+            }
+            
+            setMeetings(meetingList);
+        });
+
         function handleResize() {
             let width = window.innerWidth
             
@@ -68,7 +87,7 @@ const MeetingList = () => {
                                 return (
                                     <Grid
                                         item
-                                        key={meeting.id}
+                                        key={meeting._id}
                                         xl={4}
                                         md={6}
                                         xs={12}

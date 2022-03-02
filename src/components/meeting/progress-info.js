@@ -27,10 +27,9 @@ import {
 import axios from 'axios';
 
 const MeetingNavBar = styled(AppBar)(({ theme }) => ({
-    height: "90px",
     backgroundColor: theme.palette.background.paper,
     boxShadow: theme.shadows[9],
-    zIndex: 3
+    zIndex: theme.zIndex.drawer + 1 
 }));
 
 const ProgressInfoButton = styled(Button)(({ theme }) => ({
@@ -47,7 +46,7 @@ const ProgressInfoButton = styled(Button)(({ theme }) => ({
     },
 }));
 
-export function ProgressInfo({myVideo, handleCameraChange, handleAudioChange, isHost, time, code, parentCallback,handleMute}) {
+export function ProgressInfo({ myVideo, handleCameraChange, handleAudioChange, isHost, time, code, members, parentCallback,handleMute }) {
     const [micOn, setMicOn] = useState(true);
     const [cameraOn, setCameraOn] = useState(false);
     const [cameras, setCameras] = useState([]);
@@ -57,7 +56,6 @@ export function ProgressInfo({myVideo, handleCameraChange, handleAudioChange, is
     const [hours, setHours] = useState(0);
     const [minutes, setMinutes] = useState(0);
     const [seconds, setSeconds] = useState(0);
-    const [members, setMembers] = useState([]);
 
     useEffect(() => {
         const newSec = parseInt(time % 60);
@@ -68,12 +66,6 @@ export function ProgressInfo({myVideo, handleCameraChange, handleAudioChange, is
         setMinutes(newMin);
         setHours(newHours);
     }, [time]);
-
-    useEffect(() => {
-        axios.get('http://localhost:3001/db/currentMeetingMembers', { withCredentials: true }).then(res => {
-            setMembers(res.data);
-        });
-    }, []);
 
     const handleMicOnOff = () => {
         const myStream = myVideo.current.srcObject;
@@ -187,17 +179,17 @@ export function ProgressInfo({myVideo, handleCameraChange, handleAudioChange, is
         getDevices();
     }, []);
 
-    useEffect(()=>{
-        console.log(microphones);
-    },[microphones]);
     return (
-        <MeetingNavBar position="static">
+        <MeetingNavBar
+            sx={{
+                height: "90px"
+            }}
+        >
             <Toolbar
                 disableGutters
                 sx={{
                     left: 0,
-                    pl: 2,
-                    pr: 3,
+                    px: 2,
                     py: 0.5
                 }}
             >
@@ -438,14 +430,14 @@ export function ProgressInfo({myVideo, handleCameraChange, handleAudioChange, is
                     "aria-labelledby": "member-menu",
                 }}
             >
-                {members.map((mem, idx) => {
+                {members.map((mem, idx) => (
                     <MenuItem
                         key={idx}
                         onClick={handleMemberMenuClose}
                     >
                         {mem}
                     </MenuItem>
-                })}
+                ))}
             </Menu>
         </MeetingNavBar>
     );

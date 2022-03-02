@@ -1,7 +1,8 @@
-import { Grid, Box } from "@mui/material";
 import { useContext, useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { io } from "socket.io-client";
+import { Box, styled, useMediaQuery, Drawer, IconButton } from "@mui/material";
+import { ArrowBackIosNew, ArrowForwardIos } from '@mui/icons-material';
 import { MeetingScripts } from "../components/meeting/meeting-scripts";
 import { MeetingVideo } from "../components/meeting/meeting-video";
 import { ProgressInfo } from "../components/meeting/progress-info";
@@ -10,15 +11,28 @@ import axios from 'axios';
 
 const socket = io.connect('http://localhost:3001',
 { cors: { origin: 'http://localhost:3001' } }); // 서버랑 연결
+const ProcessLayoutRoot = styled('div')({
+    display: 'flex',
+    flex: '1 1 auto',
+    maxWidth: '100%',
+    paddingTop: 90,
+});
+
 const MeetingProgress = () => {
     const router = useRouter();
     const [isHost, setIsHost] = useState();
+    const [isSidebarOpen, setSidebarOpen] = useState(true);
     const [userNick, setUserNick] = useState('');
     const [summaryFlag, setSummaryFlag] = useState(false);
     const [time, setTime] = useState(0);
     const [code, setCode] = useState('');
     const [title, setTitle] = useState('');
+    const [members, setMembers] = useState([]);
     const { isLogin } = useContext(UserContext);
+    const lgUp = useMediaQuery((theme) => theme.breakpoints.up('lg'), {
+		defaultMatches: true,
+		noSsr: false
+	});
     
 
 
@@ -27,6 +41,15 @@ const MeetingProgress = () => {
             router.push('/not-login');
         }
     });
+
+    useEffect(() => {
+        if (lgUp) {
+            setSidebarOpen(true);
+        } 
+        else {
+            setSidebarOpen(false);
+        }
+    }, [lgUp]);
 
     if (!isLogin) {
         return null;
@@ -42,19 +65,19 @@ const MeetingProgress = () => {
     const video = useRef();
     const [messageList, setMessageList] = useState([
         {
-            isCheck: false,
+            isChecked: false,
             nick: '고건준',
             content: '안녕',
             time: 30
         },
         {
-            isCheck: true,
+            isChecked: true,
             nick: '권기준',
             content: 'asdfasdfasdfdasfasdfasdfadsdsafasdfasdfasdasdfasdfasdfdasfasdfasdfadsdsafasdfasdfasd',
             time: 30
         },
         {
-            isCheck: false,
+            isChecked: false,
             nick: '주영환',
             content: '안녕',
             time: 30
@@ -73,6 +96,7 @@ const MeetingProgress = () => {
         axios.get('http://localhost:3001/db/currentMeeting', { withCredentials: true }).then(res => {
             console.log(res.data);
             const meeting = res.data.meeting;
+            setMembers(res.data.members);
 
             console.log(meeting)
 
@@ -125,7 +149,7 @@ const MeetingProgress = () => {
         socket.on("msg", (userNick,time, msg) => {
             // stt메시지 받음
             setMessageList(arr => [...arr, {
-                isCheck: false,
+                isChecked: false,
                 nick: userNick,
                 content: msg,
                 time: time
@@ -276,7 +300,7 @@ const MeetingProgress = () => {
         video.current.srcObject.getTracks().forEach((track)=>{
             track.stop();
         });
-        opener.goSummaryStep();
+        opener.location.href = '/script-edit';
         self.close();
     }
 
@@ -315,16 +339,48 @@ const MeetingProgress = () => {
     }
 
     return (
-        <Box
-            sx={{
-                height: "100%",
-                display: "flex",
-                flexDirection: "column"
-            }}
-        >
-            <style global jsx>
+        <>
+            {/* <style global jsx>
                 {`html, body, body > div:first-child, div#__next, div#__next > div { height: 100%; }`}
-            </style>
+            </style> */}
+            <ProcessLayoutRoot>
+                <Box
+                    sx={{
+                        position: 'relative',
+                        display: 'flex',
+                        flex: '1 1 auto',
+                        flexDirection: 'column',
+                        ...(isSidebarOpen && {
+                            paddingRight: '450px'
+                        })
+                    }}
+                >    
+                    <MeetingVideo
+                        peers={peers}
+                        myVideo={video}
+                    />
+                    <IconButton
+                        onClick={() => setSidebarOpen(!isSidebarOpen)}
+                        sx={{
+                            position: "fixed",
+                            right: 0,
+                            height: '100px',
+                            backgroundColor: "#202020",
+                            borderRadius: "12px 0 0 12px",
+                            p: 1.5,
+                            mt: 1,
+                            ...(isSidebarOpen && {
+                                mr: '450px'
+                            })
+                        }}
+                    >
+                        {isSidebarOpen
+                            ? <ArrowForwardIos/>
+                            : <ArrowBackIosNew/>
+                        }
+                    </IconButton>
+                </Box>
+            </ProcessLayoutRoot>
             <ProgressInfo
                 myVideo={video}
                 handleCameraChange={handleCameraChange}
@@ -332,33 +388,34 @@ const MeetingProgress = () => {
                 isHost={isHost}
                 time={time}
                 code={code}
+                members={members}
                 parentCallback={handleSubmitScript}
                 handleMute={handleMute}
             />
-            <Grid
-                container
-                sx={{
-                    height: "calc(100% - 90px)",
-                    flex: "1"
+            <Drawer
+                anchor="right"
+                open={isSidebarOpen}
+                PaperProps={{
+                    sx: {
+                        pt: '90px',
+                        width: '450px',
+                        border: 'none',
+                        boxShadow: (theme) => theme.shadows[7],
+                    }
                 }}
+                sx={{ zIndex: (theme) => theme.zIndex.appBar + 100 }}
+                variant="persistent"
             >
-                <Grid item xs={8.5}>
-                    <MeetingVideo
-                        peers={peers}
-                        myVideo={video}
-                    />
-                </Grid>
-                <Grid item xs={3.5}>
-                    <MeetingScripts
-                        messageList={messageList}
-                        handleSummaryOnOff={handleSummaryOnOff} 
-                        summaryFlag={summaryFlag}
-                        setSummaryFlag={setSummaryFlag}
-                        title={title}
-                    />
-                </Grid>
-            </Grid>
-        </Box>
+                <MeetingScripts
+                    messageList={messageList}
+                    handleSummaryOnOff={handleSummaryOnOff} 
+                    summaryFlag={summaryFlag}
+                    setSummaryFlag={setSummaryFlag}
+                    title={title}
+                />
+            </Drawer>
+            
+        </>
     );
 };
 
