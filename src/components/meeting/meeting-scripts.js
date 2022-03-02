@@ -12,7 +12,7 @@ import {
     tableCellClasses,
     TableBody,
 } from "@mui/material";
-import { useState, useCallback } from "react";
+import axios from 'axios';
 
 const SummaryButton = styled(Button)(({ theme }) => ({
     background: "#c4e3ba",
@@ -62,8 +62,6 @@ const StyledTableRow = styled(TableRow)({
 });
 
 export function MeetingScripts({ messageList, handleSummaryOnOff, summaryFlag, setSummaryFlag, title }) {
-    const [checkedList, setCheckedLists] = useState([]);
-
     const handleSummaryButton = () => {
         if (summaryFlag) {
             handleSummaryOnOff(false);
@@ -73,17 +71,15 @@ export function MeetingScripts({ messageList, handleSummaryOnOff, summaryFlag, s
             setSummaryFlag(true);
         }
     };
-    
-    const onCheckedElement = useCallback(
-        (checked, list) => {
-            if (checked) {
-                setCheckedLists([...checkedList, list]);
-            } else {
-                setCheckedLists(checkedList.filter((el) => el !== list));
-            }
-        },
-        [checkedList]
-    );
+
+    const handleCheck = (e, index) => {
+        axios.post('http://localhost:3001/db/scriptChecked',
+            { index: index, isChecked: e.target.checked },
+            { withCredentials: true })
+        .then(res => {
+            console.log(res.data);
+        });
+    };
 
     return (
         <ScriptsBox>
@@ -148,8 +144,8 @@ export function MeetingScripts({ messageList, handleSummaryOnOff, summaryFlag, s
                                 >
                                     <StyledTableCell sx={{ paddingY: 1 }}>
                                         <Checkbox
-                                            onChange={(e) => onCheckedElement(e.target.checked, line)}
-                                            checked={!!checkedList.includes(line)}
+                                            defaultChecked={line.isChecked}
+                                            onChange={(e) => handleCheck(e, index)}
                                             inputProps={{
                                                 "aria-label": "controlled",
                                             }}

@@ -64,19 +64,19 @@ const MeetingProgress = () => {
     const video = useRef();
     const [messageList, setMessageList] = useState([
         {
-            isCheck: false,
+            isChecked: false,
             nick: '고건준',
             content: '안녕',
             time: 30
         },
         {
-            isCheck: true,
+            isChecked: true,
             nick: '권기준',
             content: 'asdfasdfasdfdasfasdfasdfadsdsafasdfasdfasdasdfasdfasdfdasfasdfasdfadsdsafasdfasdfasd',
             time: 30
         },
         {
-            isCheck: false,
+            isChecked: false,
             nick: '주영환',
             content: '안녕',
             time: 30
@@ -149,7 +149,7 @@ const MeetingProgress = () => {
         socket.on("msg", (userNick, msg) => {
             // stt메시지 받음
             setMessageList(arr => [...arr, {
-                isCheck: false,
+                isChecked: false,
                 nick: userNick,
                 content: msg,
                 time: time
