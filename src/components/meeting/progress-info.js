@@ -47,7 +47,7 @@ const ProgressInfoButton = styled(Button)(({ theme }) => ({
     },
 }));
 
-export function ProgressInfo({myVideo, handleCameraChange, handleAudioChange, isHost, time, code, parentCallback}) {
+export function ProgressInfo({myVideo, handleCameraChange, handleAudioChange, isHost, time, code, parentCallback,handleMute}) {
     const [micOn, setMicOn] = useState(true);
     const [cameraOn, setCameraOn] = useState(false);
     const [cameras, setCameras] = useState([]);
@@ -80,6 +80,7 @@ export function ProgressInfo({myVideo, handleCameraChange, handleAudioChange, is
         myStream.getAudioTracks().forEach((track) => {
             track.enabled = !track.enabled;
         });
+        handleMute(!micOn);
         setMicOn(!micOn);
     };
 
@@ -186,7 +187,9 @@ export function ProgressInfo({myVideo, handleCameraChange, handleAudioChange, is
         getDevices();
     }, []);
 
-
+    useEffect(()=>{
+        console.log(microphones);
+    },[microphones]);
     return (
         <MeetingNavBar position="static">
             <Toolbar

@@ -8,6 +8,8 @@ import { ProgressInfo } from "../components/meeting/progress-info";
 import { UserContext } from '../utils/context/context';
 import axios from 'axios';
 
+const socket = io.connect('http://localhost:3001',
+{ cors: { origin: 'http://localhost:3001' } }); // 서버랑 연결
 const MeetingProgress = () => {
     const router = useRouter();
     const [isHost, setIsHost] = useState();
@@ -18,8 +20,7 @@ const MeetingProgress = () => {
     const [title, setTitle] = useState('');
     const { isLogin } = useContext(UserContext);
     
-    const socket = io.connect('http://localhost:3001',
-    { cors: { origin: 'http://localhost:3001' } }); // 서버랑 연결
+
 
     useEffect(() => {
         if (!isLogin) {
@@ -266,7 +267,9 @@ const MeetingProgress = () => {
                 console.log(audioSender);
             }
         });
-        socket.emit("deviceChange",summaryFlag,deviceId);
+        socket.emit("deviceChange",summaryFlag,deviceId);    
+    
+  
     }
 
     const handleLeaveRoom = () => {
@@ -304,9 +307,11 @@ const MeetingProgress = () => {
     };
 
     function handleSummaryOnOff(summaryFlag) {
-        axios.get("http://localhost:3001/db/currentMeetingId", { withCredentials: true }).then(response => {
-            socket.emit("summaryAlert", response.data, summaryFlag);
-        })
+        socket.emit("summaryAlert", summaryFlag);
+    }
+    function handleMute(micStatus){
+        if(summaryFlag)
+        socket.emit("micOnOff",micStatus);
     }
 
     return (
@@ -328,6 +333,7 @@ const MeetingProgress = () => {
                 time={time}
                 code={code}
                 parentCallback={handleSubmitScript}
+                handleMute={handleMute}
             />
             <Grid
                 container
