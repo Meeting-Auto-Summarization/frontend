@@ -29,7 +29,7 @@ import axios from 'axios';
 const MeetingNavBar = styled(AppBar)(({ theme }) => ({
     backgroundColor: theme.palette.background.paper,
     boxShadow: theme.shadows[9],
-    zIndex: theme.zIndex.drawer + 1 
+    zIndex: theme.zIndex.drawer + 1
 }));
 
 const ProgressInfoButton = styled(Button)(({ theme }) => ({
@@ -46,12 +46,12 @@ const ProgressInfoButton = styled(Button)(({ theme }) => ({
     },
 }));
 
-export function ProgressInfo({ myVideo, handleCameraChange, handleAudioChange, isHost, time, code, members, parentCallback,handleMute }) {
+export function ProgressInfo({ myVideo, handleCameraChange, handleAudioChange, isHost, time, code, members, parentCallback, handleMute }) {
     const [micOn, setMicOn] = useState(true);
     const [cameraOn, setCameraOn] = useState(false);
     const [cameras, setCameras] = useState([]);
     const [microphones, setMicrophones] = useState([]);
-    const [currentCamera,setCurrentCamera] = useState(0);
+    const [currentCamera, setCurrentCamera] = useState(0);
     const [currentMic, setCurrentMic] = useState(0);
     const [hours, setHours] = useState(0);
     const [minutes, setMinutes] = useState(0);
@@ -83,7 +83,7 @@ export function ProgressInfo({ myVideo, handleCameraChange, handleAudioChange, i
         })
         setCameraOn(!cameraOn);
     };
-    
+
     const [micMenu, setMicMenu] = useState(null);
     const [cameraMenu, setCameraMenu] = useState(null);
     const [moreMenu, setMoreMenu] = useState(null);
@@ -94,18 +94,18 @@ export function ProgressInfo({ myVideo, handleCameraChange, handleAudioChange, i
     const openMoreMenu = Boolean(moreMenu);
     const openCodeMenu = Boolean(codeMenu);
     const openMemberMenu = Boolean(memberMenu);
-    
+
     const handleMicMenuClose = (idx) => {
         setMicMenu(null);
-        if(idx>-1){
+        if (idx > -1) {
             let label;
-            if(microphones[idx].deviceId==="default"
-            ||microphones[idx].deviceId==="communications"){
-                label=microphones[idx].label.split(' - ')[1].split(" (")[0];
-            }else{
-                label=microphones[idx].label.split(" (")[0];
+            if (microphones[idx].deviceId === "default"
+                || microphones[idx].deviceId === "communications") {
+                label = microphones[idx].label.split(' - ')[1].split(" (")[0];
+            } else {
+                label = microphones[idx].label.split(" (")[0];
             }
-            handleAudioChange(microphones[idx].deviceId,label);
+            handleAudioChange(microphones[idx].deviceId, label);
             setCurrentMic(idx);
         }
     };
@@ -116,7 +116,7 @@ export function ProgressInfo({ myVideo, handleCameraChange, handleAudioChange, i
 
     const handleCameraMenuClose = (idx) => {
         setCameraMenu(null);
-        if(idx>-1){
+        if (idx > -1) {
             handleCameraChange(microphones[idx].deviceId);
             setCurrentCamera(idx);
         }
@@ -128,7 +128,7 @@ export function ProgressInfo({ myVideo, handleCameraChange, handleAudioChange, i
 
     const handleMoreMenuClose = (idx) => {
         setMoreMenu(null);
-        if(idx>-1){
+        if (idx > -1) {
             // handleCameraChange(microphones[idx].deviceId);
             setMoreMenu(idx);
         }
@@ -141,12 +141,12 @@ export function ProgressInfo({ myVideo, handleCameraChange, handleAudioChange, i
     const handleCodeMenuClose = (idx) => {
         setCodeMenu(null);
 
-        if (idx >- 1) {
+        if (idx > - 1) {
             if (idx === 1) {
                 navigator.clipboard.writeText(code);
             }
             else if (idx === 2) {
-                
+
             }
             setMoreMenu(null);
         }
@@ -181,7 +181,7 @@ export function ProgressInfo({ myVideo, handleCameraChange, handleAudioChange, i
             console.log(e);
         }
     }
- 
+
     useEffect(() => {
         getDevices();
     }, []);
@@ -310,7 +310,9 @@ export function ProgressInfo({ myVideo, handleCameraChange, handleAudioChange, i
                 </Typography>
                 <ProgressInfoButton
                     variant="text"
-                    onClick={()=> parentCallback(isHost)}
+                    //onClick={() => handleMeetingEnd(isHost)}
+                    onClick={() => parentCallback(isHost)}
+
                     sx={{ px: 2.5 }}
                 >
                     {isHost
@@ -330,7 +332,7 @@ export function ProgressInfo({ myVideo, handleCameraChange, handleAudioChange, i
             >
                 {microphones.map((item, idx) => {
                     if (currentMic === idx) {
-                        return(
+                        return (
                             <MenuItem
                                 key={item.deviceId}
                                 onClick={() => handleMicMenuClose(idx)}
@@ -340,7 +342,7 @@ export function ProgressInfo({ myVideo, handleCameraChange, handleAudioChange, i
                             </MenuItem>
                         );
                     } else {
-                        return(
+                        return (
                             <MenuItem
                                 key={item.deviceId}
                                 onClick={() => handleMicMenuClose(idx)}
@@ -362,7 +364,7 @@ export function ProgressInfo({ myVideo, handleCameraChange, handleAudioChange, i
             >
                 {cameras.map((item, idx) => {
                     if (currentCamera === idx) {
-                        return(
+                        return (
                             <MenuItem
                                 key={item.deviceId}
                                 onClick={() => handleCameraMenuClose(idx)}
@@ -372,7 +374,7 @@ export function ProgressInfo({ myVideo, handleCameraChange, handleAudioChange, i
                             </MenuItem>
                         );
                     } else {
-                        return(
+                        return (
                             <MenuItem
                                 key={item.deviceId}
                                 onClick={() => handleCameraMenuClose(idx)}

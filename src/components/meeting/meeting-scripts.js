@@ -34,7 +34,7 @@ const ScriptsBox = styled(Box)({
     py: 2,
     background: "#F1FAEE",
     color: "#000000",
-    
+
 });
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -57,11 +57,11 @@ const StyledTableRow = styled(TableRow)({
     },
     // hide last border
     '&:last-child td, &:last-child th': {
-      border: 0,
+        border: 0,
     },
 });
 
-export function MeetingScripts({ messageList, handleSummaryOnOff, summaryFlag, setSummaryFlag, title ,handleServerScript}) {
+export function MeetingScripts({ messageList, handleSummaryOnOff, summaryFlag, setSummaryFlag, title, handleServerScript }) {
     const handleSummaryButton = () => {
         if (summaryFlag) {
             handleSummaryOnOff(false);
@@ -73,13 +73,13 @@ export function MeetingScripts({ messageList, handleSummaryOnOff, summaryFlag, s
     };
 
     const handleCheck = (e, index) => {
-        axios.post('http://localhost:3001/db/scriptChecked',
-            { index: index, isChecked: e.target.checked },
-            { withCredentials: true })
-        .then(res => {
-            console.log(res.data);
-        });
-       // handleServerScript(index,e.target.checked);
+        // axios.post('http://localhost:3001/db/scriptChecked',
+        //     { index: index, isChecked: e.target.checked },
+        //     { withCredentials: true })
+        // .then(res => {
+        //     console.log(res.data);
+        // });
+        handleServerScript(index, e.target.checked);
     };
 
     return (
@@ -87,8 +87,8 @@ export function MeetingScripts({ messageList, handleSummaryOnOff, summaryFlag, s
             <Box
                 sx={{
                     display: "flex",
-                    alignItems: "center" ,
-                    p: 2,                   
+                    alignItems: "center",
+                    p: 2,
                 }}
             >
                 <Typography
@@ -119,7 +119,7 @@ export function MeetingScripts({ messageList, handleSummaryOnOff, summaryFlag, s
                     <TableHead>
                         <TableRow>
                             <StyledTableCell>
-                                
+
                             </StyledTableCell>
                             <StyledTableCell>
                                 Time
@@ -139,7 +139,7 @@ export function MeetingScripts({ messageList, handleSummaryOnOff, summaryFlag, s
                             const minutes = parseInt((time / 60) % 60);
                             const hours = parseInt(time / 3600);
 
-                            return(
+                            return (
                                 <StyledTableRow
                                     key={index}
                                 >
