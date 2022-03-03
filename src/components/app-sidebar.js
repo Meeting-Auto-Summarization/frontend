@@ -7,8 +7,6 @@ import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import { Cog as CogIcon } from '../icons/cog';
 import { Lock as LockIcon } from '../icons/lock';
 import { User as UserIcon } from '../icons/user';
-import { UserAdd as UserAddIcon } from '../icons/user-add';
-import { XCircle as XCircleIcon } from '../icons/x-circle';
 import { Logo } from './logo';
 import { NavItem } from './nav-item';
 import { MeetingAccess } from './app-sidebar/meeting-access';
@@ -38,17 +36,7 @@ const items = [
 		href: 'http://localhost:3001/auth/logout',
 		icon: (<LockIcon fontSize="small" />),
 		title: 'Logout'
-	 },
-	{
-		href: '/register',
-		icon: (<UserAddIcon fontSize="small" />),
-		title: 'Register'
-	},
-	{
-		href: '/404',
-		icon: (<XCircleIcon fontSize="small" />),
-		title: 'Error'
-	}
+	 }
 ];
 
 export const AppSidebar = (props) => {
@@ -132,7 +120,7 @@ export const AppSidebar = (props) => {
 				<div>
 					<Box sx={{ p: 3 }}>
 						<NextLink
-							href="/"
+							href="/meeting-list"
 							passHref
 						>
 							<a>

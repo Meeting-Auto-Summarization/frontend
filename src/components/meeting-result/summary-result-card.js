@@ -29,12 +29,12 @@ const SummaryCardButton = styled(Button)({
     },
 });
 
-export function SummaryResultCard() {
+export function SummaryResultCard({ mid }) {
     const [titleList, setTitleList] = useState([]);
     const [summaryList, setSummaryList] = useState([]);
 
     useEffect(() => {
-        axios.get(`http://localhost:3001/db/currentMeetingReport`, { withCredentials: true }).then(res => {
+        axios.get(`http://localhost:3001/db/report/${mid}`, { withCredentials: true }).then(res => {
             const report = res.data;
             const tempTitleList = new Array(report.length);
             const tempSummaryList = new Array(report.length);
@@ -53,12 +53,8 @@ export function SummaryResultCard() {
 
             setTitleList(tempTitleList);
             setSummaryList(tempSummaryList);
-
-            console.log(tempTitleList);
-            console.log(tempSummaryList);
         });
     }, []);
-    
     
     const [open, setOpen] = useState(false);
 
@@ -87,7 +83,6 @@ export function SummaryResultCard() {
                 }}
             >
                 {titleList.map((headTitle, idx) => {
-                    console.log(headTitle)
                     return(
                         <>
                             {headTitle.map((subTitle, subidx) => {

@@ -23,7 +23,7 @@ const MeetingProgress = () => {
     const [isHost, setIsHost] = useState();
     const [isSidebarOpen, setSidebarOpen] = useState(true);
     const [userNick, setUserNick] = useState('');
-    const [summaryFlag, setSummaryFlag] = useState(false);
+    const [summaryFlag, setSummaryFlag] = useState(undefined);
     const [time, setTime] = useState(0);
     const [code, setCode] = useState('');
     const [title, setTitle] = useState('');
@@ -329,7 +329,7 @@ const MeetingProgress = () => {
             self.close();
             return;
         }
-
+        socket.emit("meetingEnd", isHost);
         axios.get(`http://localhost:3001/db/setIsMeetingAllFalse`, { withCredentials: true }).then(res => {
             console.log(res.data);
         });
@@ -351,7 +351,6 @@ const MeetingProgress = () => {
             socket.emit("micOnOff", micStatus);
     }
     function handleServerScript(index, isChecked) {
-        console.log(isChecked);
         socket.emit("handleCheck", index, isChecked);
     }
 

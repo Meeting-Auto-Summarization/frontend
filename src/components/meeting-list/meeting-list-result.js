@@ -12,9 +12,8 @@ export const MeetingListResult = ({meeting, ...rest}) => {
         <Link
             href={{
                 pathname: `/meeting-result`, // 라우팅 id
-                query: { mid: meeting.id }, // props 
+                query: { mid: meeting._id }, // props 
             }}
-            as={`/meeting-result`}
         >
             <div style={{ cursor: "pointer" }}>
                 <Card

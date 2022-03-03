@@ -2,11 +2,11 @@ import { Box, Typography } from "@mui/material";
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-export function MeetingResultToolbar() {
+export function MeetingResultToolbar({ mid }) {
     const [meeting, setMeeting] = useState();
 
     useEffect(() => {
-        axios.get('http://localhost:3001/db/currentMeeting', { withCredentials: true }).then(res => {
+        axios.get(`http://localhost:3001/db/meeting/${mid}`, { withCredentials: true }).then(res => {
             const tempMeeting = res.data.meeting;
             const members = res.data.members;
 

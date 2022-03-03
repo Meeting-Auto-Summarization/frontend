@@ -63,23 +63,18 @@ const StyledTableRow = styled(TableRow)({
 
 export function MeetingScripts({ messageList, handleSummaryOnOff, summaryFlag, setSummaryFlag, title, handleServerScript }) {
     const handleSummaryButton = () => {
-        if (summaryFlag) {
-            handleSummaryOnOff(false);
-            setSummaryFlag(false);
-        } else {
-            handleSummaryOnOff(true);
-            setSummaryFlag(true);
+        if (!(summaryFlag === undefined)) {
+            if (summaryFlag) {
+                handleSummaryOnOff(false);
+                setSummaryFlag(false);
+            } else {
+                handleSummaryOnOff(true);
+                setSummaryFlag(true);
+            }
         }
     };
 
     const handleCheck = (e, index) => {
-        /*axios.post('http://localhost:3001/db/scriptChecked',
-            { index: index, isChecked: e.target.checked },
-            { withCredentials: true })
-        .then(res => {
-            console.log(res.data);
-        });*/
-
         handleServerScript(index, e.target.checked);
     };
 
