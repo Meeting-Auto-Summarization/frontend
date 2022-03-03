@@ -65,7 +65,6 @@ export const ScriptsResultCard = () => {
     useEffect(() => {
         axios.get(`http://localhost:3001/db/currentMeetingScript`, { withCredentials: true }).then(res => {
             setScripts(res.data);
-            console.log(res.data);
         });
     }, []);
 

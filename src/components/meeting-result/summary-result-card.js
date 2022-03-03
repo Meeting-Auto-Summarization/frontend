@@ -53,12 +53,8 @@ export function SummaryResultCard() {
 
             setTitleList(tempTitleList);
             setSummaryList(tempSummaryList);
-
-            console.log(tempTitleList);
-            console.log(tempSummaryList);
         });
     }, []);
-    
     
     const [open, setOpen] = useState(false);
 
@@ -87,7 +83,6 @@ export function SummaryResultCard() {
                 }}
             >
                 {titleList.map((headTitle, idx) => {
-                    console.log(headTitle)
                     return(
                         <>
                             {headTitle.map((subTitle, subidx) => {

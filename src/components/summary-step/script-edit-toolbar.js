@@ -15,7 +15,12 @@ export const ScriptEditToolbar = ({description}) => {
             const min = parseInt((time / 60) % 60);
             const hours = parseInt(time / 3600);
 
-            tempMeeting.time = `${`${hours}:`}${min < 10 ? `0${min}` : min}:${sec < 10 ? `0${sec}` : sec}`;
+            if (time >= 3600) {
+                tempMeeting.time = `${`${hours}:`}${min < 10 ? `0${min}` : min}:${sec < 10 ? `0${sec}` : sec}`;
+            } else {
+                tempMeeting.time = `${min < 10 ? `0${min}` : min}:${sec < 10 ? `0${sec}` : sec}`;
+            }
+            
             tempMeeting.date = new Date(Date.parse(tempMeeting.date)).toLocaleString();
             tempMeeting.members = members;
 

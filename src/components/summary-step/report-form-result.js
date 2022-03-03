@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import { v4 as uuid } from 'uuid';
 
-export const ReportFormResult = ({parentCallback}) => {
+export const ReportFormResult = ({ parentCallback }) => {
     const [inputList, setInputList] = useState([['']]);
     const [_, updateState] = useState();
     const forceUpdate = useCallback(() => updateState({}), []);
