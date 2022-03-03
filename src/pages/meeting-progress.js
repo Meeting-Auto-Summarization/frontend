@@ -9,6 +9,8 @@ import { ProgressInfo } from "../components/meeting/progress-info";
 import { UserContext } from '../utils/context/context';
 import axios from 'axios';
 
+const socket = io.connect('http://localhost:3001',
+{ cors: { origin: 'http://localhost:3001' } }); // 서버랑 연결
 const ProcessLayoutRoot = styled('div')({
     display: 'flex',
     flex: '1 1 auto',
@@ -32,8 +34,7 @@ const MeetingProgress = () => {
 		noSsr: false
 	});
     
-    const socket = io.connect('http://localhost:3001',
-    { cors: { origin: 'http://localhost:3001' } }); // 서버랑 연결
+
 
     useEffect(() => {
         if (!isLogin) {
@@ -113,17 +114,19 @@ const MeetingProgress = () => {
             setIsHost(res.data);
         });
 
-        axios.get('http://localhost:3001/auth', { withCredentials: true }).then(res => {
-            const meetingId = res.data.currentMeetingId;
-            const nick = res.data.name;
-            setUserNick(nick);
-
-            peer.on('open', (id) => { // userid가 peer로 인해 생성됨
-                console.log("open");
-                socket.emit('join-room', meetingId, id, nick);
+      
+        peer.on('open', (id) => { // userid가 peer로 인해 생성됨
+            console.log("open");
+            axios.get('http://localhost:3001/auth/meeting-info', { withCredentials: true }).then(res => {
+                const {currentMeetingId}=res.data;
+                const nick = res.data.name;
+                setUserNick(nick);
+                console.log("debug");
+                console.log(currentMeetingId);
+                socket.emit('join-room', currentMeetingId, id, nick);
+            }).catch(err => {
+                console.log(err);
             });
-        }).catch(err => {
-            console.log(err);
         });
     }, []);
 
@@ -135,18 +138,15 @@ const MeetingProgress = () => {
     }, []);
 
     useEffect(() => {
-        socket.on("summaryOffer", (roomName, summaryFlag) => {
+   
+        socket.on("summaryOffer", (summaryFlag) => {
             setSummaryFlag(summaryFlag);
-            console.log("userNick");
-            console.log(userNick);
-            socket.emit("summaryStateChange", roomName, summaryFlag);
         });
-
         socket.on("initSummaryFlag", (flag) => {
             setSummaryFlag(flag);
         });
 
-        socket.on("msg", (userNick, msg) => {
+        socket.on("msg", (userNick,time, msg) => {
             // stt메시지 받음
             setMessageList(arr => [...arr, {
                 isChecked: false,
@@ -215,8 +215,7 @@ const MeetingProgress = () => {
     }, [peers]);
     
     const connectToNewUser = async(userId, stream, remoteNick) => {
-        const {data}=await axios.get('http://localhost:3001/auth', { withCredentials: true });
-        console.log(data);//userNick넣어줘야함
+        const {data}=await axios.get('http://localhost:3001/auth/meeting-info', { withCredentials: true });
         const call = peer.call(userId, stream, { metadata: { "receiverNick": remoteNick, "senderNick": data.name } });
         // call객체 생성(dest-id,my-mediaStream)
         // 들어온 상대방에게 call요청 보냄
@@ -241,31 +240,31 @@ const MeetingProgress = () => {
     const handleCameraChange = (deviceId) => {
         const camerasConstraint = {
             audio: true,
-            video: { deviceId: deviceId  }
+            video: { deviceId: deviceId }
         };
         const myStream = video.current.srcObject;
         navigator.mediaDevices.getUserMedia(camerasConstraint).then((stream) => {
             video.current.srcObject = stream;
-            if(!myStream.getVideoTracks()[0].enabled){
-                stream.getVideoTracks().forEach((track)=>{
-                    track.enabled=false;
+            if (!myStream.getVideoTracks()[0].enabled) {
+                stream.getVideoTracks().forEach((track) => {
+                    track.enabled = false;
                 })
             }
-            if(!myStream.getAudioTracks()[0].enabled){
-                stream.getAudioTracks().forEach((track)=>{
-                    track.enabled=false;
+            if (!myStream.getAudioTracks()[0].enabled) {
+                stream.getAudioTracks().forEach((track) => {
+                    track.enabled = false;
                 })
             }
-            for(let i=0;i<peers.length;i++){
+            for (let i = 0; i < peers.length; i++) {
                 console.log(peers[i].call.peerConnection.getSenders())
-                const cameraSender=peers[i].call.peerConnection.getSenders().find((sender)=>sender.track.kind==="video");
+                const cameraSender = peers[i].call.peerConnection.getSenders().find((sender) => sender.track.kind === "video");
                 cameraSender.replaceTrack(stream.getVideoTracks()[0]);
                 console.log(cameraSender);
             }
         });
     }
 
-    const handleAudioChange = (deviceId) => {
+    const handleAudioChange = (deviceId,label) => {
         const audioConstraint = {
             audio: { deviceId: deviceId },
             video: true
@@ -274,24 +273,27 @@ const MeetingProgress = () => {
 
         navigator.mediaDevices.getUserMedia(audioConstraint).then((stream) => {
             video.current.srcObject = stream;
-            if(!myStream.getVideoTracks()[0].enabled){
+            if (!myStream.getVideoTracks()[0].enabled) {
                 stream.getVideoTracks().forEach((track) => {
-                    track.enabled=false;
+                    track.enabled = false;
                 })
             }
-            if(!myStream.getAudioTracks()[0].enabled){
+            if (!myStream.getAudioTracks()[0].enabled) {
                 stream.getAudioTracks().forEach((track) => {
-                    track.enabled=false;
+                    track.enabled = false;
                 })
             }
-            for(let i = 0; i < peers.length; i++){
+            for (let i = 0; i < peers.length; i++) {
                 console.log(peers[i].call.peerConnection.getSenders())
-                const audioSender=peers[i].call.peerConnection.getSenders().find((sender)=>sender.track.kind==="audio");
+                const audioSender = peers[i].call.peerConnection.getSenders().find((sender) => sender.track.kind === "audio");
                 console.log(stream.getAudioTracks());
                 audioSender.replaceTrack(stream.getAudioTracks()[0]);
                 console.log(audioSender);
             }
         });
+        socket.emit("deviceChange",summaryFlag,label);    
+    
+  
     }
 
     const handleLeaveRoom = () => {
@@ -305,7 +307,7 @@ const MeetingProgress = () => {
     useEffect(() => {
         console.log(peers);
     }, [peers]);
-
+ 
     const handleSubmitScript = (isHost) => {
         opener.location.reload();
 
@@ -329,9 +331,14 @@ const MeetingProgress = () => {
     };
 
     function handleSummaryOnOff(summaryFlag) {
-        axios.get("http://localhost:3001/db/currentMeetingId", { withCredentials: true }).then(response => {
-            socket.emit("summaryAlert", response.data, summaryFlag);
-        })
+        socket.emit("summaryAlert", summaryFlag);
+    }
+    function handleMute(micStatus){
+        if(summaryFlag)
+        socket.emit("micOnOff",micStatus);
+    }
+    function handleServerScript(index,isChecked){
+        socket.emit("handleCheck",index,isChecked);
     }
 
     return (
@@ -386,6 +393,7 @@ const MeetingProgress = () => {
                 code={code}
                 members={members}
                 parentCallback={handleSubmitScript}
+                handleMute={handleMute}
             />
             <Drawer
                 anchor="right"
@@ -407,6 +415,7 @@ const MeetingProgress = () => {
                     summaryFlag={summaryFlag}
                     setSummaryFlag={setSummaryFlag}
                     title={title}
+                    handleServerScript={handleServerScript}
                 />
             </Drawer>
             
