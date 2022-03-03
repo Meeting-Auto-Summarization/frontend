@@ -59,11 +59,11 @@ const StyledTableRow = styled(TableRow)({
     },
 });
 
-export const ScriptsResultCard = () => {
+export const ScriptsResultCard = ({ mid }) => {
     const [scripts, setScripts] = useState([]);
 
     useEffect(() => {
-        axios.get(`http://localhost:3001/db/currentMeetingScript`, { withCredentials: true }).then(res => {
+        axios.get(`http://localhost:3001/db/script/${mid}`, { withCredentials: true }).then(res => {
             setScripts(res.data);
         });
     }, []);
