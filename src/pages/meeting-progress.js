@@ -10,7 +10,7 @@ import { UserContext } from '../utils/context/context';
 import axios from 'axios';
 
 const socket = io.connect('http://localhost:3001',
-{ cors: { origin: 'http://localhost:3001' } }); // 서버랑 연결
+    { cors: { origin: 'http://localhost:3001' } }); // 서버랑 연결
 
 const ProcessLayoutRoot = styled('div')({
     display: 'flex',
@@ -23,18 +23,18 @@ const MeetingProgress = () => {
     const router = useRouter();
     const [isHost, setIsHost] = useState();
     const [isSidebarOpen, setSidebarOpen] = useState(true);
-    const [summaryFlag, setSummaryFlag] = useState(false);
     const [mid, setMid] = useState('');
+    const [summaryFlag, setSummaryFlag] = useState(undefined);
     const [time, setTime] = useState(0);
     const [code, setCode] = useState('');
     const [title, setTitle] = useState('');
     const [members, setMembers] = useState([]);
     const { isLogin } = useContext(UserContext);
     const lgUp = useMediaQuery((theme) => theme.breakpoints.up('lg'), {
-		defaultMatches: true,
-		noSsr: false
-	});
-    
+        defaultMatches: true,
+        noSsr: false
+    });
+
     useEffect(() => {
         if (isLogin === false) {
             router.push('/not-login');
@@ -44,39 +44,43 @@ const MeetingProgress = () => {
     useEffect(() => {
         if (lgUp) {
             setSidebarOpen(true);
-        } 
+        }
         else {
             setSidebarOpen(false);
         }
     }, [lgUp]);
-    
-     // 화상회의 관련        
-     if (typeof navigator !== "undefined") {
+
+    if (!isLogin) {
+        return null;
+    }
+
+    // 화상회의 관련        
+    if (typeof navigator !== "undefined") {
         const Peer = require("peerjs").default
         const peer = new Peer();
     }
-    
+
     const [peers, setPeers] = useState([]); // peers
     const video = useRef();
     const [messageList, setMessageList] = useState([
-        {
-            isChecked: false,
-            nick: '고건준',
-            content: '안녕',
-            time: 30
-        },
-        {
-            isChecked: true,
-            nick: '권기준',
-            content: '하이~',
-            time: 30
-        },
-        {
-            isChecked: false,
-            nick: '주영환',
-            content: '안녕',
-            time: 30
-        },
+        /* {
+             isChecked: false,
+             nick: '고건준',
+             content: '안녕',
+             time: 30
+         },
+         {
+             isChecked: true,
+             nick: '권기준',
+             content: 'asdfasdfasdfdasfasdfasdfadsdsafasdfasdfasdasdfasdfasdfdasfasdfasdfadsdsafasdfasdfasd',
+             time: 30
+         },
+         {
+             isChecked: false,
+             nick: '주영환',
+             content: '안녕',
+             time: 30
+         },*/
     ]);
 
     // 1초마다 회의 시간 갱신
@@ -108,11 +112,11 @@ const MeetingProgress = () => {
             setIsHost(res.data);
         });
 
-      
+
         peer.on('open', (id) => { // userid가 peer로 인해 생성됨
             console.log("open");
             axios.get('http://localhost:3001/auth/meeting-info', { withCredentials: true }).then(res => {
-                const {currentMeetingId}=res.data;
+                const { currentMeetingId } = res.data;
                 const nick = res.data.name;
                 console.log("debug");
                 console.log(currentMeetingId);
@@ -124,13 +128,27 @@ const MeetingProgress = () => {
     }, []);
 
     useEffect(() => {
-        axios.get(`http://localhost:3001/db/currentMeetingScript`, { withCredentials: true }).then(res => {
+        socket.on("initScripts", (scripts) => {
+            setMessageList(scripts);
+        });//들어왔을때 client script 추가
+        /*axios.get(`http://localhost:3001/db/currentMeetingScript`, { withCredentials: true }).then(res => {
             setMessageList(res.data);
             console.log(res.data);
-        });
+        });*/
     }, []);
 
+
     useEffect(() => {
+        socket.on("checkChange", (scripts) => {
+            /*let newMessageList = messageList;
+            console.log("메시지List: " + messageList);
+            console.log("new" + newMessageList);
+            newMessageList[index].isChecked = isChecked;
+            setMessageList(newMessageList);*/
+            console.log(scripts);
+            setMessageList(scripts);
+        });
+
         socket.on("summaryOffer", (summaryFlag) => {
             setSummaryFlag(summaryFlag);
         });
@@ -138,7 +156,7 @@ const MeetingProgress = () => {
             setSummaryFlag(flag);
         });
 
-        socket.on("msg", (userNick,time, msg) => {
+        socket.on("msg", (userNick, time, msg) => {
             // stt메시지 받음
             setMessageList(arr => [...arr, {
                 isChecked: false,
@@ -199,15 +217,15 @@ const MeetingProgress = () => {
 
 
     useEffect(() => {
-        axios.get(`http://localhost:3001/db/isMeeting`, { withCredentials: true }).then(res => {    
+        axios.get(`http://localhost:3001/db/isMeeting`, { withCredentials: true }).then(res => {
             if (!res.data) {
                 self.close();
             }
-      });
+        });
     }, [peers]);
-    
-    const connectToNewUser = async(userId, stream, remoteNick) => {
-        const {data}=await axios.get('http://localhost:3001/auth/meeting-info', { withCredentials: true });
+
+    const connectToNewUser = async (userId, stream, remoteNick) => {
+        const { data } = await axios.get('http://localhost:3001/auth/meeting-info', { withCredentials: true });
         const call = peer.call(userId, stream, { metadata: { "receiverNick": remoteNick, "senderNick": data.name } });
         // call객체 생성(dest-id,my-mediaStream)
         // 들어온 상대방에게 call요청 보냄
@@ -256,7 +274,7 @@ const MeetingProgress = () => {
         });
     }
 
-    const handleAudioChange = (deviceId,label) => {
+    const handleAudioChange = (deviceId, label) => {
         const audioConstraint = {
             audio: { deviceId: deviceId },
             video: true
@@ -283,11 +301,11 @@ const MeetingProgress = () => {
                 console.log(audioSender);
             }
         });
-        socket.emit("deviceChange",summaryFlag,label);
+        socket.emit("deviceChange", summaryFlag, label);
     }
 
     const handleLeaveRoom = () => {
-        video.current.srcObject.getTracks().forEach((track)=>{
+        video.current.srcObject.getTracks().forEach((track) => {
             track.stop();
         });
         opener.location.href = `/summarizer?mid=${mid}`;
@@ -297,7 +315,7 @@ const MeetingProgress = () => {
     useEffect(() => {
         console.log(peers);
     }, [peers]);
- 
+
     const handleSubmitScript = (isHost) => {
         opener.location.reload();
 
@@ -306,7 +324,7 @@ const MeetingProgress = () => {
             self.close();
             return;
         }
-
+        socket.emit("meetingEnd", isHost);
         axios.get(`http://localhost:3001/db/setIsMeetingAllFalse`, { withCredentials: true }).then(res => {
             console.log(res.data);
         });
@@ -323,12 +341,12 @@ const MeetingProgress = () => {
     function handleSummaryOnOff(summaryFlag) {
         socket.emit("summaryAlert", summaryFlag);
     }
-    function handleMute(micStatus){
-        if(summaryFlag)
-        socket.emit("micOnOff",micStatus);
+    function handleMute(micStatus) {
+        if (summaryFlag)
+            socket.emit("micOnOff", micStatus);
     }
-    function handleServerScript(index,isChecked){
-        socket.emit("handleCheck",index,isChecked);
+    function handleServerScript(index, isChecked) {
+        socket.emit("handleCheck", index, isChecked);
     }
 
     return (
@@ -347,7 +365,7 @@ const MeetingProgress = () => {
                             paddingRight: '450px'
                         })
                     }}
-                >    
+                >
                     <MeetingVideo
                         peers={peers}
                         myVideo={video}
@@ -368,8 +386,8 @@ const MeetingProgress = () => {
                         }}
                     >
                         {isSidebarOpen
-                            ? <ArrowForwardIos/>
-                            : <ArrowBackIosNew/>
+                            ? <ArrowForwardIos />
+                            : <ArrowBackIosNew />
                         }
                     </IconButton>
                 </Box>
@@ -401,14 +419,14 @@ const MeetingProgress = () => {
             >
                 <MeetingScripts
                     messageList={messageList}
-                    handleSummaryOnOff={handleSummaryOnOff} 
+                    handleSummaryOnOff={handleSummaryOnOff}
                     summaryFlag={summaryFlag}
                     setSummaryFlag={setSummaryFlag}
                     title={title}
                     handleServerScript={handleServerScript}
                 />
             </Drawer>
-            
+
         </>
     );
 };
