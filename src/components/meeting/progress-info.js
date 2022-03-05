@@ -303,7 +303,7 @@ export function ProgressInfo({ myVideo, handleCameraChange, handleAudioChange, i
                         mx: 3
                     }}
                 >
-                    {hours != 0 && (hours < 10 ? `0${hours} : ` : `${hours} : `)}
+                    {hours !== 0 && (hours < 10 ? `0${hours} : ` : `${hours} : `)}
                     {minutes < 10 ? `0${minutes}` : minutes}
                     &nbsp;:&nbsp;
                     {seconds < 10 ? `0${seconds}` : seconds}

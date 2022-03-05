@@ -67,7 +67,7 @@ export const MeetingListResult = ({meeting, ...rest}) => {
                                         color="textPrimary"
                                         variant="h6"
                                     >
-                                        {hours != 0 && `${hours}:`}
+                                        {hours !== 0 && `${hours}:`}
                                         {minutes < 10 ? `0${minutes}` : minutes}
                                         :
                                         {seconds < 10 ? `0${seconds}` : seconds}

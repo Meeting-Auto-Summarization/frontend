@@ -139,7 +139,7 @@ export const ScriptsResultCard = ({ mid }) => {
                                             color="text.primary"
                                             sx={{ display: "inline" }}
                                         >
-                                            {hours != 0 && `${hours}:`}
+                                            {hours = 0 && `${hours}:`}
                                             {minutes < 10 ? `0${minutes}` : minutes}
                                             :
                                             {seconds < 10 ? `0${seconds}` : seconds}
@@ -163,7 +163,8 @@ export const ScriptsResultCard = ({ mid }) => {
             <CardActions>
                 <Link
                     href={{
-                        pathname: `/script-edit`, // 라우팅 id
+                        pathname: `/summarizer`, // 라우팅 id
+                        query: { mid: mid }
                     }}
                 >
                     <ScriptsCardButton>Modify</ScriptsCardButton>

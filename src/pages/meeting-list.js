@@ -18,7 +18,7 @@ const MeetingList = () => {
     const [sorting, setSorting] = useState('time');
 
     useEffect(() => {
-        if (!isLogin) {
+        if (isLogin === false) {
             router.push('/not-login');
         }
     });

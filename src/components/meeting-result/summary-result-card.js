@@ -1,4 +1,7 @@
+import axios from "axios";
+import { useEffect, useState } from "react";
 import {
+    Box,
     Button,
     styled,
     Typography,
@@ -7,8 +10,6 @@ import {
     CardHeader,
     CardActions,
 } from "@mui/material";
-import axios from "axios";
-import { useEffect, useState } from "react";
 import { ExportPopup } from "./export-popup";
 
 const SummaryCard = styled(Card)({
@@ -30,31 +31,15 @@ const SummaryCardButton = styled(Button)({
 });
 
 export function SummaryResultCard({ mid }) {
-    const [titleList, setTitleList] = useState([]);
-    const [summaryList, setSummaryList] = useState([]);
+    const [reports, setReports] = useState([]);
 
     useEffect(() => {
         axios.get(`http://localhost:3001/db/report/${mid}`, { withCredentials: true }).then(res => {
-            const report = res.data;
-            const tempTitleList = new Array(report.length);
-            const tempSummaryList = new Array(report.length);
-
-            for (var i = 0; i < report.length; i++) {
-                tempTitleList[i] = new Array(report[i].length);
-                tempSummaryList[i] = new Array(report[i].length);
-            }
-
-            for (var i = 0; i < tempTitleList.length; i++) {
-                for (var j = 0; j < tempTitleList[i].length; j++) {
-                    tempTitleList[i][j] = report[i][j].title;
-                    tempSummaryList[i][j] = report[i][j].summary;
-                }
-            }
-
-            setTitleList(tempTitleList);
-            setSummaryList(tempSummaryList);
+            setReports(res.data);
         });
     }, []);
+
+    console.log(reports)
     
     const [open, setOpen] = useState(false);
 
@@ -82,25 +67,24 @@ export function SummaryResultCard({ mid }) {
                     overflow: 'auto'
                 }}
             >
-                {titleList.map((headTitle, idx) => {
-                    return(
-                        <>
-                            {headTitle.map((subTitle, subidx) => {
-                                return(
+                {reports.map((head, index) => {
+                    return (
+                        <Box mb={3}>
+                            {head.map((tail, subIndex) => {
+                                return (
                                     <>
-                                        {subidx === 0
-                                            ? <Typography variant="h5">{`${idx + 1}. ${subTitle}`}</Typography>
-                                            : <Typography variant="h6" ml={4}>{`${String.fromCharCode(subidx + 97)}. ${subTitle}`}</Typography>
+                                        {subIndex === 0
+                                            ? <Typography variant="h4">{`${index + 1}. ${tail.title}`}</Typography>
+                                            : <Typography variant="h5" ml={4}>{`${String.fromCharCode(subIndex + 96)}. ${tail.title}`}</Typography>
                                         }
-                                        {/* {subidx === 0
-                                            ? <Typography variant="subtitle1" ml={4} mb={1}>{`${summaryList[idx][subidx]}`}</Typography>
-                                            : <Typography variant="subtitle1" ml={8} mb={1}>{`${summaryList[idx][subidx]}`}</Typography>
-                                        } */}
+                                        {subIndex !== 0 &&
+                                            <Typography variant="h6" ml={8}>{`${tail.summary}`}</Typography>
+                                        }
                                     </>
                                 );
                             })}
-                        </>
-                    );
+                        </Box>
+                    )
                 })}
             </CardContent>
             <CardActions>

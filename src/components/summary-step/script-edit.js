@@ -10,30 +10,18 @@ import {
     TableRow,
     Typography,
     IconButton,
-    TextField,Button
+    TextField
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RotateRightIcon from '@mui/icons-material/RotateRight';
-import { useEffect, useState } from 'react';
 import axios from 'axios';
-import Link from 'next/link';
 
-export const ScriptEditResult = () => {
-    const [script, setScript] = useState([]);
-    const [selected, setSelected] = useState([]);
-    const [deleted, setDeleted] = useState([]);
-
-    useEffect(() => {
-        axios.get(`http://localhost:3001/db/currentMeetingScript`, { withCredentials: true }).then(res => {
-            setScript(res.data);
-        });
-    }, []);
-
+export const ScriptEdit = ({ script, selected, deleted, setScript, setSelected, setDeleted }) => {
     const handleSelectAll = (event) => {
         let newSelectedCustomerIds;
     
         if (event.target.checked) {
-          newSelectedCustomerIds = script.map(line => line._id);
+            newSelectedCustomerIds = script.map(line => line._id);
         } else {
           newSelectedCustomerIds = [];
         }
@@ -89,19 +77,6 @@ export const ScriptEditResult = () => {
         let temp = script;
         temp[idx].content = e.target.value;
         setScript(temp);
-    }
-
-    const handleSubmitScript = () => {
-        let temp = script;
-        for (var del in deleted) {
-            temp.slice(temp.findIndex(i => i._id === del), 1);
-        }
-
-        axios.post('http://localhost:3001/db/currentMeetingScript',
-            { script: script },
-            { withCredentials: true }).then(res => {
-            console.log(res.data)
-        });
     }
 
     const isSelected = (id) => selected.indexOf(id) !== -1;
@@ -163,7 +138,7 @@ export const ScriptEditResult = () => {
                                             <TableCell padding="checkbox" onClick={() => handleSelect(isItemDeleted, line._id)}>
                                                 <Checkbox
                                                     id={line._id}
-                                                    defaultChecked={line.isChecked}
+                                                    // defaultChecked={line.isChecked}
                                                     checked={isItemSelected}
                                                     disabled={isItemDeleted}
                                                     value={line._id||""}
@@ -176,7 +151,7 @@ export const ScriptEditResult = () => {
                                             </TableCell>
                                             <TableCell onClick={() => handleSelect(isItemDeleted, line._id)}>
                                                 <Typography color="textPrimary" variant="body1">
-                                                    {hours != 0 && `${hours}:`}
+                                                    {hours !== 0 && `${hours}:`}
                                                     {minutes < 10 ? `0${minutes}` : minutes}
                                                     :
                                                     {seconds < 10 ? `0${seconds}` : seconds}
@@ -212,7 +187,7 @@ export const ScriptEditResult = () => {
                     </Box>
                 </PerfectScrollbar>
             </Card>
-            <Box
+            {/* <Box
                 sx={{
                     width: '100%',
                     height: 100,
@@ -241,7 +216,7 @@ export const ScriptEditResult = () => {
                         Next Step
                     </Button>
                 </Link>
-            </Box>
+            </Box> */}
         </>
     );
 };

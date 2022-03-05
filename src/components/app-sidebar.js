@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import PropTypes from 'prop-types';
@@ -15,6 +15,7 @@ import { MeetingCodeDialog } from './app-sidebar/meeting-code-dialog';
 import { JoinMeetingDialog } from './app-sidebar/join-meeting-dialog';
 import { OngoingDialog } from './app-sidebar/ongoing-dialog';
 import axios from "axios";
+import { UserContext } from 'src/utils/context/context';
 
 const items = [
     {
@@ -46,12 +47,11 @@ export const AppSidebar = (props) => {
 		defaultMatches: true,
 		noSsr: false
 	});
-	
+	const { isLogin } = useContext(UserContext);
     const [isOpenCreateDialog, setIsOpenCreateDialog] = useState(false);
     const [isOpenCodeDialog, setIsOpenCodeDialog] = useState(false);
     const [isOpenJoinDialog, setIsOpenJoinDialog] = useState(false);
 	const [isOpenOngoingDialog, setIsOpenOngoingDialog] = useState(false);
-
 	const [meetingCode, setMeetingCode] = useState('');
 	const [isMeeting, setIsMeeting] = useState(false);
 
@@ -95,6 +95,10 @@ export const AppSidebar = (props) => {
   	);
 
 	useEffect(() => {
+		if (!isLogin) {
+			return;
+		}
+
 		axios.get(`http://localhost:3001/db/isMeeting`, { withCredentials: true }).then(res => {
 			setIsMeeting(res.data);
 		});

@@ -1,4 +1,4 @@
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Box, Container, Grid } from "@mui/material";
 import { MeetingResultToolbar } from "../components/meeting-result/meeting-result-toolbar";
 import { ScriptsResultCard } from "../components/meeting-result/scripts-result-card";
@@ -12,53 +12,51 @@ const MeetingResult = () => {
     const router = useRouter();
     const { isLogin } = useContext(UserContext);
     let mid = '';
-    
+
     if (typeof window !== "undefined") {
         mid = queryString.parse(location.search).mid;
-	}
+    }
 
     useEffect(() => {
-        if (!isLogin) {
+        if (isLogin === false) {
             router.push('/not-login');
         }
     });
 
-    if (!isLogin) {
-        return null;
-    }
-
     return (
         <>
-            <Box
-                component="main"
-                sx={{
-                    flexGrow: 1,
-                    pt: 8
-                }}
-            >
-                <Container maxWidth={false}>
-                    <MeetingResultToolbar mid={mid} />
-                    <Grid
-                        container
-                        spacing={3}
-                    >
+            {isLogin && 
+                <Box
+                    component="main"
+                    sx={{
+                        flexGrow: 1,
+                        pt: 8
+                    }}
+                >
+                    <Container maxWidth={false}>
+                        <MeetingResultToolbar mid={mid} />
                         <Grid
-                            item
-                            sm={12}
-                            md={6}
+                            container
+                            spacing={3}
                         >
-                            <ScriptsResultCard mid={mid} />
+                            <Grid
+                                item
+                                sm={12}
+                                md={6}
+                            >
+                                <ScriptsResultCard mid={mid} />
+                            </Grid>
+                            <Grid
+                                item
+                                sm={12}
+                                md={6}
+                            >
+                                <SummaryResultCard mid={mid} />
+                            </Grid>
                         </Grid>
-                        <Grid
-                            item
-                            sm={12}
-                            md={6}
-                        >
-                            <SummaryResultCard mid={mid} />
-                        </Grid>
-                    </Grid>
-                </Container>
-            </Box>
+                    </Container>
+                </Box>
+            }
         </>
     );
 };

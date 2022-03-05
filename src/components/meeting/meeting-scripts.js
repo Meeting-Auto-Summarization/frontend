@@ -159,7 +159,7 @@ export function MeetingScripts({ messageList, handleSummaryOnOff, summaryFlag, s
                                             color="text.primary"
                                             sx={{ display: "inline" }}
                                         >
-                                            {hours != 0 && `${hours}:`}
+                                            {hours !== 0 && `${hours}:`}
                                             {minutes < 10 ? `0${minutes}` : minutes}
                                             :
                                             {seconds < 10 ? `0${seconds}` : seconds}

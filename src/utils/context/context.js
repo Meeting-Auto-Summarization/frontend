@@ -4,7 +4,7 @@ import axios from "axios"
 export const UserContext = createContext({});
 
 const UserContextProvider = ({ children }) => {
-    const [isLogin, setIsLogin] = useState(true);
+    const [isLogin, setIsLogin] = useState(null);
     const [userEmail, setUserEmail] = useState();
     const [userNick, setUserNick] = useState('');
     const [userFirstName, setUserFirstName] = useState('');
@@ -30,7 +30,7 @@ const UserContextProvider = ({ children }) => {
 
     const getLoginInfo = () => {
         axios.get('http://localhost:3001/auth/user-info', { withCredentials: true }).then(response => {
-            setIsLogin(response.data != '');
+            setIsLogin(response.data !== '');
 
             if (response.data == '') {
                 return;

@@ -11,6 +11,7 @@ import axios from 'axios';
 
 const socket = io.connect('http://localhost:3001',
 { cors: { origin: 'http://localhost:3001' } }); // 서버랑 연결
+
 const ProcessLayoutRoot = styled('div')({
     display: 'flex',
     flex: '1 1 auto',
@@ -22,8 +23,8 @@ const MeetingProgress = () => {
     const router = useRouter();
     const [isHost, setIsHost] = useState();
     const [isSidebarOpen, setSidebarOpen] = useState(true);
-    const [userNick, setUserNick] = useState('');
     const [summaryFlag, setSummaryFlag] = useState(false);
+    const [mid, setMid] = useState('');
     const [time, setTime] = useState(0);
     const [code, setCode] = useState('');
     const [title, setTitle] = useState('');
@@ -34,10 +35,8 @@ const MeetingProgress = () => {
 		noSsr: false
 	});
     
-
-
     useEffect(() => {
-        if (!isLogin) {
+        if (isLogin === false) {
             router.push('/not-login');
         }
     });
@@ -50,10 +49,6 @@ const MeetingProgress = () => {
             setSidebarOpen(false);
         }
     }, [lgUp]);
-
-    if (!isLogin) {
-        return null;
-    }
     
      // 화상회의 관련        
      if (typeof navigator !== "undefined") {
@@ -73,7 +68,7 @@ const MeetingProgress = () => {
         {
             isChecked: true,
             nick: '권기준',
-            content: 'asdfasdfasdfdasfasdfasdfadsdsafasdfasdfasdasdfasdfasdfdasfasdfasdfadsdsafasdfasdfasd',
+            content: '하이~',
             time: 30
         },
         {
@@ -97,9 +92,8 @@ const MeetingProgress = () => {
             console.log(res.data);
             const meeting = res.data.meeting;
             setMembers(res.data.members);
-
-            console.log(meeting)
-
+            
+            setMid(meeting._id)
             setCode(meeting.code);
             setTitle(meeting.title);
 
@@ -120,7 +114,6 @@ const MeetingProgress = () => {
             axios.get('http://localhost:3001/auth/meeting-info', { withCredentials: true }).then(res => {
                 const {currentMeetingId}=res.data;
                 const nick = res.data.name;
-                setUserNick(nick);
                 console.log("debug");
                 console.log(currentMeetingId);
                 socket.emit('join-room', currentMeetingId, id, nick);
@@ -138,7 +131,6 @@ const MeetingProgress = () => {
     }, []);
 
     useEffect(() => {
-   
         socket.on("summaryOffer", (summaryFlag) => {
             setSummaryFlag(summaryFlag);
         });
@@ -291,16 +283,14 @@ const MeetingProgress = () => {
                 console.log(audioSender);
             }
         });
-        socket.emit("deviceChange",summaryFlag,label);    
-    
-  
+        socket.emit("deviceChange",summaryFlag,label);
     }
 
     const handleLeaveRoom = () => {
         video.current.srcObject.getTracks().forEach((track)=>{
             track.stop();
         });
-        opener.location.href = '/script-edit';
+        opener.location.href = `/summarizer?mid=${mid}`;
         self.close();
     }
 

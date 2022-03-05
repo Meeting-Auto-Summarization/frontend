@@ -1,36 +1,31 @@
 import { Box, Typography, FormControl, Radio, RadioGroup, FormControlLabel } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { v4 as uuid } from 'uuid';
-import axios from 'axios';
 
-export const ReportTitleList = () => {
-    const [titleList, setTitleList] = useState([]);
+export const ReportTitleList = ({ report, selectedTitle, setSelectedTitle }) => {
+    const [titleList, setTitleList] = useState([[]]);
 
     useEffect(() => {
-        axios.get(`http://localhost:3001/db/currentMeetingReport`, { withCredentials: true }).then(res => {
-            const report = res.data;
-            const tempTitleList = new Array(report.length);
+        const tempTitleList = new Array(report.length);
 
-            for (var i = 0; i < report.length; i++) {
-                tempTitleList[i] = new Array(report[i].length);
+        for (var i = 0; i < report.length; i++) {
+            tempTitleList[i] = new Array(report[i].length);
+        }
+
+        for (var i = 0; i < tempTitleList.length; i++) {
+            for (var j = 0; j < tempTitleList[i].length; j++) {
+                tempTitleList[i][j] = report[i][j].title;
             }
+        }
 
-            for (var i = 0; i < tempTitleList.length; i++) {
-                for (var j = 0; j < tempTitleList[i].length; j++) {
-                    tempTitleList[i][j] = report[i][j].title;
-                }
-            }
+        setTitleList(tempTitleList);
+    }, [report]);
 
-            setTitleList(tempTitleList);
-            console.log(tempTitleList);
-        });
-    }, []);
-
-    const HeadTitleComp = ({index, content}) => {
+    const HeadTitleComp = ({ index, content, disabled }) => {
         return (
             <FormControlLabel
-                control={<Radio />}
-                value={index}
+                control={<Radio disabled={disabled}/>}
+                value={`${index}.0`}
                 label={
                     <Typography
                         variant="h6"
@@ -50,7 +45,7 @@ export const ReportTitleList = () => {
         );
     };
 
-    const SubTitleComp = ({headindex, subindex, content}) => {
+    const SubTitleComp = ({ headindex, subindex, content }) => {
         const alp = String.fromCharCode(subindex + 96);
 
         return (
@@ -78,13 +73,17 @@ export const ReportTitleList = () => {
         );
     };
 
+    const handleChange = (e) => {
+        const index = e.target.value.split('.');
+        setSelectedTitle([parseInt(index[0]), parseInt(index[1])]);
+    };
+
     return(
         <FormControl sx={{ width: '100%' }}>
             <RadioGroup
-                aria-labelledby="demo-controlled-radio-buttons-group"
-                name="controlled-radio-buttons-group"
-                defaultValue={1}
-                // onChange={handleChange}
+                name="range-seeting-radio-group"
+                value={`${selectedTitle[0]}.${selectedTitle[1]}`||''}
+                onChange={handleChange}
             >
                 {titleList.map((onedim, index) => {
                     return(                                
@@ -93,7 +92,7 @@ export const ReportTitleList = () => {
                                 return(
                                     <Box key={uuid()}>
                                         {subIndex === 0
-                                            ? <HeadTitleComp index={index} content={content} />
+                                            ? <HeadTitleComp index={index} content={content} disabled={onedim.length > 1} />
                                             : <SubTitleComp headindex={index} subindex={subIndex} content={content} />
                                         }
                                     </Box>

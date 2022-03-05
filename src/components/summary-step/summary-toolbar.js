@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Box, Typography } from '@mui/material';
 import axios from 'axios';
 
-export const ScriptEditToolbar = ({description}) => {
+export const SummaryToolbar = ({description}) => {
     const [meeting, setMeeting] = useState();
 
     useEffect(() => {
@@ -34,15 +34,15 @@ export const ScriptEditToolbar = ({description}) => {
                 alignItems: 'center',
                 display: 'flex',
                 justifyContent: 'space-between',
-                flexWrap: 'wrap',
-                m: -1
+                flexWrap: 'wrap'
             }}
         >
             {meeting &&
                 <Box
                     sx={{ 
                         width: '100%',
-                        m: 1
+                        mx: 0.8,
+                        // my: 1
                     }}
                 >
                     <Box marginBottom={1.5} sx={{ float: 'left' }}>

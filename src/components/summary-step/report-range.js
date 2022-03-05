@@ -1,29 +1,28 @@
 import PerfectScrollbar from 'react-perfect-scrollbar';
 import { Card, Checkbox, Table, TableBody, TableCell, TableHead, TableRow, Typography, Grid } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ReportTitleList } from './report-title-list';
-import axios from 'axios';
 
-export const ReportRangeResult = () => {
-    const [scripts, setScripts] = useState([]);
-
-    useEffect(() => {
-        axios.get(`http://localhost:3001/db/currentMeetingScript`, { withCredentials: true }).then(res => {
-            setScripts(res.data);
-            console.log(res.data);
-        });
-    }, []);
-    
+export const ReportRange = ({ script, report, setReport }) => {
+    const [selectedTitle, setSelectedTitle] = useState([0, 0]);
     const [selected, setSelected] = useState([]);
     const [startIndex, setStartIndex] = useState(-1);
+
+    useEffect(() => {
+        if (report.length === 0) {
+            return;
+        }
+
+        setSelected(report[selectedTitle[0]][selectedTitle[1]].selected);
+    }, [selectedTitle]);
 
     const handleSelectAll = (event) => {
         let newSelectedCustomerIds;
     
         if (event.target.checked) {
-          newSelectedCustomerIds = scripts.map(line => line._id);
+          newSelectedCustomerIds = script.map(line => line._id);
         } else {
-          newSelectedCustomerIds = [];
+          newSelectedCustomerIds = [script[0]._id];
         }
     
         setSelected(newSelectedCustomerIds);
@@ -33,8 +32,8 @@ export const ReportRangeResult = () => {
         const emptyArray = [];
         setSelected(emptyArray);
 
-        const line = scripts.find(line => line._id === id);
-        const selectedIndex = scripts.indexOf(line);
+        const line = script.find(line => line._id === id);
+        const selectedIndex = script.indexOf(line);
         setStartIndex(selectedIndex);
 
         const newSelected = [id];
@@ -43,11 +42,16 @@ export const ReportRangeResult = () => {
     };
 
     const handleSelectEnd = (id) => {
-        const line = scripts.find(line => line._id === id);
-        const selectedIndex = scripts.indexOf(line);
+        const line = script.find(line => line._id === id);
+        const selectedIndex = script.indexOf(line);
 
-        const newSelected = scripts.slice(startIndex, selectedIndex + 1).map(line => line._id);
+        const newSelected = script.slice(startIndex, selectedIndex + 1).map(line => line._id);
         setSelected(newSelected);
+
+        let tempReport = report;
+        tempReport[selectedTitle[0]][selectedTitle[1]].selected = newSelected;
+        setReport(tempReport);
+
         setStartIndex(-1);
     };
 
@@ -70,12 +74,12 @@ export const ReportRangeResult = () => {
                                 <TableRow>
                                     <TableCell padding="checkbox">
                                         <Checkbox
-                                            // checked={selectedCustomerIds.length === customers.length}
+                                            checked={selected.length === script.length}
                                             color="primary"
-                                            // indeterminate={
-                                            //     selectedCustomerIds.length > 0
-                                            //     && selectedCustomerIds.length < customers.length
-                                            // }
+                                            indeterminate={
+                                                selected.length > 0
+                                                && selected.length < script.length
+                                            }
                                             onChange={handleSelectAll}
                                         />
                                     </TableCell>
@@ -91,7 +95,9 @@ export const ReportRangeResult = () => {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {scripts.map((line) => {
+                                {script.map((line) => {
+                                    const isItemSelected = isSelected(line._id);
+
                                     return(
                                         <TableRow
                                             hover
@@ -102,7 +108,6 @@ export const ReportRangeResult = () => {
                                                 ? () => handleSelectStart(line._id)
                                                 : () => handleSelectEnd(line._id)
                                             }
-                                            // selected={selectedCustomerIds.indexOf(customer.id) !== -1}
                                         >
                                             <TableCell
                                                 padding="checkbox"
@@ -110,7 +115,7 @@ export const ReportRangeResult = () => {
                                             >
                                                 <Checkbox
                                                     id={line._id}
-                                                    checked={selected.indexOf(line._id) !== -1}
+                                                    checked={isItemSelected}
                                                 />
                                             </TableCell>
                                             <TableCell width="12%">
@@ -136,16 +141,9 @@ export const ReportRangeResult = () => {
                     </PerfectScrollbar>
                 </Card>
             </Grid>
-            <Grid
-                item
-                xs={4}
-            >
-                <Card
-                    sx={{
-                        p: 3,
-                    }}
-                >    
-                    <ReportTitleList />
+            <Grid item xs={4}>
+                <Card sx={{ p: 3 }}>
+                    <ReportTitleList report={report} selectedTitle={selectedTitle} setSelectedTitle={setSelectedTitle} />
                 </Card>
             </Grid>
         </Grid>
