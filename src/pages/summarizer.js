@@ -25,6 +25,16 @@ const StyledTab = styled(Tab)({
     whiteSpace: 'nowrap',
 });
 
+const BlockPage = styled(Box)({
+    fontSize: 40,
+    fontWeight: 'bold',
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    justifyContent: 'center',
+    paddingTop: 2
+});
+
 const Summarizer = () => {
     const router = useRouter();
     const { isLogin } = useContext(UserContext);
@@ -163,18 +173,24 @@ const Summarizer = () => {
                         />
                     </TabPanel>
                     <TabPanel value={page} index={1}>
-                        <ReportForm
-                            script={script}
-                            report={report}
-                            setReport={setReport}
-                        />
+                        {script.length === 0
+                            ? <BlockPage>스크립트가 존재하지 않습니다</BlockPage>
+                            : <ReportForm
+                                script={script}
+                                report={report}
+                                setReport={setReport}
+                            />
+                        }
                     </TabPanel>
                     <TabPanel value={page} index={2}>
-                        <ReportRange
-                            script={script}
-                            report={report}
-                            setReport={setReport}
-                        />
+                        {script.length === 0
+                            ? <BlockPage>스크립트가 존재하지 않습니다</BlockPage>
+                            : <ReportRange
+                                script={script}
+                                report={report}
+                                setReport={setReport}
+                            />
+                        }
                     </TabPanel>
                 </Container>
             </Box>

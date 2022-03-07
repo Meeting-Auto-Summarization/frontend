@@ -50,10 +50,6 @@ const MeetingProgress = () => {
         }
     }, [lgUp]);
 
-    if (!isLogin) {
-        return null;
-    }
-
     // 화상회의 관련        
     if (typeof navigator !== "undefined") {
         const Peer = require("peerjs").default
@@ -63,7 +59,7 @@ const MeetingProgress = () => {
     const [peers, setPeers] = useState([]); // peers
     const video = useRef();
     const [messageList, setMessageList] = useState([
-        /* {
+        {
              isChecked: false,
              nick: '고건준',
              content: '안녕',
@@ -80,7 +76,7 @@ const MeetingProgress = () => {
              nick: '주영환',
              content: '안녕',
              time: 30
-         },*/
+         }
     ]);
 
     // 1초마다 회의 시간 갱신

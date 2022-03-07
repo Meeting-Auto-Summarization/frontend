@@ -156,7 +156,7 @@ export const ReportForm = ({ script, report, setReport }) => {
     };
 
     return (
-        <Card>
+        <Card sx={{ position: 'relative' }}>
             <PerfectScrollbar>
                 {report.length === 0 &&
                     <Button
@@ -186,7 +186,18 @@ export const ReportForm = ({ script, report, setReport }) => {
                         </Box>
                     )
                 })}
-                <Collapse in={deleteOpen}>
+                <Collapse
+                    in={deleteOpen}
+                    sx={{
+                        position: 'fixed',
+                        bottom: 100,
+                        left: {
+                            xs: 10,
+                            lg: 295
+                        },
+                        right: 15
+                    }}
+                >
                     <Alert
                         severity="error"
                         action={

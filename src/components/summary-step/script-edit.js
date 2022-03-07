@@ -14,7 +14,6 @@ import {
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RotateRightIcon from '@mui/icons-material/RotateRight';
-import axios from 'axios';
 
 export const ScriptEdit = ({ script, selected, deleted, setScript, setSelected, setDeleted }) => {
     const handleSelectAll = (event) => {

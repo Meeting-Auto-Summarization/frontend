@@ -39,6 +39,7 @@ const MeetingList = () => {
             }
             
             setMeetings(meetingList);
+            setSaveMeetings(meetingList);
         });
 
         function handleResize() {
@@ -68,17 +69,12 @@ const MeetingList = () => {
     const handleSearch = (e) => {
         const text = e.target.value;
         
-        if (!saveMeetings) {
-            setSaveMeetings(meetings);
-        }
-        
         if (!text) {
             setMeetings(saveMeetings);
-            setSaveMeetings(null);
             return;
         }
 
-        const search = meetings.filter(m => m.title.indexOf(text) !== -1);
+        const search = saveMeetings.filter(m => m.title.includes(text));
         setMeetings(search);
     }
 
