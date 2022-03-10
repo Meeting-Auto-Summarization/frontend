@@ -38,8 +38,6 @@ export function SummaryResultCard({ mid }) {
             setReports(res.data);
         });
     }, []);
-
-    console.log(reports)
     
     const [open, setOpen] = useState(false);
 
@@ -69,10 +67,10 @@ export function SummaryResultCard({ mid }) {
             >
                 {reports.map((head, index) => {
                     return (
-                        <Box mb={3}>
+                        <Box key={head[0]._id} mb={3}>
                             {head.map((tail, subIndex) => {
                                 return (
-                                    <>
+                                    <Box key={tail._id}>
                                         {subIndex === 0
                                             ? <Typography variant="h4">{`${index + 1}. ${tail.title}`}</Typography>
                                             : <Typography variant="h5" ml={4}>{`${String.fromCharCode(subIndex + 96)}. ${tail.title}`}</Typography>
@@ -80,7 +78,7 @@ export function SummaryResultCard({ mid }) {
                                         {subIndex !== 0 &&
                                             <Typography variant="h6" ml={8}>{`${tail.summary}`}</Typography>
                                         }
-                                    </>
+                                    </Box>
                                 );
                             })}
                         </Box>
@@ -90,7 +88,7 @@ export function SummaryResultCard({ mid }) {
             <CardActions>
                 <SummaryCardButton onClick={handleClickOpen}>Export</SummaryCardButton>
             </CardActions>
-            <ExportPopup handleClose={handleClose} open={open} />
+            <ExportPopup handleClose={handleClose} open={open} reports={reports} />
         </SummaryCard>
     );
 }

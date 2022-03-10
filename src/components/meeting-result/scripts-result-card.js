@@ -122,7 +122,7 @@ export const ScriptsResultCard = ({ mid }) => {
                             return(
                                 <StyledTableRow
                                     hover
-                                    key={line.id}
+                                    key={line._id}
                                 >
                                     <StyledTableCell width="16%" sx={{ paddingY: 1 }}>
                                         <Typography
@@ -139,7 +139,7 @@ export const ScriptsResultCard = ({ mid }) => {
                                             color="text.primary"
                                             sx={{ display: "inline" }}
                                         >
-                                            {hours = 0 && `${hours}:`}
+                                            {hours !== 0 && `${hours}:`}
                                             {minutes < 10 ? `0${minutes}` : minutes}
                                             :
                                             {seconds < 10 ? `0${seconds}` : seconds}

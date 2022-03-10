@@ -1,33 +1,6 @@
-import { useState, useEffect } from 'react';
 import { Box, Typography } from '@mui/material';
-import axios from 'axios';
 
-export const SummaryToolbar = ({description}) => {
-    const [meeting, setMeeting] = useState();
-
-    useEffect(() => {
-        axios.get('http://localhost:3001/db/currentMeeting', { withCredentials: true }).then(res => {
-            const tempMeeting = res.data.meeting;
-            const members = res.data.members;
-
-            const time = tempMeeting.time;
-            const sec = parseInt(time % 60);
-            const min = parseInt((time / 60) % 60);
-            const hours = parseInt(time / 3600);
-
-            if (time >= 3600) {
-                tempMeeting.time = `${`${hours}:`}${min < 10 ? `0${min}` : min}:${sec < 10 ? `0${sec}` : sec}`;
-            } else {
-                tempMeeting.time = `${min < 10 ? `0${min}` : min}:${sec < 10 ? `0${sec}` : sec}`;
-            }
-            
-            tempMeeting.date = new Date(Date.parse(tempMeeting.date)).toLocaleString();
-            tempMeeting.members = members;
-
-            setMeeting(tempMeeting);
-        });        
-    }, []);
-
+export const SummaryToolbar = ({ meeting, description }) => {   
     return (
         <Box
             sx={{

@@ -97,6 +97,10 @@ export const ReportRange = ({ script, report, setReport }) => {
                             <TableBody>
                                 {script.map((line) => {
                                     const isItemSelected = isSelected(line._id);
+                                    const time = line.time;
+                                    const seconds = parseInt(time % 60);
+                                    const minutes = parseInt((time / 60) % 60);
+                                    const hours = parseInt(time / 3600);
 
                                     return(
                                         <TableRow
@@ -125,7 +129,10 @@ export const ReportRange = ({ script, report, setReport }) => {
                                             </TableCell>
                                             <TableCell width="12%">
                                                 <Typography color="textPrimary" variant="body1">
-                                                    {line.time}
+                                                {hours !== 0 && `${hours}:`}
+                                                {minutes < 10 ? `0${minutes}` : minutes}
+                                                :
+                                                {seconds < 10 ? `0${seconds}` : seconds}
                                                 </Typography>
                                             </TableCell>
                                             <TableCell width="65%">

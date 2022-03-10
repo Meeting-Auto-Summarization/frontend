@@ -40,7 +40,7 @@ const Summarizer = () => {
     const { isLogin } = useContext(UserContext);
     const [page, setPage] = useState(0);
     const [description, setDescription] = useState("스크립트 내용 수정 및 삭제");
-    // const [meeting, setMeeting] = useState([]);
+    const [meeting, setMeeting] = useState();
     
     const [script, setScript] = useState([]);
     const [selected, setSelected] = useState([]);
@@ -62,8 +62,24 @@ const Summarizer = () => {
 
     useEffect(() => {
         axios.get(`http://localhost:3001/db/meetingResult/${mid}`, { withCredentials: true }).then(res => {
+            const resMeeting = res.data.meeting;
             const resScript = res.data.script;
             let resReport = res.data.report;
+            const members = res.data.members;
+
+            const time = resMeeting.time;
+            const sec = parseInt(time % 60);
+            const min = parseInt((time / 60) % 60);
+            const hours = parseInt(time / 3600);
+
+            if (time >= 3600) {
+                resMeeting.time = `${`${hours}:`}${min < 10 ? `0${min}` : min}:${sec < 10 ? `0${sec}` : sec}`;
+            } else {
+                resMeeting.time = `${min < 10 ? `0${min}` : min}:${sec < 10 ? `0${sec}` : sec}`;
+            }
+            
+            resMeeting.date = new Date(Date.parse(resMeeting.date)).toLocaleString();
+            resMeeting.members = members;
 
             for (let i = 0; i < resReport.length; i++) {
                 for (let j = 0; j < resReport[i].length; j++) {
@@ -71,6 +87,7 @@ const Summarizer = () => {
                 }
             }
 
+            setMeeting(resMeeting);
             setScript(resScript);
             setReport(resReport);
         });
@@ -161,7 +178,7 @@ const Summarizer = () => {
                         mt: '70px'
                     }}
                 >
-                    <SummaryToolbar description={description} />
+                    <SummaryToolbar meeting={meeting} description={description} />
                     <TabPanel value={page} index={0}>
                         <ScriptEdit
                             script={script}
