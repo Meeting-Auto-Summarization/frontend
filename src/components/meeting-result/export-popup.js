@@ -1,17 +1,106 @@
 import {
   Typography,
-  Grid,
   IconButton,
   Dialog,
   DialogTitle,
   DialogContent,
 } from "@mui/material";
-import { Description, Close } from "@mui/icons-material";
+import { Close } from "@mui/icons-material";
 import { WordIcon } from "../../icons/word";
+import { TXTIcon } from "../../icons/txt"
 import axios from "axios";
 import qs from "qs";
 
-export function ExportPopup({ handleClose, open, meeting, report }) {
+export function ExportPopup({ isScript, handleClose, open, meeting, script, report }) {
+    const downloadScriptDocx = () => {
+        axios({
+            url: 'http://localhost:3001/py/script-docx', //your url
+            method: 'GET',
+            responseType: 'blob', // important
+            params: {
+                meeting: meeting,
+                script: script
+            },
+            paramsSerializer: params => {
+                return qs.stringify(params)
+            }
+        }, { withCredentials: true }).then(res => {
+            const url = window.URL.createObjectURL(new Blob([res.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `${meeting.title}_script.docx`); //or any other extension
+            document.body.appendChild(link);
+            link.click();
+        });
+    };
+
+    const downloadReportDocx = () => {
+        axios({
+            url: 'http://localhost:3001/py/report-docx', //your url
+            method: 'GET',
+            responseType: 'blob', // important
+            params: {
+                meeting: meeting,
+                report: report
+            },
+            paramsSerializer: params => {
+                return qs.stringify(params)
+            }
+        }, { withCredentials: true }).then(res => {
+            const url = window.URL.createObjectURL(new Blob([res.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `${meeting.title}_report.docx`); //or any other extension
+            document.body.appendChild(link);
+            link.click();
+        });
+    };
+
+    const downloadScriptTxt = () => {
+        axios({
+            url: 'http://localhost:3001/py/script-txt', //your url
+            method: 'GET',
+            responseType: 'blob', // important
+            params: {
+                meeting: meeting,
+                script: script
+            },
+            paramsSerializer: params => {
+                return qs.stringify(params)
+            }
+        }, { withCredentials: true }).then(res => {
+            console.log(res)
+            const url = window.URL.createObjectURL(new Blob([res.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `${meeting.title}_script.txt`); //or any other extension
+            document.body.appendChild(link);
+            link.click();
+        });
+    };
+
+    const downloadReportTxt = () => {
+        axios({
+            url: 'http://localhost:3001/py/report-txt', //your url
+            method: 'GET',
+            responseType: 'blob', // important
+            params: {
+                meeting: meeting,
+                report: report
+            },
+            paramsSerializer: params => {
+                return qs.stringify(params)
+            }
+        }, { withCredentials: true }).then(res => {
+            const url = window.URL.createObjectURL(new Blob([res.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `${meeting.title}_report.txt`); //or any other extension
+            document.body.appendChild(link);
+            link.click();
+        });
+    };
+
     return (
         <Dialog onClose={handleClose} open={open}>
             <DialogTitle>양식 선택</DialogTitle>
@@ -29,64 +118,51 @@ export function ExportPopup({ handleClose, open, meeting, report }) {
                         <Close />
                     </IconButton>
                 ) : null}
-            <DialogContent>
+            <DialogContent
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'row'
+                }}
+            >
                 <IconButton
-                    onClick={() => {                
-                        console.log(meeting)
-                        axios({
-                            url: 'http://localhost:3001/py/docx', //your url
-                            method: 'GET',
-                            responseType: 'blob', // important
-                            params: {
-                                meeting: meeting,
-                                report: report
-                            },
-                            paramsSerializer: params => {
-                                return qs.stringify(params)
-                            }
-                        },
-                        { withCredentials: true })
-                        .then(res => {
-                            console.log(res)
-                            const url = window.URL.createObjectURL(new Blob([res.data]));
-                            const link = document.createElement('a');
-                            link.href = url;
-                            link.setAttribute('download', 'file.docx'); //or any other extension
-                            document.body.appendChild(link);
-                            link.click();
-                        });
+                    sx={{
+                        display: 'flex',
+                        flexDirection: 'column'
+                    }}
+                    onClick={() => {
+                        isScript
+                            ? downloadScriptDocx()
+                            : downloadReportDocx()
                     }}
                 >
-                    <Grid>
-                        <Grid item>
-                            <WordIcon sx={{ fontSize: 80 }} />
-                        </Grid>
-                        <Grid item>
-                            <Typography
-                                variant="button"
-                                color="text.primary"
-                                sx={{ display: "inline" }}
-                            >
-                                {`\u00a0\u00a0\u00a0\u00a0`}docx
-                            </Typography>
-                        </Grid>
-                    </Grid>
+                    <WordIcon sx={{ fontSize: 100 }} />
+                    <Typography
+                        variant="button"
+                        color="text.primary"
+                        fontSize={18}
+                    >
+                        docx
+                    </Typography>
                 </IconButton>
-                <IconButton>
-                    <Grid>
-                        <Grid item>
-                            <Description sx={{ fontSize: 100 }} />
-                        </Grid>
-                        <Grid item>
-                            <Typography
-                                variant="button"
-                                color="text.primary"
-                                sx={{ display: "inline" }}
-                            >
-                                txt
-                            </Typography>
-                        </Grid>
-                    </Grid>
+                <IconButton
+                    sx={{
+                        display: 'flex',
+                        flexDirection: 'column'
+                    }}
+                    onClick={() => {
+                        isScript
+                            ? downloadScriptTxt()
+                            : downloadReportTxt()
+                    }}
+                >
+                    <TXTIcon sx={{ fontSize: 100 }} />
+                    <Typography
+                        variant="button"
+                        color="text.primary"
+                        fontSize={18}
+                    >
+                        txt
+                    </Typography>
                 </IconButton>
             </DialogContent>
         </Dialog>

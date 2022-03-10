@@ -29,7 +29,7 @@ const SummaryCardButton = styled(Button)({
     },
 });
 
-export function SummaryResultCard({ report, meeting }) {   
+export function SummaryResultCard({ meeting, report }) {   
     const [open, setOpen] = useState(false);
 
     const handleClickOpen = () => {
@@ -79,7 +79,7 @@ export function SummaryResultCard({ report, meeting }) {
             <CardActions>
                 <SummaryCardButton onClick={handleClickOpen}>Export</SummaryCardButton>
             </CardActions>
-            <ExportPopup handleClose={handleClose} open={open} meeting={meeting} report={report} />
+            <ExportPopup isScript={false} handleClose={handleClose} open={open} meeting={meeting} report={report} />
         </SummaryCard>
     );
 }

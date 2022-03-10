@@ -58,7 +58,7 @@ const StyledTableRow = styled(TableRow)({
     },
 });
 
-export const ScriptsResultCard = ({ mid, script }) => {
+export const ScriptsResultCard = ({ mid, meeting, script }) => {
     const [open, setOpen] = useState(false);
 
     const handleClickOpen = () => {
@@ -162,7 +162,7 @@ export const ScriptsResultCard = ({ mid, script }) => {
                 </Link>
                 <ScriptsCardButton onClick={handleClickOpen}>Export</ScriptsCardButton>
             </CardActions>
-            <ExportPopup handleClose={handleClose} open={open} />
+            <ExportPopup isScript handleClose={handleClose} open={open} meeting={meeting} script={script} />
         </ScriptsCard>
     );
 }

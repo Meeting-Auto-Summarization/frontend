@@ -72,7 +72,7 @@ const MeetingResult = () => {
                                 sm={12}
                                 md={6}
                             >
-                                <ScriptsResultCard mid={mid} script={script} />
+                                <ScriptsResultCard mid={mid} meeting={meeting} script={script} />
                             </Grid>
                             <Grid
                                 item
