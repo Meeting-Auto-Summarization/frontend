@@ -10,12 +10,16 @@ import {
     TableRow,
     Typography,
     IconButton,
-    TextField
+    TextField,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RotateRightIcon from '@mui/icons-material/RotateRight';
 
-export const ScriptEdit = ({ script, selected, deleted, setScript, setSelected, setDeleted }) => {
+export const ScriptEdit = ({ script, selected, deleted, setScript, setSelected, setDeleted, meeting, member, setMember }) => {
     const handleSelectAll = (event) => {
         let newSelectedCustomerIds;
     
@@ -78,6 +82,10 @@ export const ScriptEdit = ({ script, selected, deleted, setScript, setSelected, 
         setScript(temp);
     }
 
+    const handleChangeMember = (e) => {
+        setMember(e.target.value);
+    };
+
     const isSelected = (id) => selected.indexOf(id) !== -1;
     const isDeleted = (id) => deleted.indexOf(id) !== -1;
 
@@ -86,6 +94,20 @@ export const ScriptEdit = ({ script, selected, deleted, setScript, setSelected, 
             <Card sx={{ mb: 8 }}>
                 <PerfectScrollbar>
                     <Box sx={{ minWidth: 1050 }}>
+                        <FormControl fullWidth>
+                            <InputLabel>Members</InputLabel>
+                            <Select
+                                value={member}
+                                onChange={handleChangeMember}
+                            >
+                                <MenuItem value={0}>All Members</MenuItem>
+                                {meeting && meeting.members.map((member, index) => {
+                                    return (
+                                        <MenuItem key={index} value={index + 1}>{member}</MenuItem>
+                                    );
+                                })}
+                            </Select>
+                        </FormControl>
                         <Table>
                             <TableHead>
                                 <TableRow>
@@ -116,6 +138,10 @@ export const ScriptEdit = ({ script, selected, deleted, setScript, setSelected, 
                             </TableHead>
                             <TableBody>
                                 {script.map((line, idx) => {
+                                    if (member !== 0 && line.nick !== meeting.members[member - 1]) {
+                                        return;
+                                    }
+
                                     const time = line.time;
                                     const seconds = parseInt(time % 60);
                                     const minutes = parseInt((time / 60) % 60);
@@ -186,36 +212,6 @@ export const ScriptEdit = ({ script, selected, deleted, setScript, setSelected, 
                     </Box>
                 </PerfectScrollbar>
             </Card>
-            {/* <Box
-                sx={{
-                    width: '100%',
-                    height: 100,
-                    background: 'white',
-                    position: 'fixed',
-                    left: 0,
-                    bottom: 0,
-                    zIndex: 1000,
-                    display: 'flex',
-                    justifyContent: 'right',
-                    alignItems: 'center',
-                    boxShadow: '0px -5px 3px 3px rgba(0, 0, 0, 0.1)'
-                }}
-            >
-                <Link
-                    href={{
-                        pathname: `/report-form-setting`, // 라우팅 id
-                    }}
-                >
-                    <Button
-                        variant="contained"
-                        size="large"
-                        sx={{ marginRight: 2 }}
-                        onClick={handleSubmitScript}
-                    >
-                        Next Step
-                    </Button>
-                </Link>
-            </Box> */}
         </>
     );
 };

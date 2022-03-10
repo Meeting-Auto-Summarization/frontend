@@ -1,9 +1,13 @@
 import PerfectScrollbar from 'react-perfect-scrollbar';
-import { Card, Checkbox, Table, TableBody, TableCell, TableHead, TableRow, Typography, Grid } from '@mui/material';
+import { Card, Checkbox, Table, TableBody, TableCell, TableHead, TableRow, Typography, Grid,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem } from '@mui/material';
 import { useState, useEffect } from 'react';
 import { ReportTitleList } from './report-title-list';
 
-export const ReportRange = ({ script, report, setReport }) => {
+export const ReportRange = ({ script, report, setReport, meeting, member, setMember }) => {
     const [selectedTitle, setSelectedTitle] = useState([0, 0]);
     const [selected, setSelected] = useState([]);
     const [startIndex, setStartIndex] = useState(-1);
@@ -55,6 +59,10 @@ export const ReportRange = ({ script, report, setReport }) => {
         setStartIndex(-1);
     };
 
+    const handleChangeMember = (e) => {
+        setMember(e.target.value);
+    };
+
     const isSelected = (id) => selected.indexOf(id) !== -1;
 
     return (
@@ -69,6 +77,20 @@ export const ReportRange = ({ script, report, setReport }) => {
             >
                 <Card>
                     <PerfectScrollbar>
+                        <FormControl fullWidth>
+                            <InputLabel>Members</InputLabel>
+                            <Select
+                                value={member}
+                                onChange={handleChangeMember}
+                            >
+                                <MenuItem value={0}>All Members</MenuItem>
+                                {meeting && meeting.members.map((member, index) => {
+                                    return (
+                                        <MenuItem key={index} value={index + 1}>{member}</MenuItem>
+                                    );
+                                })}
+                            </Select>
+                        </FormControl>
                         <Table>
                             <TableHead>
                                 <TableRow>
@@ -95,7 +117,11 @@ export const ReportRange = ({ script, report, setReport }) => {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {script.map((line) => {
+                                {script && script.map((line) => {
+                                    if (member !== 0 && line.nick !== meeting.members[member - 1]) {
+                                        return;
+                                    }
+
                                     const isItemSelected = isSelected(line._id);
                                     const time = line.time;
                                     const seconds = parseInt(time % 60);

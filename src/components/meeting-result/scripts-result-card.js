@@ -11,7 +11,11 @@ import {
     TableRow,
     TableCell,
     tableCellClasses,
-    TableBody
+    TableBody,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem
 } from "@mui/material";
 import { useState } from "react";
 import { ExportPopup } from "./export-popup";
@@ -60,6 +64,7 @@ const StyledTableRow = styled(TableRow)({
 
 export const ScriptsResultCard = ({ mid, meeting, script }) => {
     const [open, setOpen] = useState(false);
+    const [member, setMember] = useState(0);
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -67,6 +72,10 @@ export const ScriptsResultCard = ({ mid, meeting, script }) => {
 
     const handleClose = () => {
         setOpen(false);
+    };
+
+    const handleChangeMember = (e) => {
+        setMember(e.target.value);
     };
     
     return (
@@ -85,6 +94,20 @@ export const ScriptsResultCard = ({ mid, meeting, script }) => {
                     overflow: 'auto'
                 }}
             >
+                <FormControl fullWidth>
+                    <InputLabel>Members</InputLabel>
+                    <Select
+                        value={member}
+                        onChange={handleChangeMember}
+                    >
+                        <MenuItem value={0}>All Members</MenuItem>
+                        {meeting && meeting.members.map((member, index) => {
+                            return (
+                                <MenuItem key={index} value={index + 1}>{member}</MenuItem>
+                            );
+                        })}
+                    </Select>
+                </FormControl>
                 <Table>
                     <TableHead
                         sx={{
@@ -105,6 +128,9 @@ export const ScriptsResultCard = ({ mid, meeting, script }) => {
                     </TableHead>
                     <TableBody>
                         {script && script.map((line) => {
+                            if (member !== 0 && line.nick !== meeting.members[member - 1]) {
+                                return;
+                            }
                             const time = line.time;
                             const seconds = parseInt(time % 60);
                             const minutes = parseInt((time / 60) % 60);

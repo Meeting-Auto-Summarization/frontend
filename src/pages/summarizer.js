@@ -41,6 +41,8 @@ const Summarizer = () => {
     const [page, setPage] = useState(0);
     const [description, setDescription] = useState("스크립트 내용 수정 및 삭제");
     const [meeting, setMeeting] = useState();
+    const [sciptEditMember, setSciptEditMember] = useState(0);
+    const [reportRangeMember, setReportRangeMember] = useState(0);
     
     const [script, setScript] = useState([]);
     const [selected, setSelected] = useState([]);
@@ -187,6 +189,9 @@ const Summarizer = () => {
                             setScript={setScript}
                             setSelected={setSelected}
                             setDeleted={setDeleted}
+                            meeting={meeting}
+                            member={sciptEditMember}
+                            setMember={setSciptEditMember}
                         />
                     </TabPanel>
                     <TabPanel value={page} index={1}>
@@ -206,6 +211,9 @@ const Summarizer = () => {
                                 script={script}
                                 report={report}
                                 setReport={setReport}
+                                meeting={meeting}
+                                member={reportRangeMember}
+                                setMember={setReportRangeMember}
                             />
                         }
                     </TabPanel>
