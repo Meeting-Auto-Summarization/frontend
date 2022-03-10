@@ -66,17 +66,6 @@ const Summarizer = () => {
             const resScript = res.data.script;
             let resReport = res.data.report;
             const members = res.data.members;
-
-            const time = resMeeting.time;
-            const sec = parseInt(time % 60);
-            const min = parseInt((time / 60) % 60);
-            const hours = parseInt(time / 3600);
-
-            if (time >= 3600) {
-                resMeeting.time = `${`${hours}:`}${min < 10 ? `0${min}` : min}:${sec < 10 ? `0${sec}` : sec}`;
-            } else {
-                resMeeting.time = `${min < 10 ? `0${min}` : min}:${sec < 10 ? `0${sec}` : sec}`;
-            }
             
             resMeeting.date = new Date(Date.parse(resMeeting.date)).toLocaleString();
             resMeeting.members = members;

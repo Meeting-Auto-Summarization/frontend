@@ -7,6 +7,7 @@ import { AppLayout } from "../components/app-layout";
 import { useRouter } from 'next/router';
 import { UserContext } from '../utils/context/context';
 import queryString from 'query-string';
+import axios from 'axios';
 
 const MeetingResult = () => {
     const router = useRouter();
@@ -17,11 +18,38 @@ const MeetingResult = () => {
         mid = queryString.parse(location.search).mid;
     }
 
+    const [meeting, setMeeting] = useState();
+    const [script, setScript] = useState();
+    const [report, setReport] = useState();
+
     useEffect(() => {
         if (isLogin === false) {
             router.push('/not-login');
         }
     });
+
+    useEffect(() => {
+        axios.get(`http://localhost:3001/db/meetingResult/${mid}`, { withCredentials: true }).then(res => {
+            const resMeeting = res.data.meeting;
+            const resScript = res.data.script;
+            const resReport = res.data.report;
+            const members = res.data.members;
+            
+            resMeeting.date = new Date(Date.parse(resMeeting.date)).toLocaleString();
+            resMeeting.members = members;
+
+            const time = resMeeting.time;
+            const sec = parseInt(time % 60);
+            const min = parseInt((time / 60) % 60);
+            const hours = parseInt(time / 3600);
+
+            resMeeting.time = `${`${hours}:`}${min < 10 ? `0${min}` : min}:${sec < 10 ? `0${sec}` : sec}`;
+
+            setMeeting(resMeeting);
+            setScript(resScript);
+            setReport(resReport);
+        });
+    }, []);
 
     return (
         <>
@@ -34,7 +62,7 @@ const MeetingResult = () => {
                     }}
                 >
                     <Container maxWidth={false}>
-                        <MeetingResultToolbar mid={mid} />
+                        <MeetingResultToolbar meeting={meeting} />
                         <Grid
                             container
                             spacing={3}
@@ -44,14 +72,14 @@ const MeetingResult = () => {
                                 sm={12}
                                 md={6}
                             >
-                                <ScriptsResultCard mid={mid} />
+                                <ScriptsResultCard mid={mid} script={script} />
                             </Grid>
                             <Grid
                                 item
                                 sm={12}
                                 md={6}
                             >
-                                <SummaryResultCard mid={mid} />
+                                <SummaryResultCard meeting={meeting} report={report} />
                             </Grid>
                         </Grid>
                     </Container>

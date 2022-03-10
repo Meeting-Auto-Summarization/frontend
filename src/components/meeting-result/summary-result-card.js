@@ -1,5 +1,4 @@
-import axios from "axios";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
     Box,
     Button,
@@ -30,15 +29,7 @@ const SummaryCardButton = styled(Button)({
     },
 });
 
-export function SummaryResultCard({ mid }) {
-    const [reports, setReports] = useState([]);
-
-    useEffect(() => {
-        axios.get(`http://localhost:3001/db/report/${mid}`, { withCredentials: true }).then(res => {
-            setReports(res.data);
-        });
-    }, []);
-    
+export function SummaryResultCard({ report, meeting }) {   
     const [open, setOpen] = useState(false);
 
     const handleClickOpen = () => {
@@ -65,7 +56,7 @@ export function SummaryResultCard({ mid }) {
                     overflow: 'auto'
                 }}
             >
-                {reports.map((head, index) => {
+                {report && report.map((head, index) => {
                     return (
                         <Box key={head[0]._id} mb={3}>
                             {head.map((tail, subIndex) => {
@@ -88,7 +79,7 @@ export function SummaryResultCard({ mid }) {
             <CardActions>
                 <SummaryCardButton onClick={handleClickOpen}>Export</SummaryCardButton>
             </CardActions>
-            <ExportPopup handleClose={handleClose} open={open} reports={reports} />
+            <ExportPopup handleClose={handleClose} open={open} meeting={meeting} report={report} />
         </SummaryCard>
     );
 }

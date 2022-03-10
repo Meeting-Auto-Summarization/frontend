@@ -13,10 +13,9 @@ import {
     tableCellClasses,
     TableBody
 } from "@mui/material";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { ExportPopup } from "./export-popup";
 import Link from 'next/link';
-import axios from "axios";
 
 const ScriptsCard = styled(Card)({
     background: "#FFF3FF",
@@ -59,15 +58,7 @@ const StyledTableRow = styled(TableRow)({
     },
 });
 
-export const ScriptsResultCard = ({ mid }) => {
-    const [scripts, setScripts] = useState([]);
-
-    useEffect(() => {
-        axios.get(`http://localhost:3001/db/script/${mid}`, { withCredentials: true }).then(res => {
-            setScripts(res.data);
-        });
-    }, []);
-
+export const ScriptsResultCard = ({ mid, script }) => {
     const [open, setOpen] = useState(false);
 
     const handleClickOpen = () => {
@@ -113,7 +104,7 @@ export const ScriptsResultCard = ({ mid }) => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {scripts.map((line) => {
+                        {script && script.map((line) => {
                             const time = line.time;
                             const seconds = parseInt(time % 60);
                             const minutes = parseInt((time / 60) % 60);

@@ -11,8 +11,7 @@ import { WordIcon } from "../../icons/word";
 import axios from "axios";
 import qs from "qs";
 
-export function ExportPopup(props) {
-    const { handleClose, open, meetings, reports } = props;
+export function ExportPopup({ handleClose, open, meeting, report }) {
     return (
         <Dialog onClose={handleClose} open={open}>
             <DialogTitle>양식 선택</DialogTitle>
@@ -33,12 +32,14 @@ export function ExportPopup(props) {
             <DialogContent>
                 <IconButton
                     onClick={() => {                
+                        console.log(meeting)
                         axios({
                             url: 'http://localhost:3001/py/docx', //your url
                             method: 'GET',
                             responseType: 'blob', // important
                             params: {
-                                data: reports
+                                meeting: meeting,
+                                report: report
                             },
                             paramsSerializer: params => {
                                 return qs.stringify(params)
