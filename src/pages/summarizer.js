@@ -1,9 +1,8 @@
 import axios from 'axios';
 import Head from 'next/head';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useState, useEffect, useContext } from 'react';
-import { Box, Tabs, Tab, Container, Button } from '@mui/material';
+import { Box, Tabs, Tab, Container, Button, CircularProgress, Typography } from '@mui/material';
 import styled from '@emotion/styled';
 import { UserContext } from '../utils/context/context';
 import { AppLayout } from '../components/app-layout';
@@ -40,6 +39,7 @@ const Summarizer = () => {
     const { isLogin } = useContext(UserContext);
     const [page, setPage] = useState(0);
     const [description, setDescription] = useState("스크립트 내용 수정 및 삭제");
+
     const [meeting, setMeeting] = useState();
     const [sciptEditMember, setSciptEditMember] = useState(0);
     const [reportRangeMember, setReportRangeMember] = useState(0);
@@ -49,6 +49,8 @@ const Summarizer = () => {
     const [deleted, setDeleted] = useState([]);
     
     const [report, setReport] = useState([[]]);
+
+    const [loading, setLoading] = useState(false);
 
     let mid = '';
 
@@ -133,17 +135,32 @@ const Summarizer = () => {
         setPage(newPage);
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
+        setLoading(true);
+
         let temp = script;
         for (var del in deleted) {
             temp.slice(temp.findIndex(i => i._id === del), 1);
         }
 
-        axios.post(`http://localhost:3001/db/meetingResult`,
+        await axios.post(`http://localhost:3001/db/meetingResult`,
             { meetingId: mid, script: script, report: report },
             { withCredentials: true }).then(res => {
-            console.log(res.data)
-        });
+                console.log(res.data)
+            }
+        );
+
+        await axios.post(`http://localhost:3001/py/summarize`,
+            { meetingId: mid, report: report },
+            { withCredentials: true }).then(res => {
+                console.log(res.data)
+                setLoading(false);
+                router.push({
+                    pathname: `/meeting-result`,
+                    query: { mid: mid },
+                });
+            }
+        );
     };
 
     return (
@@ -154,6 +171,33 @@ const Summarizer = () => {
                 </title>
             </Head>
             <Box component="main">
+                {loading &&
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            position: 'fixed',
+                            backgroundColor: 'black',
+                            opacity: "0.7",
+                            left: 0,
+                            right: 0,
+                            top: 0,
+                            bottom: 0,
+                            zIndex: 100000
+                        }}
+                    >
+                        <Typography
+                            color='violet'
+                            fontSize={30}
+                            mb={5}
+                        >
+                            요약 진행 중입니다...
+                        </Typography>
+                        <CircularProgress size={80} />
+                    </Box>
+                }
                 <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                     <StyledTabs
                         value={page}
@@ -219,26 +263,19 @@ const Summarizer = () => {
                     </TabPanel>
                 </Container>
             </Box>
-            <Link
-                href={{
-                    pathname: `/meeting-result`,
-                    query: { mid: mid },
+            <Button
+                variant="contained"
+                size="large"
+                sx={{
+                    m: 3,
+                    position: 'fixed',
+                    right: 0,
+                    bottom: 0
                 }}
+                onClick={handleSubmit}
             >
-                <Button
-                    variant="contained"
-                    size="large"
-                    sx={{
-                        m: 3,
-                        position: 'fixed',
-                        right: 0,
-                        bottom: 0
-                    }}
-                    onClick={handleSubmit}
-                >
-                    Next Step
-                </Button>
-            </Link>
+                Next Step
+            </Button>
         </>
     );
 }

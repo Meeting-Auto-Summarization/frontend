@@ -69,6 +69,9 @@ export function SummaryResultCard({ meeting, report }) {
                                         {subIndex !== 0 &&
                                             <Typography variant="h6" ml={8}>{`${tail.summary}`}</Typography>
                                         }
+                                        {head.length === 1 &&
+                                            <Typography variant="h6" ml={6}>{`${tail.summary}`}</Typography>
+                                        }
                                     </Box>
                                 );
                             })}
