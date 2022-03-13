@@ -12,14 +12,10 @@ const Account = () => {
     const router = useRouter();
     
     useEffect(() => {        
-        if (!userContext.isLogin) {
+        if (userContext.isLogin === false) {
             router.push('/not-login');
         }
     });
-
-    if (!userContext.isLogin) {
-        return null;
-    }
 
     return (
         <>

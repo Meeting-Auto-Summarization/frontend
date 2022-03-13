@@ -1,5 +1,5 @@
 import { Box, Grid, Paper, Typography } from "@mui/material";
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 
 function Video({text, stream}) {
     const ref = useRef();
@@ -53,6 +53,12 @@ function Video({text, stream}) {
 }
 
 export function MeetingVideo({peers, myVideo}) {
+    const [availWidth, setAvailWidth] = useState(300);
+
+    useEffect(() => {
+        setAvailWidth(window.screen.availWidth * 0.2);
+    }, [])
+
     return(
         <Box
             sx={{
@@ -100,12 +106,13 @@ export function MeetingVideo({peers, myVideo}) {
                             </Grid>
                         ))}
             </Grid>
-            <Paper
+            <Box
+                width={availWidth}
+                height={availWidth * 0.8}
                 sx={{
                     display: "flex",
-                    width: "24%",
-                    minWidht: '150px',
                     backgroundColor: "#000000",
+                    borderRadius: '2%',
                     position: "absolute",
                     right: 0,
                     bottom: 0,
@@ -119,7 +126,7 @@ export function MeetingVideo({peers, myVideo}) {
                     autoPlay
                     playsInline
                 />
-            </Paper>
+            </Box>
         </Box>
     );
 }

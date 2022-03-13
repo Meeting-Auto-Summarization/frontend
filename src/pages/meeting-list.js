@@ -32,7 +32,7 @@ const MeetingList = () => {
                 const tempMeeting = data[i].meeting;
 
                 const date = new Date(Date.parse(tempMeeting.date));
-                tempMeeting.date = `${date.toLocaleDateString()} ${date.toLocaleTimeString().slice(3)}`;
+                tempMeeting.date = date.toLocaleString();
                 tempMeeting.members = data[i].members;
 
                 meetingList.push(tempMeeting);

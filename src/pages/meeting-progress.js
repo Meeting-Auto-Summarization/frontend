@@ -422,7 +422,6 @@ const MeetingProgress = () => {
                     handleServerScript={handleServerScript}
                 />
             </Drawer>
-
         </>
     );
 };
