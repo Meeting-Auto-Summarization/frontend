@@ -71,7 +71,7 @@ const Login = () => {
                                             color="error"
                                             startIcon={<GoogleIcon />}
                                             onClick={() => {
-                                                window.location.href = "http://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001/auth/google"
+                                                window.location.href = "https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/auth/google"
                                             }}
                                             size="large"
                                             variant="contained"

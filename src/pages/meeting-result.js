@@ -29,7 +29,7 @@ const MeetingResult = () => {
     });
 
     useEffect(() => {
-        axios.get(`http://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001/db/meetingResult/${mid}`, { withCredentials: true }).then(res => {
+        axios.get(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/meetingResult/${mid}`, { withCredentials: true }).then(res => {
             const resMeeting = res.data.meeting;
             const resScript = res.data.script;
             const resReport = res.data.report;

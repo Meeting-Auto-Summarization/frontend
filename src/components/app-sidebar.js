@@ -34,7 +34,7 @@ const items = [
 		title: 'Settings'
 	},
 	{
-		href: 'http://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001/auth/logout',
+		href: 'https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/auth/logout',
 		icon: (<LockIcon fontSize="small" />),
 		title: 'Logout'
 	}
@@ -56,7 +56,7 @@ export const AppSidebar = (props) => {
 	const [isMeeting, setIsMeeting] = useState(false);
 
 	const handleSubmitCreateDialog = (title, limitNum) => {
-		axios.post('http://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001/db/createMeeting', {
+		axios.post('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/createMeeting', {
 			title: title,
 			// code: code,
 			capacity: limitNum,
@@ -69,9 +69,9 @@ export const AppSidebar = (props) => {
 	};
 
 	const handleSubmitJoinDialog = (code) => {
-		axios.get(`http://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001/db/joinMeeting/${code}`, { withCredentials: true }).then(res => {
+		axios.get(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/joinMeeting/${code}`, { withCredentials: true }).then(res => {
 			if (res.data) {
-				axios.get(`http://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001/db/isMeeting`, { withCredentials: true }).then(res => {
+				axios.get(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/isMeeting`, { withCredentials: true }).then(res => {
 					setIsMeeting(res.data);
 				});
 				window.open('/meeting-progress');
@@ -99,7 +99,7 @@ export const AppSidebar = (props) => {
 			return;
 		}
 
-		axios.get(`http://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001/db/isMeeting`, { withCredentials: true }).then(res => {
+		axios.get(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/isMeeting`, { withCredentials: true }).then(res => {
 			setIsMeeting(res.data);
 		});
 	}, []);
@@ -107,11 +107,11 @@ export const AppSidebar = (props) => {
 	if (typeof window !== "undefined") {
 		window.endMeeting = function endMeeting(isHost) {
 			if (isHost) {
-				axios.get(`http://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001/db/setIsMeetingAllFalse`, { withCredentials: true }).then(res => {
+				axios.get(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/setIsMeetingAllFalse`, { withCredentials: true }).then(res => {
 					console.log(res.data);
 				});
 			} else {
-				axios.get(`http://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001/db/setIsMeetingFalse`, { withCredentials: true }).then(res => {
+				axios.get(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/setIsMeetingFalse`, { withCredentials: true }).then(res => {
 					console.log(res.data);
 				});
 			}

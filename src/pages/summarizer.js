@@ -65,7 +65,7 @@ const Summarizer = () => {
     });
 
     useEffect(() => {
-        axios.get(`http://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001/db/meetingResult/${mid}`, { withCredentials: true }).then(res => {
+        axios.get(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/meetingResult/${mid}`, { withCredentials: true }).then(res => {
             const resMeeting = res.data.meeting;
             const resScript = res.data.script;
             let resReport = res.data.report;
@@ -143,14 +143,14 @@ const Summarizer = () => {
             temp.slice(temp.findIndex(i => i._id === del), 1);
         }
 
-        await axios.post(`http://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001/db/meetingResult`,
+        await axios.post(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/meetingResult`,
             { meetingId: mid, script: script, report: report },
             { withCredentials: true }).then(res => {
                 console.log(res.data)
             }
             );
 
-        await axios.post(`http://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001/py/summarize`,
+        await axios.post(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/py/summarize`,
             { meetingId: mid, report: report },
             { withCredentials: true }).then(res => {
                 console.log(res.data)

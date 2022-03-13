@@ -32,7 +32,7 @@ export const AccountProfileDetails = ({ user, ...rest }) => {
     };
 
     const handleSubmit = (event) => {
-        axios.post('http://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001/db/userInfo',
+        axios.post('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/userInfo',
             { values: values },
             { withCredentials: true }).then(res => {
                 window.location.reload()
