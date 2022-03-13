@@ -105,10 +105,16 @@ export const AppSidebar = (props) => {
 	}, []);
 
 	if (typeof window !== "undefined") {
-		window.endMeeting = function endMeeting() {			
-			axios.get(`http://localhost:3001/db/setIsMeetingAllFalse`, { withCredentials: true }).then(res => {
-                console.log(res.data);
-            });
+		window.endMeeting = function endMeeting(isHost) {
+			if (isHost) {
+				axios.get(`http://localhost:3001/db/setIsMeetingAllFalse`, { withCredentials: true }).then(res => {
+					console.log(res.data);
+				});
+			} else {
+				axios.get(`http://localhost:3001/db/setIsMeetingFalse`, { withCredentials: true }).then(res => {
+					console.log(res.data);
+				});
+			}
 		};
 	}
 

@@ -265,6 +265,7 @@ const Summarizer = () => {
             </Box>
             <Button
                 variant="contained"
+                disabled={loading}
                 size="large"
                 sx={{
                     m: 3,
@@ -274,7 +275,7 @@ const Summarizer = () => {
                 }}
                 onClick={handleSubmit}
             >
-                Next Step
+                Summarizing!!
             </Button>
         </>
     );

@@ -24,7 +24,6 @@ import {
     Share,
     ExpandMore
 } from "@mui/icons-material";
-import axios from 'axios';
 
 const MeetingNavBar = styled(AppBar)(({ theme }) => ({
     backgroundColor: theme.palette.background.paper,

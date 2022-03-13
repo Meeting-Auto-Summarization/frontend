@@ -316,7 +316,7 @@ const MeetingProgress = () => {
         opener.location.reload();
 
         if (!isHost) {
-            opener.endMeeting();
+            opener.endMeeting(isHost);
             self.close();
             return;
         }
