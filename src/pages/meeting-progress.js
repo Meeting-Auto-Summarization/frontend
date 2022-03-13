@@ -9,8 +9,8 @@ import { ProgressInfo } from "../components/meeting/progress-info";
 import { UserContext } from '../utils/context/context';
 import axios from 'axios';
 
-const socket = io.connect('http://localhost:3001',
-    { cors: { origin: 'http://localhost:3001' } }); // 서버랑 연결
+const socket = io.connect('http://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001',
+    { cors: { origin: 'http://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001' } }); // 서버랑 연결
 
 const ProcessLayoutRoot = styled('div')({
     display: 'flex',
@@ -60,23 +60,23 @@ const MeetingProgress = () => {
     const video = useRef();
     const [messageList, setMessageList] = useState([
         {
-             isChecked: false,
-             nick: '고건준',
-             content: '안녕',
-             time: 30
-         },
-         {
-             isChecked: true,
-             nick: '권기준',
-             content: 'asdfasdfasdfdasfasdfasdfadsdsafasdfasdfasdasdfasdfasdfdasfasdfasdfadsdsafasdfasdfasd',
-             time: 30
-         },
-         {
-             isChecked: false,
-             nick: '주영환',
-             content: '안녕',
-             time: 30
-         }
+            isChecked: false,
+            nick: '고건준',
+            content: '안녕',
+            time: 30
+        },
+        {
+            isChecked: true,
+            nick: '권기준',
+            content: 'asdfasdfasdfdasfasdfasdfadsdsafasdfasdfasdasdfasdfasdfdasfasdfasdfadsdsafasdfasdfasd',
+            time: 30
+        },
+        {
+            isChecked: false,
+            nick: '주영환',
+            content: '안녕',
+            time: 30
+        }
     ]);
 
     // 1초마다 회의 시간 갱신
@@ -88,11 +88,11 @@ const MeetingProgress = () => {
     }, [time]);
 
     useEffect(() => {
-        axios.get('http://localhost:3001/db/currentMeeting', { withCredentials: true }).then(res => {
+        axios.get('http://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001/db/currentMeeting', { withCredentials: true }).then(res => {
             console.log(res.data);
             const meeting = res.data.meeting;
             setMembers(res.data.members);
-            
+
             setMid(meeting._id)
             setCode(meeting.code);
             setTitle(meeting.title);
@@ -104,14 +104,14 @@ const MeetingProgress = () => {
             setTime(diff);
         });
 
-        axios.get(`http://localhost:3001/db/isHost`, { withCredentials: true }).then(res => {
+        axios.get(`http://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001/db/isHost`, { withCredentials: true }).then(res => {
             setIsHost(res.data);
         });
 
 
         peer.on('open', (id) => { // userid가 peer로 인해 생성됨
             console.log("open");
-            axios.get('http://localhost:3001/auth/meeting-info', { withCredentials: true }).then(res => {
+            axios.get('http://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001/auth/meeting-info', { withCredentials: true }).then(res => {
                 const { currentMeetingId } = res.data;
                 const nick = res.data.name;
                 console.log("debug");
@@ -127,7 +127,7 @@ const MeetingProgress = () => {
         socket.on("initScripts", (scripts) => {
             setMessageList(scripts);
         });//들어왔을때 client script 추가
-        /*axios.get(`http://localhost:3001/db/currentMeetingScript`, { withCredentials: true }).then(res => {
+        /*axios.get(`http://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001/db/currentMeetingScript`, { withCredentials: true }).then(res => {
             setMessageList(res.data);
             console.log(res.data);
         });*/
@@ -213,7 +213,7 @@ const MeetingProgress = () => {
 
 
     useEffect(() => {
-        axios.get(`http://localhost:3001/db/isMeeting`, { withCredentials: true }).then(res => {
+        axios.get(`http://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001/db/isMeeting`, { withCredentials: true }).then(res => {
             if (!res.data) {
                 self.close();
             }
@@ -221,7 +221,7 @@ const MeetingProgress = () => {
     }, [peers]);
 
     const connectToNewUser = async (userId, stream, remoteNick) => {
-        const { data } = await axios.get('http://localhost:3001/auth/meeting-info', { withCredentials: true });
+        const { data } = await axios.get('http://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001/auth/meeting-info', { withCredentials: true });
         const call = peer.call(userId, stream, { metadata: { "receiverNick": remoteNick, "senderNick": data.name } });
         // call객체 생성(dest-id,my-mediaStream)
         // 들어온 상대방에게 call요청 보냄
@@ -321,11 +321,11 @@ const MeetingProgress = () => {
             return;
         }
         socket.emit("meetingEnd", isHost);
-        axios.get(`http://localhost:3001/db/setIsMeetingAllFalse`, { withCredentials: true }).then(res => {
+        axios.get(`http://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001/db/setIsMeetingAllFalse`, { withCredentials: true }).then(res => {
             console.log(res.data);
         });
 
-        axios.post(`http://localhost:3001/db/submitMeeting`, {
+        axios.post(`http://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001/db/submitMeeting`, {
             time: time,
             text: messageList
         }, { withCredentials: true }).then(res => {

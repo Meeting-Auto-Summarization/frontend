@@ -2,10 +2,10 @@ import { Box, Typography, Button } from '@mui/material';
 import axios from 'axios';
 import { useState } from 'react';
 
-export const MeetingAccess = ({callback}) => {
+export const MeetingAccess = ({ callback }) => {
     const [title, setTitle] = useState('');
 
-    axios.get('http://localhost:3001/db/currentMeetingTitle', { withCredentials: true }).then(res => {
+    axios.get('http://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001/db/currentMeetingTitle', { withCredentials: true }).then(res => {
         setTitle(res.data);
     });
 
@@ -58,7 +58,7 @@ export const MeetingAccess = ({callback}) => {
                 onClick={callback}
             >
                 회의 접속
-                </Button>
+            </Button>
         </Box>
     );
 };

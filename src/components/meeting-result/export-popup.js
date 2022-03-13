@@ -1,9 +1,9 @@
 import {
-  Typography,
-  IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
+    Typography,
+    IconButton,
+    Dialog,
+    DialogTitle,
+    DialogContent,
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import { WordIcon } from "../../icons/word";
@@ -14,7 +14,7 @@ import qs from "qs";
 export function ExportPopup({ isScript, handleClose, open, meeting, script, report }) {
     const downloadScriptDocx = () => {
         axios({
-            url: 'http://localhost:3001/py/script-docx', //your url
+            url: 'http://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001/py/script-docx', //your url
             method: 'GET',
             responseType: 'blob', // important
             params: {
@@ -36,7 +36,7 @@ export function ExportPopup({ isScript, handleClose, open, meeting, script, repo
 
     const downloadReportDocx = () => {
         axios({
-            url: 'http://localhost:3001/py/report-docx', //your url
+            url: 'http://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001/py/report-docx', //your url
             method: 'GET',
             responseType: 'blob', // important
             params: {
@@ -58,7 +58,7 @@ export function ExportPopup({ isScript, handleClose, open, meeting, script, repo
 
     const downloadScriptTxt = () => {
         axios({
-            url: 'http://localhost:3001/py/script-txt', //your url
+            url: 'http://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001/py/script-txt', //your url
             method: 'GET',
             responseType: 'blob', // important
             params: {
@@ -81,7 +81,7 @@ export function ExportPopup({ isScript, handleClose, open, meeting, script, repo
 
     const downloadReportTxt = () => {
         axios({
-            url: 'http://localhost:3001/py/report-txt', //your url
+            url: 'http://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001/py/report-txt', //your url
             method: 'GET',
             responseType: 'blob', // important
             params: {
@@ -104,20 +104,20 @@ export function ExportPopup({ isScript, handleClose, open, meeting, script, repo
     return (
         <Dialog onClose={handleClose} open={open}>
             <DialogTitle>양식 선택</DialogTitle>
-                {open ? (
-                    <IconButton
-                        aria-label="close"
-                        onClick={handleClose}
-                        sx={{
-                            position: "absolute",
-                            right: 8,
-                            top: 8,
-                            color: (theme) => theme.palette.grey[500],
-                        }}
-                    >
-                        <Close />
-                    </IconButton>
-                ) : null}
+            {open ? (
+                <IconButton
+                    aria-label="close"
+                    onClick={handleClose}
+                    sx={{
+                        position: "absolute",
+                        right: 8,
+                        top: 8,
+                        color: (theme) => theme.palette.grey[500],
+                    }}
+                >
+                    <Close />
+                </IconButton>
+            ) : null}
             <DialogContent
                 sx={{
                     display: 'flex',

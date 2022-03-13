@@ -29,7 +29,7 @@ const UserContextProvider = ({ children }) => {
         ]);
 
     const getLoginInfo = () => {
-        axios.get('http://localhost:3001/auth/user-info', { withCredentials: true }).then(response => {
+        axios.get('http://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001/auth/user-info', { withCredentials: true }).then(response => {
             setIsLogin(response.data !== '');
 
             if (response.data == '') {

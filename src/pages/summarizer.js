@@ -43,11 +43,11 @@ const Summarizer = () => {
     const [meeting, setMeeting] = useState();
     const [sciptEditMember, setSciptEditMember] = useState(0);
     const [reportRangeMember, setReportRangeMember] = useState(0);
-    
+
     const [script, setScript] = useState([]);
     const [selected, setSelected] = useState([]);
     const [deleted, setDeleted] = useState([]);
-    
+
     const [report, setReport] = useState([[]]);
 
     const [loading, setLoading] = useState(false);
@@ -65,7 +65,7 @@ const Summarizer = () => {
     });
 
     useEffect(() => {
-        axios.get(`http://localhost:3001/db/meetingResult/${mid}`, { withCredentials: true }).then(res => {
+        axios.get(`http://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001/db/meetingResult/${mid}`, { withCredentials: true }).then(res => {
             const resMeeting = res.data.meeting;
             const resScript = res.data.script;
             let resReport = res.data.report;
@@ -81,7 +81,7 @@ const Summarizer = () => {
             } else {
                 resMeeting.time = `${min < 10 ? `0${min}` : min}:${sec < 10 ? `0${sec}` : sec}`;
             }
-            
+
             resMeeting.date = new Date(Date.parse(resMeeting.date)).toLocaleString();
             resMeeting.members = members;
 
@@ -99,7 +99,7 @@ const Summarizer = () => {
 
     function TabPanel(props) {
         const { children, value, index, ...other } = props;
-      
+
         return (
             <div
                 role="tabpanel"
@@ -143,14 +143,14 @@ const Summarizer = () => {
             temp.slice(temp.findIndex(i => i._id === del), 1);
         }
 
-        await axios.post(`http://localhost:3001/db/meetingResult`,
+        await axios.post(`http://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001/db/meetingResult`,
             { meetingId: mid, script: script, report: report },
             { withCredentials: true }).then(res => {
                 console.log(res.data)
             }
-        );
+            );
 
-        await axios.post(`http://localhost:3001/py/summarize`,
+        await axios.post(`http://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001/py/summarize`,
             { meetingId: mid, report: report },
             { withCredentials: true }).then(res => {
                 console.log(res.data)
@@ -160,7 +160,7 @@ const Summarizer = () => {
                     query: { mid: mid },
                 });
             }
-        );
+            );
     };
 
     return (

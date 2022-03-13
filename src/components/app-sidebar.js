@@ -18,7 +18,7 @@ import axios from "axios";
 import { UserContext } from 'src/utils/context/context';
 
 const items = [
-    {
+	{
 		href: '/meeting-list',
 		icon: (<FormatListBulletedIcon fontSize="small" />),
 		title: 'Meeting List'
@@ -34,10 +34,10 @@ const items = [
 		title: 'Settings'
 	},
 	{
-		href: 'http://localhost:3001/auth/logout',
+		href: 'http://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001/auth/logout',
 		icon: (<LockIcon fontSize="small" />),
 		title: 'Logout'
-	 }
+	}
 ];
 
 export const AppSidebar = (props) => {
@@ -48,15 +48,15 @@ export const AppSidebar = (props) => {
 		noSsr: false
 	});
 	const { isLogin } = useContext(UserContext);
-    const [isOpenCreateDialog, setIsOpenCreateDialog] = useState(false);
-    const [isOpenCodeDialog, setIsOpenCodeDialog] = useState(false);
-    const [isOpenJoinDialog, setIsOpenJoinDialog] = useState(false);
+	const [isOpenCreateDialog, setIsOpenCreateDialog] = useState(false);
+	const [isOpenCodeDialog, setIsOpenCodeDialog] = useState(false);
+	const [isOpenJoinDialog, setIsOpenJoinDialog] = useState(false);
 	const [isOpenOngoingDialog, setIsOpenOngoingDialog] = useState(false);
 	const [meetingCode, setMeetingCode] = useState('');
 	const [isMeeting, setIsMeeting] = useState(false);
 
 	const handleSubmitCreateDialog = (title, limitNum) => {
-		axios.post('http://localhost:3001/db/createMeeting', {
+		axios.post('http://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001/db/createMeeting', {
 			title: title,
 			// code: code,
 			capacity: limitNum,
@@ -66,40 +66,40 @@ export const AppSidebar = (props) => {
 			setMeetingCode(res.data);
 			setIsOpenCodeDialog(true);
 		});
-    };
+	};
 
 	const handleSubmitJoinDialog = (code) => {
-		axios.get(`http://localhost:3001/db/joinMeeting/${code}`, { withCredentials: true }).then(res => {
-        	if (res.data) {
-				axios.get(`http://localhost:3001/db/isMeeting`, { withCredentials: true }).then(res => {
+		axios.get(`http://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001/db/joinMeeting/${code}`, { withCredentials: true }).then(res => {
+			if (res.data) {
+				axios.get(`http://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001/db/isMeeting`, { withCredentials: true }).then(res => {
 					setIsMeeting(res.data);
 				});
 				window.open('/meeting-progress');
 			} else {
 				alert('존재하지 않거나 이미 종료된 회의입니다.')
 			}
-      	});
+		});
 	};
 
-  	useEffect(() => {
-			if (!router.isReady) {
-				return;
-			}
+	useEffect(() => {
+		if (!router.isReady) {
+			return;
+		}
 
-			if (open) {
-				onClose?.();
-			}
-		},
+		if (open) {
+			onClose?.();
+		}
+	},
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[router.asPath]
-  	);
+	);
 
 	useEffect(() => {
 		if (!isLogin) {
 			return;
 		}
 
-		axios.get(`http://localhost:3001/db/isMeeting`, { withCredentials: true }).then(res => {
+		axios.get(`http://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001/db/isMeeting`, { withCredentials: true }).then(res => {
 			setIsMeeting(res.data);
 		});
 	}, []);
@@ -107,11 +107,11 @@ export const AppSidebar = (props) => {
 	if (typeof window !== "undefined") {
 		window.endMeeting = function endMeeting(isHost) {
 			if (isHost) {
-				axios.get(`http://localhost:3001/db/setIsMeetingAllFalse`, { withCredentials: true }).then(res => {
+				axios.get(`http://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001/db/setIsMeetingAllFalse`, { withCredentials: true }).then(res => {
 					console.log(res.data);
 				});
 			} else {
-				axios.get(`http://localhost:3001/db/setIsMeetingFalse`, { withCredentials: true }).then(res => {
+				axios.get(`http://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001/db/setIsMeetingFalse`, { withCredentials: true }).then(res => {
 					console.log(res.data);
 				});
 			}
@@ -135,10 +135,10 @@ export const AppSidebar = (props) => {
 						>
 							<a>
 								<Logo
-								sx={{
-									height: 42,
-									width: 42
-								}}
+									sx={{
+										height: 42,
+										width: 42
+									}}
 								/>
 							</a>
 						</NextLink>
@@ -167,8 +167,8 @@ export const AppSidebar = (props) => {
 									md={6}
 								>
 									<Button
-									 	variant="contained"
-										onClick={ !isMeeting
+										variant="contained"
+										onClick={!isMeeting
 											? () => setIsOpenCreateDialog(true)
 											: () => setIsOpenOngoingDialog(true)
 										}
@@ -185,34 +185,34 @@ export const AppSidebar = (props) => {
 								>
 									<Button
 										variant="contained"
-										onClick={ !isMeeting
+										onClick={!isMeeting
 											? () => setIsOpenJoinDialog(true)
 											: () => setIsOpenOngoingDialog(true)
 										}
 										fullWidth
 									>
-										<Typography fontSize="100%" sx={{ fontWeight: 'bold'}}>회의 참여</Typography>
+										<Typography fontSize="100%" sx={{ fontWeight: 'bold' }}>회의 참여</Typography>
 									</Button>
 								</Grid>
 							</Grid>
-                            <CreateMeetingDialog
-                                open={isOpenCreateDialog}
-                                onClose={ () => setIsOpenCreateDialog(false) }
+							<CreateMeetingDialog
+								open={isOpenCreateDialog}
+								onClose={() => setIsOpenCreateDialog(false)}
 								onSubmit={handleSubmitCreateDialog}
-                            />
-                            <MeetingCodeDialog
-                                open={isOpenCodeDialog}
+							/>
+							<MeetingCodeDialog
+								open={isOpenCodeDialog}
 								code={meetingCode}
-                                onClose={ () => setIsOpenCodeDialog(false) }
-                            />
+								onClose={() => setIsOpenCodeDialog(false)}
+							/>
 							<JoinMeetingDialog
 								open={isOpenJoinDialog}
-								onClose={ () => setIsOpenJoinDialog(false) }
+								onClose={() => setIsOpenJoinDialog(false)}
 								onSubmit={handleSubmitJoinDialog}
 							/>
 							<OngoingDialog
 								open={isOpenOngoingDialog}
-								onClose={ () => setIsOpenOngoingDialog(false) }
+								onClose={() => setIsOpenOngoingDialog(false)}
 							/>
 						</Box>
 					</Box>
@@ -224,17 +224,17 @@ export const AppSidebar = (props) => {
 					}}
 				/>
 				<Box sx={{ flexGrow: 1 }}>
-				{items.map((item) => (
-					<NavItem
-						key={item.title}
-						icon={item.icon}
-						href={item.href}
-						title={item.title}
-					/>
-				))}
+					{items.map((item) => (
+						<NavItem
+							key={item.title}
+							icon={item.icon}
+							href={item.href}
+							title={item.title}
+						/>
+					))}
 				</Box>
 				<Divider sx={{ borderColor: '#2D3748' }} />
-				{ isMeeting &&
+				{isMeeting &&
 					<MeetingAccess
 						callback={() => {
 							window.open('/meeting-progress');
@@ -247,22 +247,22 @@ export const AppSidebar = (props) => {
 
 	if (lgUp) {
 		return (
-		<Drawer
-			anchor="left"
-			open
-			PaperProps={{
-				sx: {
-					backgroundColor: 'neutral.900',
-					color: '#FFFFFF',
-					width: 280
-				}
-			}}
-			variant="permanent"
-		>
-			{content}
-		</Drawer>
+			<Drawer
+				anchor="left"
+				open
+				PaperProps={{
+					sx: {
+						backgroundColor: 'neutral.900',
+						color: '#FFFFFF',
+						width: 280
+					}
+				}}
+				variant="permanent"
+			>
+				{content}
+			</Drawer>
 		);
-  	}
+	}
 
 	return (
 		<Drawer
@@ -285,6 +285,6 @@ export const AppSidebar = (props) => {
 };
 
 AppSidebar.propTypes = {
-  	onClose: PropTypes.func,
-  	open: PropTypes.bool
+	onClose: PropTypes.func,
+	open: PropTypes.bool
 };
