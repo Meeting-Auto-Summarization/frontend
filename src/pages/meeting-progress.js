@@ -9,9 +9,9 @@ import { ProgressInfo } from "../components/meeting/progress-info";
 import { UserContext } from '../utils/context/context';
 import axios from 'axios';
 
-const socket = io.connect('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app',
-    { cors: { origin: 'https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app' } }); // 서버랑 연결
-
+const socket = io.connect('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001',
+    { cors: { origin: 'https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001' } }); // 서버랑 연결
+    
 const ProcessLayoutRoot = styled('div')({
     display: 'flex',
     flex: '1 1 auto',
