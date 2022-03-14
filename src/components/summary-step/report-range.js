@@ -13,6 +13,16 @@ export const ReportRange = ({ script, report, setReport, meeting, member, setMem
     const [startIndex, setStartIndex] = useState(-1);
 
     useEffect(() => {
+        if (report) {
+            if (report[0].length === 1) {
+                setSelectedTitle([0, 0]);
+            } else {
+                setSelectedTitle([0 ,1]);
+            }
+        }
+    }, [report]);
+
+    useEffect(() => {
         if (report.length === 0) {
             return;
         }

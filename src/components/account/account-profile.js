@@ -11,7 +11,6 @@ import {
   
 export const AccountProfile = ({user, ...rest}) => {
     const handleSubmitAvatar = (event) => {
-        
         console.log(event.target.files[0])
     };
 
