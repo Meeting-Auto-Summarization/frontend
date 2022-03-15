@@ -90,7 +90,7 @@ export const MeetingListResult = ({meeting, ...rest}) => {
                                             textOverflow: 'ellipsis'
                                         }}
                                     >
-                                        {meeting.date}
+                                        {meeting.date.toLocaleString()}
                                     </Typography>
                                     <ArrowDropDownCircleOutlinedIcon
                                         sx={{ 

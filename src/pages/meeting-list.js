@@ -31,8 +31,7 @@ const MeetingList = () => {
             for (var i = 0; i < data.length; i++) {
                 const tempMeeting = data[i].meeting;
 
-                const date = new Date(Date.parse(tempMeeting.date));
-                tempMeeting.date = date.toLocaleString();
+                tempMeeting.date = new Date(Date.parse(tempMeeting.date));
                 tempMeeting.members = data[i].members;
 
                 meetingList.push(tempMeeting);
@@ -84,11 +83,11 @@ const MeetingList = () => {
 
         if (newSorting == 'time') {
             tempMeetings.sort(function(a, b) {
-                return new Date(Date.parse(a.date)) - new Date(Date.parse(b.date));
+                return a.date - b.date;
             });
         } else if (newSorting == 'reverse-time') {
             tempMeetings.sort(function(a, b) {
-                return new Date(Date.parse(b.date)) - new Date(Date.parse(a.date));
+                return b.date - a.date;
             });
         } else if (newSorting == 'alpha') {
             tempMeetings.sort(function(a, b) {
