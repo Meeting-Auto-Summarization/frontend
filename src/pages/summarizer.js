@@ -85,11 +85,17 @@ const Summarizer = () => {
             resMeeting.date = new Date(Date.parse(resMeeting.date)).toLocaleString();
             resMeeting.members = members;
 
-            for (let i = 0; i < resReport.length; i++) {
-                for (let j = 0; j < resReport[i].length; j++) {
-                    resReport[i][j].selected = [resScript[0]._id];
+            resScript.forEach(line => {
+                if (line.isChecked) {
+                    selected.push(line._id);
                 }
-            }
+            });
+
+            resReport.forEach(onedim => {
+                onedim.forEach(e => {
+                    e.selected = [resScript[0]._id];
+                })
+            });
 
             setMeeting(resMeeting);
             setScript(resScript);
