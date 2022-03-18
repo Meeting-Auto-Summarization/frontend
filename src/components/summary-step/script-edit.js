@@ -19,7 +19,7 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import RotateRightIcon from '@mui/icons-material/RotateRight';
 
-export const ScriptEdit = ({ script, selected, deleted, setScript, setSelected, setDeleted, meeting, member, setMember }) => {
+export const ScriptEdit = ({ script, selected, deleted, report, setScript, setSelected, setDeleted, setReport, meeting, member, setMember }) => {
     const handleSelectAll = (event) => {
         let newSelectedCustomerIds;
     
@@ -73,6 +73,15 @@ export const ScriptEdit = ({ script, selected, deleted, setScript, setSelected, 
             );
         }
 
+        const newReport = report;
+
+        newReport.forEach(onedim => {
+            onedim.forEach(element => {
+                element.selected.splice(element.selected.indexOf(id), 1);
+            });
+        });
+        
+        setReport(newReport);
         setDeleted(newDeleted);
     };
 

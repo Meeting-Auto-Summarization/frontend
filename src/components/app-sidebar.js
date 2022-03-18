@@ -95,12 +95,6 @@ export const AppSidebar = (props) => {
   	);
 
 	useEffect(() => {
-		if (!isLogin) {
-			return;
-		}
-	}, []);
-
-	useEffect(() => {
 		axios.get(`http://localhost:3001/db/isMeeting`, { withCredentials: true }).then(res => {
 			console.log(`isMeeting : ${res.data}`)
 			setIsMeeting(res.data);
