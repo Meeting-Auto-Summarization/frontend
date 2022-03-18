@@ -155,7 +155,7 @@ const Summarizer = () => {
             selectedForReport[i] = new Array(report[i].length);
 
             for (var j = 0; j < report[i].length; j++) {
-                selectedForReport[i][j] = report[i][j].selectedForReport;
+                selectedForReport[i][j] = report[i][j].selected;
             }
         }
         
