@@ -12,90 +12,58 @@ import axios from "axios";
 import qs from "qs";
 
 export function ExportPopup({ isScript, handleClose, open, meeting, script, report }) {
+
     const downloadScriptDocx = () => {
-        axios({
-            url: 'http://localhost:3001/py/script-docx', //your url
-            method: 'GET',
-            responseType: 'blob', // important
-            params: {
-                meeting: meeting,
-                script: script
-            },
-            paramsSerializer: params => {
-                return qs.stringify(params)
-            }
-        }, { withCredentials: true }).then(res => {
+        axios.post('http://127.0.0.1:5000/script-docx',
+            { meeting: meeting, script: script },
+            { responseType: 'blob' },
+        ).then(res => {
             const url = window.URL.createObjectURL(new Blob([res.data]));
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', `${meeting.title}_script.docx`); //or any other extension
+            link.setAttribute('download', `${meeting.title}_report.docx`);
             document.body.appendChild(link);
             link.click();
         });
     };
 
     const downloadReportDocx = () => {
-        axios({
-            url: 'http://localhost:3001/py/report-docx', //your url
-            method: 'GET',
-            responseType: 'blob', // important
-            params: {
-                meeting: meeting,
-                report: report
-            },
-            paramsSerializer: params => {
-                return qs.stringify(params)
-            }
-        }, { withCredentials: true }).then(res => {
+        axios.post('http://127.0.0.1:5000/report-docx',
+            { meeting: meeting, report: report },
+            { responseType: 'blob' },
+        ).then(res => {
             const url = window.URL.createObjectURL(new Blob([res.data]));
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', `${meeting.title}_report.docx`); //or any other extension
+            link.setAttribute('download', `${meeting.title}_report.docx`);
             document.body.appendChild(link);
             link.click();
         });
     };
 
     const downloadScriptTxt = () => {
-        axios({
-            url: 'http://localhost:3001/py/script-txt', //your url
-            method: 'GET',
-            responseType: 'blob', // important
-            params: {
-                meeting: meeting,
-                script: script
-            },
-            paramsSerializer: params => {
-                return qs.stringify(params)
-            }
-        }, { withCredentials: true }).then(res => {
-            console.log(res)
+        axios.post('http://127.0.0.1:5000/script-txt',
+            { meeting: meeting, script: script },
+            { responseType: 'blob' },
+        ).then(res => {
             const url = window.URL.createObjectURL(new Blob([res.data]));
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', `${meeting.title}_script.txt`); //or any other extension
+            link.setAttribute('download', `${meeting.title}_script.txt`);
             document.body.appendChild(link);
             link.click();
         });
     };
 
     const downloadReportTxt = () => {
-        axios({
-            url: 'http://localhost:3001/py/report-txt', //your url
-            method: 'GET',
-            responseType: 'blob', // important
-            params: {
-                meeting: meeting,
-                report: report
-            },
-            paramsSerializer: params => {
-                return qs.stringify(params)
-            }
-        }, { withCredentials: true }).then(res => {
+        axios.post('http://127.0.0.1:5000/report-txt',
+            { meeting: meeting, report: report },
+            { responseType: 'blob' },
+        ).then(res => {
             const url = window.URL.createObjectURL(new Blob([res.data]));
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', `${meeting.title}_report.txt`); //or any other extension
+            link.setAttribute('download', `${meeting.title}_report.txt`);
             document.body.appendChild(link);
             link.click();
         });
