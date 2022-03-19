@@ -33,4 +33,4 @@ jobs:
             git fetch
             git pull origin deploy
             npm run build
-            npm reload next
+            pm2 reload next
