@@ -32,5 +32,4 @@ jobs:
             cd /home/${{ secrets.DIR }}/mas/frontend
             git fetch
             git pull origin deploy
-            npm i
             npm run build
