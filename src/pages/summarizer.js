@@ -15,7 +15,8 @@ import queryString from 'query-string';
 const StyledTabs = styled(Tabs)(({ theme }) => ({
     position: 'fixed',
     backgroundColor: '#F3F4F6',
-    boxShadow: theme.shadows[8]
+    boxShadow: theme.shadows[8],
+    zIndex: 1
 }));
 
 const StyledTab = styled(Tab)({
@@ -144,22 +145,67 @@ const Summarizer = () => {
     const handleSubmit = async () => {
         setLoading(true);
 
-        let temp = script;
-        for (var del in deleted) {
-            temp.slice(temp.findIndex(i => i._id === del), 1);
+        const deletedScript = script;
+        deleted.forEach(del => {
+            deletedScript.splice(deletedScript.findIndex(i => i._id === del), 1);
+        });
+
+        const selectedForReport = new Array(report.length);
+        for (var i = 0; i < report.length; i++) {
+            selectedForReport[i] = new Array(report[i].length);
+
+            for (var j = 0; j < report[i].length; j++) {
+                selectedForReport[i][j] = report[i][j].selected;
+            }
         }
 
-        await axios.post(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/meetingResult`,
-            { meetingId: mid, script: script, report: report },
-            { withCredentials: true }).then(res => {
-                console.log(res.data)
+        const contents = new Array(selectedForReport.length);
+        for (var i = 0; i < selectedForReport.length; i++) {
+            contents[i] = new Array(selectedForReport[i].length);
+
+            for (var j = 0; j < selectedForReport[i].length; j++) {
+                contents[i][j] = '';
+
+                for (var k = 0; k < selectedForReport[i][j].length; k++) {
+                    const line = script.find(t => t._id === selectedForReport[i][j][k]);
+                    contents[i][j] += line.content.split("\n").join(".");
+                }
+            }
+        }
+
+        // await axios.post(`http://localhost:3001/py/summarize`,
+        //     { meetingId: mid, report: report },
+        //     { withCredentials: true }).then(res => {
+        //         console.log(res.data)
+        //         setLoading(false);
+        //         router.push({
+        //             pathname: `/meeting-result`,
+        //             query: { mid: mid },
+        //         });
+        //     }
+        // );
+
+        await axios.post(`http://127.0.0.1:5000/`,
+            { contents: contents }).then(res => {
+                console.log(res.data);
+                const summaryList = res.data;
+
+                const tempReport = report;
+
+                summaryList.forEach((element, index) => {
+                    element.forEach((summary, subIndex) => {
+                        tempReport[index][subIndex].summary = summary;
+                    });
+                });
+
+                setReport(tempReport);
             }
             );
 
-        await axios.post(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/py/summarize`,
-            { meetingId: mid, report: report },
+        await axios.post(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/meetingResult`,
+            { meetingId: mid, script: deletedScript, report: report },
             { withCredentials: true }).then(res => {
-                console.log(res.data)
+                console.log(res.data);
                 setLoading(false);
                 router.push({
                     pathname: `/meeting-result`,
@@ -236,9 +282,11 @@ const Summarizer = () => {
                             script={script}
                             selected={selected}
                             deleted={deleted}
+                            report={report}
                             setScript={setScript}
                             setSelected={setSelected}
                             setDeleted={setDeleted}
+                            setReport={setReport}
                             meeting={meeting}
                             member={sciptEditMember}
                             setMember={setSciptEditMember}
@@ -259,6 +307,7 @@ const Summarizer = () => {
                             ? <BlockPage>스크립트가 존재하지 않습니다</BlockPage>
                             : <ReportRange
                                 script={script}
+                                deleted={deleted}
                                 report={report}
                                 setReport={setReport}
                                 meeting={meeting}

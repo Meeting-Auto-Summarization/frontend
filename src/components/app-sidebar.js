@@ -94,11 +94,7 @@ export const AppSidebar = (props) => {
 		[router.asPath]
 	);
 
-	useEffect(() => {
-		if (!isLogin) {
-			return;
-		}
-	}, []);
+
 	useEffect(() => {
 		axios.get(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/isMeeting`, { withCredentials: true }).then(res => {
 			console.log(`isMeeting : ${res.data}`)

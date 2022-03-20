@@ -7,13 +7,13 @@ import { Card, Checkbox, Table, TableBody, TableCell, TableHead, TableRow, Typog
 import { useState, useEffect } from 'react';
 import { ReportTitleList } from './report-title-list';
 
-export const ReportRange = ({ script, report, setReport, meeting, member, setMember }) => {
+export const ReportRange = ({ script, deleted, report, setReport, meeting, member, setMember }) => {
     const [selectedTitle, setSelectedTitle] = useState([0, 0]);
     const [selected, setSelected] = useState([]);
     const [startIndex, setStartIndex] = useState(-1);
 
     useEffect(() => {
-        if (report) {
+        if (report.length !== 0) {
             if (report[0].length === 1) {
                 setSelectedTitle([0, 0]);
             } else {
@@ -128,7 +128,7 @@ export const ReportRange = ({ script, report, setReport, meeting, member, setMem
                             </TableHead>
                             <TableBody>
                                 {script && script.map((line) => {
-                                    if (member !== 0 && line.nick !== meeting.members[member - 1]) {
+                                    if ((member !== 0 && line.nick !== meeting.members[member - 1]) || deleted.indexOf(line._id) !== -1) {
                                         return;
                                     }
 
