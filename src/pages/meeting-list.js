@@ -1,9 +1,9 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head'
 import axios from 'axios';
-import { Box, Container, Grid, Pagination, Typography, ToggleButtonGroup, ToggleButton, TextField, InputAdornment } from '@mui/material';
-import { SortByAlpha, AccessTime, Search } from '@mui/icons-material';
+import { Box, Container, Grid, Pagination, Typography, ToggleButtonGroup, ToggleButton, TextField, InputAdornment, Button } from '@mui/material';
+import { SortByAlpha, AccessTime, Search, DeleteOutline } from '@mui/icons-material';
 import { AppLayout } from 'src/components/app-layout';
 import { MeetingListResult } from 'src/components/meeting-list/meeting-list-result';
 import { UserContext } from '../utils/context/context';
@@ -16,7 +16,11 @@ const MeetingList = () => {
     const [saveMeetings, setSaveMeetings] = useState(null);
     const [meetings, setMeetings] = useState([]);
     const [sorting, setSorting] = useState('time');
-
+    const [deleting, setDeleting] = useState(false);
+    const [deleted, setDeleted] = useState([]);
+    const [_, updateState] = useState();
+    const forceUpdate = useCallback(() => updateState({}), []);
+    
     useEffect(() => {
         if (isLogin === false) {
             router.push('/not-login');
@@ -113,92 +117,120 @@ const MeetingList = () => {
                     Meeting List | MAS
                 </title>
             </Head>
-                <Box
-                    component="main"
-                    sx={{
-                        flexGrow: 1,
-                        py: 8
-                    }}
-                >
-                    <Container maxWidth={false}>
-                        <Box
-                            sx={{
-                                alignItems: 'center',
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                flexWrap: 'wrap',
-                                m: -1
+            <Box
+                component="main"
+                sx={{
+                    flexGrow: 1,
+                    py: 8
+                }}
+            >
+                <Container maxWidth={false}>
+                    <Box
+                        sx={{
+                            alignItems: 'center',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            flexWrap: 'wrap',
+                            m: -1
+                        }}
+                    >
+                        <Typography variant="h4" sx={{ m: 1 }}>
+                            Meeting List
+                        </Typography>
+                        <Box sx={{ flexGrow: 1 }} />
+                        <TextField
+                            id="search-input"
+                            label="Search"
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                    <Search />
+                                    </InputAdornment>
+                                ),
+                            }}
+                            variant="outlined"
+                            onChange={handleSearch}
+                            sx={{ 
+                                mr: 3,
+                                backgroundColor: 'white'
+                            }}
+                        />
+                        <ToggleButtonGroup
+                            value={sorting}
+                            exclusive
+                            onChange={handleSorting}
+                            aria-label="meeting list sorting"
+                            sx={{ mr: 3 }}
+                        >
+                            <ToggleButton value="time" aria-label="sort by time">
+                                <AccessTime />
+                            </ToggleButton>
+                            <ToggleButton value="reverse-time" aria-label="sort by reverse time">
+                                <AccessTime sx={{ transform: 'rotate(180deg)' }} />
+                            </ToggleButton>
+                            <ToggleButton value="alpha" aria-label="sort by alpha">
+                                <SortByAlpha />
+                            </ToggleButton>
+                            <ToggleButton value="reverse-alpha" aria-label="sort by reverse alpha">
+                                <SortByAlpha sx={{ transform: 'rotate(180deg)' }} />
+                            </ToggleButton>
+                        </ToggleButtonGroup>
+                        <ToggleButton
+                            value="check"
+                            selected={deleting}
+                            onChange={() => {
+                                setDeleting(!deleting);
+                                setDeleted([]);
                             }}
                         >
-                            <Typography variant="h4" sx={{ m: 1 }}>
-                                Meeting List
-                            </Typography>
-                            <Box sx={{ flexGrow: 1 }} />
-                            <TextField
-                                id="search-input"
-                                label="Search"
-                                InputProps={{
-                                    startAdornment: (
-                                        <InputAdornment position="start">
-                                        <Search />
-                                        </InputAdornment>
-                                    ),
-                                }}
-                                variant="outlined"
-                                onChange={handleSearch}
-                                sx={{ 
-                                    mr: 3,
-                                    backgroundColor: 'white'
-                                }}
-                            />
-                            <ToggleButtonGroup
-                                value={sorting}
-                                exclusive
-                                onChange={handleSorting}
-                                aria-label="meeting list sorting"
-                            >
-                                <ToggleButton value="time" aria-label="sort by time">
-                                    <AccessTime />
-                                </ToggleButton>
-                                <ToggleButton value="reverse-time" aria-label="sort by reverse time">
-                                    <AccessTime sx={{ transform: 'rotate(180deg)' }} />
-                                </ToggleButton>
-                                <ToggleButton value="alpha" aria-label="sort by alpha">
-                                    <SortByAlpha />
-                                </ToggleButton>
-                                <ToggleButton value="reverse-alpha" aria-label="sort by reverse alpha">
-                                    <SortByAlpha sx={{ transform: 'rotate(180deg)' }} />
-                                </ToggleButton>
-                            </ToggleButtonGroup>
-                        </Box>
-                    
-                        <Box sx={{ mt: 3 }}>
-                            <Grid
-                                container
-                                spacing={3}
-                            >
-                                {meetings.slice((page - 1) * limit, (page - 1) * limit + limit).map((meeting) => {
-                                    return (
-                                        <Grid
-                                            item
-                                            key={meeting._id}
-                                            xl={4}
-                                            md={6}
-                                            xs={12}
+                            <DeleteOutline />
+                        </ToggleButton>
+                    </Box>
+                    <Box sx={{ mt: 3 }}>
+                        <Grid
+                            container
+                            spacing={3}
+                        >
+                            {meetings.slice((page - 1) * limit, (page - 1) * limit + limit).map((meeting) => {
+                                return (
+                                    <Grid
+                                        item
+                                        key={meeting._id}
+                                        xl={4}
+                                        md={6}
+                                        xs={12}
+                                    >
+                                        <Box
+                                            onClick={() => {
+                                                if (deleting) {
+                                                    const tempDeleted = deleted;
+                                                    const deleteIndex = tempDeleted.indexOf(meeting._id);
+                                                    
+                                                    if (deleteIndex === -1) {
+                                                        tempDeleted.push(meeting._id);
+                                                    } else {
+                                                        tempDeleted.splice(deleteIndex, 1);
+                                                    }
+
+                                                    setDeleted(tempDeleted);
+                                                    forceUpdate();
+                                                }
+                                            }}
                                         >
-                                            <MeetingListResult meeting={meeting}/>
-                                        </Grid>
-                                    );
-                                })}
-                            </Grid>
-                        </Box>
-                        <Box
-                            sx={{
-                                display: 'flex',
-                                justifyContent: 'center',
-                                pt: 3
-                            }}
-                        >
+                                            <MeetingListResult meeting={meeting} deleting={deleting} deleted={deleted} />
+                                        </Box>
+                                    </Grid>
+                                );
+                            })}
+                        </Grid>
+                    </Box>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            pt: 3
+                        }}
+                    >
                         <Pagination
                             color="primary"
                             size="medium"
@@ -206,6 +238,41 @@ const MeetingList = () => {
                             onChange={handlePageChange}
                             page={page}
                         />
+                        {deleting &&
+                            <Button
+                                onClick={async () => {
+                                    await axios.post(`http://localhost:3001/db/deleteMeeting`,
+                                        { deleted: deleted },
+                                        { withCredentials: true }
+                                    ).then(res => {
+                                        console.log(res.data);
+                                    });
+
+                                    await axios.get(`http://localhost:3001/db/meetingList`,
+                                        { withCredentials: true }
+                                    ).then(res => {
+                                        const data = res.data;
+                                        let meetingList = [];
+                            
+                                        for (var i = 0; i < data.length; i++) {
+                                            const tempMeeting = data[i].meeting;
+                            
+                                            tempMeeting.date = new Date(Date.parse(tempMeeting.date));
+                                            tempMeeting.members = data[i].members;
+                            
+                                            meetingList.push(tempMeeting);
+                                        }
+                                        
+                                        setMeetings(meetingList);
+                                        setSaveMeetings(meetingList);
+                                    });
+
+                                    setDeleting(false);
+                                }}
+                            >
+                                삭제
+                            </Button>
+                        }
                     </Box>  
                 </Container>
             </Box>

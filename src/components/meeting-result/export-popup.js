@@ -9,7 +9,6 @@ import { Close } from "@mui/icons-material";
 import { WordIcon } from "../../icons/word";
 import { TXTIcon } from "../../icons/txt"
 import axios from "axios";
-import qs from "qs";
 
 export function ExportPopup({ isScript, handleClose, open, meeting, script, report }) {
 
