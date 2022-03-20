@@ -188,6 +188,11 @@ const MeetingProgress = () => {
                     } else return true;
                 }))
             });
+            axios.get('http://localhost:3001/db/currentMeeting',
+                { withCredentials: true }
+            ).then(res => {
+                setMembers(res.data.members);
+            });
         });
     }, [])
 
