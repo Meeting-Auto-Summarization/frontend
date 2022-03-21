@@ -67,7 +67,7 @@ const MeetingList = () => {
     
     const handlePageChange = (e, newPage) => {
         setPage(newPage);
-    }
+    };
 
     const handleSearch = (e) => {
         const text = e.target.value;
@@ -79,7 +79,7 @@ const MeetingList = () => {
 
         const search = saveMeetings.filter(m => m.title.includes(text));
         setMeetings(search);
-    }
+    };
 
     const handleSorting = (e, newSorting) => {
         setSorting(newSorting);
@@ -108,7 +108,53 @@ const MeetingList = () => {
         }
 
         setMeetings(tempMeetings);
-    }
+    };
+
+    const handleDeleteingMode = () => {
+        if (deleting) {
+            const tempDeleted = deleted;
+            const deleteIndex = tempDeleted.indexOf(meeting._id);
+            
+            if (deleteIndex === -1) {
+                tempDeleted.push(meeting._id);
+            } else {
+                tempDeleted.splice(deleteIndex, 1);
+            }
+
+            setDeleted(tempDeleted);
+            forceUpdate();
+        }
+    };
+
+    const handleDelete = async () => {
+        await axios.post(`http://localhost:3001/db/deleteMeeting`,
+            { deleted: deleted },
+            { withCredentials: true }
+        ).then(res => {
+            console.log(res.data);
+        });
+
+        await axios.get(`http://localhost:3001/db/meetingList`,
+            { withCredentials: true }
+        ).then(res => {
+            const data = res.data;
+            let meetingList = [];
+
+            for (var i = 0; i < data.length; i++) {
+                const tempMeeting = data[i].meeting;
+
+                tempMeeting.date = new Date(Date.parse(tempMeeting.date));
+                tempMeeting.members = data[i].members;
+
+                meetingList.push(tempMeeting);
+            }
+            
+            setMeetings(meetingList);
+            setSaveMeetings(meetingList);
+        });
+
+        setDeleting(false);
+    };
 
     return (
         <>
@@ -201,21 +247,7 @@ const MeetingList = () => {
                                         xs={12}
                                     >
                                         <Box
-                                            onClick={() => {
-                                                if (deleting) {
-                                                    const tempDeleted = deleted;
-                                                    const deleteIndex = tempDeleted.indexOf(meeting._id);
-                                                    
-                                                    if (deleteIndex === -1) {
-                                                        tempDeleted.push(meeting._id);
-                                                    } else {
-                                                        tempDeleted.splice(deleteIndex, 1);
-                                                    }
-
-                                                    setDeleted(tempDeleted);
-                                                    forceUpdate();
-                                                }
-                                            }}
+                                            onClick={handleDeleteingMode}
                                         >
                                             <MeetingListResult meeting={meeting} deleting={deleting} deleted={deleted} />
                                         </Box>
@@ -240,35 +272,7 @@ const MeetingList = () => {
                         />
                         {deleting &&
                             <Button
-                                onClick={async () => {
-                                    await axios.post(`http://localhost:3001/db/deleteMeeting`,
-                                        { deleted: deleted },
-                                        { withCredentials: true }
-                                    ).then(res => {
-                                        console.log(res.data);
-                                    });
-
-                                    await axios.get(`http://localhost:3001/db/meetingList`,
-                                        { withCredentials: true }
-                                    ).then(res => {
-                                        const data = res.data;
-                                        let meetingList = [];
-                            
-                                        for (var i = 0; i < data.length; i++) {
-                                            const tempMeeting = data[i].meeting;
-                            
-                                            tempMeeting.date = new Date(Date.parse(tempMeeting.date));
-                                            tempMeeting.members = data[i].members;
-                            
-                                            meetingList.push(tempMeeting);
-                                        }
-                                        
-                                        setMeetings(meetingList);
-                                        setSaveMeetings(meetingList);
-                                    });
-
-                                    setDeleting(false);
-                                }}
+                                onClick={handleDelete}
                             >
                                 삭제
                             </Button>
