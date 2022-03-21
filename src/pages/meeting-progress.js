@@ -58,7 +58,86 @@ const MeetingProgress = () => {
 
     const [peers, setPeers] = useState([]); // peers
     const video = useRef();
-    const [messageList, setMessageList] = useState([]);
+    const [messageList, setMessageList] = useState([
+                // {
+        //     isChecked: false,
+        //     nick: "권기준",
+        //     time: 1,
+        //     content: "반갑소 친구들"
+        // },
+        // {
+        //     isChecked: false,
+        //     nick: "주영환",
+        //     time: 3,
+        //     content: "안녕 얘들아?"
+        // },
+        // {
+        //     isChecked: false,
+        //     nick: "고건준",
+        //     time: 10,
+        //     content: "잘 지냈니?"
+        // },
+        // {
+        //     isChecked: true,
+        //     nick: "권기준",
+        //     time: 15,
+        //     content: "우리 오늘 회 이를 시작해볼까?"
+        // },
+        // {
+        //     isChecked: false,
+        //     nick: "권기준",
+        //     time: 32,
+        //     content: "얘들아 대답좀 해줘"
+        // },
+        // {
+        //     isChecked: true,
+        //     nick: "고건준",
+        //     time: 35,
+        //     content: "Gray 그래"
+        // },
+        // {
+        //     isChecked: false,
+        //     nick: "주영환",
+        //     time: 42,
+        //     content: "오늘은 일정부터 정해보자"
+        // },
+        // {
+        //     isChecked: false,
+        //     nick: "주영환",
+        //     time: 48,
+        //     content: "일단 교수님이랑 정기 회의는 언제 하지?"
+        // },
+        // {
+        //     isChecked: false,
+        //     nick: "권기준",
+        //     time: 52,
+        //     content: "10월 29일은 어때?"
+        // },
+        // {
+        //     isChecked: false,
+        //     nick: "고건준",
+        //     time: 55,
+        //     content: "좋아!"
+        // },
+        // {
+        //     isChecked: true,
+        //     nick: "고건준",
+        //     time: 66,
+        //     content: "요구산 분석 보고 서는 언제까지 할까?"
+        // },
+        // {
+        //     isChecked: false,
+        //     nick: "고건준",
+        //     time: 74,
+        //     content: "11월 4일까진 끝내는게 낫지 않을까?"
+        // },
+        // {
+        //     isChecked: false,
+        //     nick: "권기준",
+        //     time: 92,
+        //     content: "그래야 할 것 같아"
+        // }
+    ]);
 
     // 1초마다 회의 시간 갱신
     useEffect(() => {
@@ -179,7 +258,14 @@ const MeetingProgress = () => {
 
         // disconnect 받으면 -> call object를 peers에서 가져와 해당 call close()함
         socket.on('user-disconnected', (userId) => {
-            console.log("user-disconnected ");
+            console.log("user-disconnected");
+
+            axios.get('http://localhost:3001/db/currentMeeting',
+                { withCredentials: true }
+            ).then(res => {
+                setMembers(res.data.members);
+            });
+            
             setPeers(arr => {
                 return (arr.filter((e) => {
                     if (e.id === userId) {
@@ -187,11 +273,6 @@ const MeetingProgress = () => {
                         return false;
                     } else return true;
                 }))
-            });
-            axios.get('http://localhost:3001/db/currentMeeting',
-                { withCredentials: true }
-            ).then(res => {
-                setMembers(res.data.members);
             });
         });
     }, [])
@@ -208,7 +289,13 @@ const MeetingProgress = () => {
     const connectToNewUser = async (userId, stream, remoteNick) => {
         const { data } = await axios.get('http://localhost:3001/auth/meeting-info', { withCredentials: true });
         const call = peer.call(userId, stream, { metadata: { "receiverNick": remoteNick, "senderNick": data.name } });
-        setMembers(arr => [...arr, remoteNick]);
+
+        axios.get('http://localhost:3001/db/currentMeeting',
+            { withCredentials: true }
+        ).then(res => {
+            setMembers(res.data.members);
+        });
+
         // call객체 생성(dest-id,my-mediaStream)
         // 들어온 상대방에게 call요청 보냄
         call.on('stream', (userVideoStream) => {
@@ -298,20 +385,29 @@ const MeetingProgress = () => {
         console.log(peers);
     }, [peers]);
 
-    const handleSubmitScript = (isHost) => {
+    const handleSubmitScript = async (isHost) => {
         opener.location.reload();
 
         if (!isHost) {
             opener.endMeeting(isHost);
             self.close();
+
+            await axios.get('http://localhost:3001/db/exitMeeting',
+                { withCredentials: true }
+            ).then(res => {
+                console.log(res.data);
+            });
+
             return;
         }
+
         socket.emit("meetingEnd", isHost);
-        axios.get(`http://localhost:3001/db/setIsMeetingAllFalse`, { withCredentials: true }).then(res => {
+        
+        await axios.get(`http://localhost:3001/db/setIsMeetingAllFalse`, { withCredentials: true }).then(res => {
             console.log(res.data);
         });
 
-        axios.post(`http://localhost:3001/db/submitMeeting`, {
+        await axios.post(`http://localhost:3001/db/submitMeeting`, {
             time: time,
             text: messageList
         }, { withCredentials: true }).then(res => {
