@@ -67,10 +67,64 @@ export function SummaryResultCard({ meeting, report }) {
                                             : <Typography variant="h5" ml={4}>{`${String.fromCharCode(subIndex + 96)}. ${tail.title}`}</Typography>
                                         }
                                         {subIndex !== 0 &&
-                                            <Typography variant="h6" ml={8}>{`${tail.summary}`}</Typography>
+                                            <Box>
+                                                {tail.summary.split("\n").map((sentence, senIndex) => {
+                                                    if (sentence === "") {
+                                                        return;
+                                                    } else {
+                                                        return (
+                                                            <Box
+                                                                key={senIndex}
+                                                                mt={0.5} ml={6} mb={2}
+                                                                sx={{
+                                                                    display: 'flex',
+                                                                    alignItems: 'center'
+                                                                }}
+                                                            >
+                                                                <Typography fontSize={18}>●</Typography>
+                                                                <Typography
+                                                                    variant="subtitle1"
+                                                                    ml={2}
+                                                                    fontSize={18}
+                                                                    lineHeight='22px'
+                                                                >
+                                                                    {sentence}
+                                                                </Typography>
+                                                            </Box>
+                                                        );
+                                                    }
+                                                })}
+                                            </Box>
                                         }
                                         {head.length === 1 &&
-                                            <Typography variant="h6" ml={6}>{`${tail.summary}`}</Typography>
+                                            <Box>
+                                                {tail.summary.split("\n").map((sentence, senIndex) => {
+                                                    if (sentence === "") {
+                                                        return;
+                                                    } else {
+                                                        return (
+                                                            <Box
+                                                                key={senIndex}
+                                                                mt={0.5} ml={6} mb={2}
+                                                                sx={{
+                                                                    display: 'flex',
+                                                                    alignItems: 'center'
+                                                                }}
+                                                            >
+                                                                <Typography fontSize={18}>●</Typography>
+                                                                <Typography
+                                                                    variant="subtitle1"
+                                                                    ml={2}
+                                                                    fontSize={18}
+                                                                    lineHeight='22px'
+                                                                >
+                                                                    {sentence}
+                                                                </Typography>
+                                                            </Box>
+                                                        );
+                                                    }
+                                                })}
+                                            </Box>
                                         }
                                     </Box>
                                 );

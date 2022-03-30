@@ -164,28 +164,20 @@ const Summarizer = () => {
             contents[i] = new Array(selectedForReport[i].length);
 
             for (var j = 0; j < selectedForReport[i].length; j++) {
-                contents[i][j] = '';
-
-                for (var k = 0; k < selectedForReport[i][j].length; k++) {
-                    const line = script.find(t => t._id === selectedForReport[i][j][k]);
-                    contents[i][j] += line.content.split("\n").join(".");
+                contents[i][j] = ''
+                
+                if (selectedForReport[i].length !== 1 && j === 0) {
+                    continue;
+                } else {
+                    for (var k = 0; k < selectedForReport[i][j].length; k++) {
+                        const line = script.find(t => t._id === selectedForReport[i][j][k]);
+                        contents[i][j] += line.content.split("\n").join(". ");
+                    }
                 }
             }
         }
 
-        // await axios.post(`http://localhost:3001/py/summarize`,
-        //     { meetingId: mid, report: report },
-        //     { withCredentials: true }).then(res => {
-        //         console.log(res.data)
-        //         setLoading(false);
-        //         router.push({
-        //             pathname: `/meeting-result`,
-        //             query: { mid: mid },
-        //         });
-        //     }
-        // );
-
-        await axios.post(`http://127.0.0.1:5000/`,
+        await axios.post(`http://127.0.0.1:5000/summarize`,
             { contents: contents }).then(res => {
                 console.log(res.data);
                 const summaryList = res.data;

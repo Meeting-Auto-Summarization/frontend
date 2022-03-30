@@ -110,7 +110,7 @@ const MeetingList = () => {
         setMeetings(tempMeetings);
     };
 
-    const handleDeleteingMode = () => {
+    const handleDeletingMode = (meeting) => {
         if (deleting) {
             const tempDeleted = deleted;
             const deleteIndex = tempDeleted.indexOf(meeting._id);
@@ -247,7 +247,7 @@ const MeetingList = () => {
                                         xs={12}
                                     >
                                         <Box
-                                            onClick={handleDeleteingMode}
+                                            onClick={() => handleDeletingMode(meeting)}
                                         >
                                             <MeetingListResult meeting={meeting} deleting={deleting} deleted={deleted} />
                                         </Box>
