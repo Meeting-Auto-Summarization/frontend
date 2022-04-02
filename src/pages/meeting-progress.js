@@ -53,7 +53,11 @@ const MeetingProgress = () => {
     // 화상회의 관련        
     if (typeof navigator !== "undefined") {
         const Peer = require("peerjs").default
-        const peer = new Peer();
+        const peer = new Peer({
+            host:'3.38.49.118',
+            port:443,
+            path:'/peerjs',
+        });
     }
 
     const [peers, setPeers] = useState([]); // peers
@@ -170,7 +174,7 @@ const MeetingProgress = () => {
                     });
                 });
             });
-
+            socket.emit('ready');
             // 내가 있는 방에 새로운 유저 접속하면 server가 user-connected 입장한 userid와 함께 emit함
             socket.on('user-connected', (userId, remoteNick) => {
                 // 새로운 user 연결하는 작업
