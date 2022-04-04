@@ -53,13 +53,17 @@ const MeetingProgress = () => {
     // 화상회의 관련        
     if (typeof navigator !== "undefined") {
         const Peer = require("peerjs").default
-        const peer = new Peer();
+        const peer = new Peer({
+            host: 'localhost',
+            port: 3002,
+            path: '/peerjs',
+        });
     }
 
     const [peers, setPeers] = useState([]); // peers
     const video = useRef();
     const [messageList, setMessageList] = useState([
-        
+
     ]);
 
     // 1초마다 회의 시간 갱신
@@ -75,7 +79,7 @@ const MeetingProgress = () => {
             console.log(res.data);
             const meeting = res.data.meeting;
             setMembers(res.data.members);
-            
+
             setMid(meeting._id)
             setCode(meeting.code);
             setTitle(meeting.title);
@@ -171,7 +175,7 @@ const MeetingProgress = () => {
                     });
                 });
             });
-
+            socket.emit('ready');
             // 내가 있는 방에 새로운 유저 접속하면 server가 user-connected 입장한 userid와 함께 emit함
             socket.on('user-connected', (userId, remoteNick) => {
                 // 새로운 user 연결하는 작업
@@ -188,7 +192,7 @@ const MeetingProgress = () => {
             ).then(res => {
                 setMembers(res.data.members);
             });
-            
+
             setPeers(arr => {
                 return (arr.filter((e) => {
                     if (e.id === userId) {
@@ -325,7 +329,7 @@ const MeetingProgress = () => {
         }
 
         socket.emit("meetingEnd", isHost);
-        
+
         await axios.get(`http://localhost:3001/db/setIsMeetingAllFalse`, { withCredentials: true }).then(res => {
             console.log(res.data);
         });
