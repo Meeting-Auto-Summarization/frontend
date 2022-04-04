@@ -68,7 +68,7 @@ const MeetingProgress = () => {
     if (typeof navigator !== "undefined") {
         const Peer = require("peerjs").default
         const peer = new Peer({
-            host: '3.38.49.118',
+            host: 'ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com',
             port: 443,
             path: '/peerjs',
         });
