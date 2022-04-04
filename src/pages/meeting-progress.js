@@ -209,6 +209,7 @@ const MeetingProgress = () => {
         // disconnect 받으면 -> call object를 peers에서 가져와 해당 call close()함
         socket.on('user-disconnected', (userId) => {
             console.log("user-disconnected ");
+            closeRecording();//audio input를 진행하는 context 종료
             setPeers(arr => {
                 return (arr.filter((e) => {
                     if (e.id === userId) {
