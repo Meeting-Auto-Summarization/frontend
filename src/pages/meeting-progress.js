@@ -32,6 +32,16 @@ const constraints = {
     video: false
 };
 ///
+    if (typeof navigator !== "undefined") {
+        const Peer = require("peerjs").default
+        const peer = new Peer({
+            host: 'ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com',
+            port: 443,
+            path: '/peerjs',
+            debug:3,
+        });
+    }
+
 
 const MeetingProgress = () => {
     const router = useRouter();
@@ -65,14 +75,6 @@ const MeetingProgress = () => {
     }, [lgUp]);
 
     // 화상회의 관련        
-    if (typeof navigator !== "undefined") {
-        const Peer = require("peerjs").default
-        const peer = new Peer({
-            host: 'ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com',
-            port: 443,
-            path: '/peerjs',
-        });
-    }
 
     const [peers, setPeers] = useState([]); // peers
     const video = useRef();
