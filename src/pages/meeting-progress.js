@@ -19,6 +19,20 @@ const ProcessLayoutRoot = styled('div')({
     paddingTop: 90,
 });
 
+///
+let bufferSize = 2048,
+    AudioContext = null,
+    context = null,
+    processor = null,
+    input = null,
+    globalStream;
+
+const constraints = {
+    audio: true,
+    video: false
+};
+///
+
 const MeetingProgress = () => {
     const router = useRouter();
     const [isHost, setIsHost] = useState();
@@ -54,7 +68,7 @@ const MeetingProgress = () => {
     if (typeof navigator !== "undefined") {
         const Peer = require("peerjs").default
         const peer = new Peer({
-            host: 'ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com',
+            host: '3.38.49.118',
             port: 443,
             path: '/peerjs',
         });
@@ -132,9 +146,19 @@ const MeetingProgress = () => {
 
         socket.on("summaryOffer", (summaryFlag) => {
             setSummaryFlag(summaryFlag);
+            if (AudioContext === null) {
+                initRecording((error) => {
+                    console.error('Error when recording', error);
+                });
+            }
         });
         socket.on("initSummaryFlag", (flag) => {
             setSummaryFlag(flag);
+            if (AudioContext === null) {
+                initRecording((error) => {
+                    console.error('Error when recording', error);
+                });
+            }
         });
 
         socket.on("msg", (userNick, time, msg) => {
@@ -204,6 +228,99 @@ const MeetingProgress = () => {
             }
         });
     }, [peers]);
+
+    ///
+    const initRecording = (onError) => {
+        AudioContext = window.AudioContext || window.webkitAudioContext;
+        context = new AudioContext();
+        processor = context.createScriptProcessor(bufferSize, 1, 1);
+        processor.connect(context.destination);
+        context.resume();
+
+        var handleSuccess = function (stream) {
+            globalStream = stream;
+            input = context.createMediaStreamSource(stream);
+            input.connect(processor);
+
+            processor.onaudioprocess = function (e) {
+                microphoneProcess(e);
+            };
+        };
+
+        navigator.mediaDevices.getUserMedia(constraints)
+            .then(handleSuccess);
+
+        // Bind the data handler callback
+        // if(onData) {
+        //     socket.on('speechData', (data) => {
+        //         onData(data);
+        //     });
+        // }
+
+        socket.on('googleCloudStreamError', (error) => {
+            if (onError) {
+                onError('error');
+            }
+            // We don't want to emit another end stream event
+            closeAll();
+        });
+    }
+
+    function microphoneProcess(e) {
+        var left = e.inputBuffer.getChannelData(0);
+        var left16 = convertFloat32ToInt16(left);
+        socket.emit('binaryAudioData', left16);
+    }
+
+    /**
+     * Converts a buffer from float32 to int16. Necessary for streaming.
+     * sampleRateHertz of 1600.
+     * 
+     * @param {object} buffer Buffer being converted
+     */
+    function convertFloat32ToInt16(buffer) {
+        let l = buffer.length;
+        let buf = new Int16Array(l / 3);
+
+        while (l--) {
+            if (l % 3 === 0) {
+                buf[l / 3] = buffer[l] * 0xFFFF;
+            }
+        }
+        return buf.buffer
+    }
+
+    //회의 종료할때 호출!!!
+    function closeRecording() {
+        // Clear the listeners (prevents issue if opening and closing repeatedly)
+        //socket.off('speechData');
+        socket.off('googleCloudStreamError');
+        let tracks = globalStream ? globalStream.getTracks() : null;
+        let track = tracks ? tracks[0] : null;
+        if (track) {
+            track.stop();
+        }
+
+        if (processor) {
+            if (input) {
+                try {
+                    input.disconnect(processor);
+                } catch (error) {
+                    console.warn('Attempt to disconnect input failed.')
+                }
+            }
+            processor.disconnect(context.destination);
+        }
+        if (context) {
+            context.close().then(function () {
+                input = null;
+                processor = null;
+                context = null;
+                AudioContext = null;
+            });
+        }
+    }
+    ///
 
     const connectToNewUser = async (userId, stream, remoteNick) => {
         const { data } = await axios.get('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/auth/meeting-info', { withCredentials: true });
