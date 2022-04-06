@@ -322,7 +322,7 @@ const MeetingProgress = () => {
         const { data } = await axios.get('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/auth/meeting-info', { withCredentials: true });
         const call = peer.call(userId, stream, { metadata: { "receiverNick": remoteNick, "senderNick": data.name } });
 
-        axios.get('http://localhost:3001/db/currentMeeting',
+        axios.get('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/db/currentMeeting',
             { withCredentials: true }
         ).then(res => {
             setMembers(res.data.members);
@@ -431,13 +431,13 @@ const MeetingProgress = () => {
         }
 
         if (!isHost) {
-            await axios.get('http://localhost:3001/db/exitMeeting',
+            await axios.get('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/db/exitMeeting',
                 { withCredentials: true }
             ).then(res => {
                 console.log(res.data);
             });
 
-            await axios.get(`http://localhost:3001/db/setIsMeetingFalse`, { withCredentials: true }).then(res => {
+            await axios.get(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/db/setIsMeetingFalse`, { withCredentials: true }).then(res => {
                 console.log(res.data);
                 self.close();
             });
