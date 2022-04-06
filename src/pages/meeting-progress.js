@@ -19,6 +19,27 @@ const ProcessLayoutRoot = styled('div')({
     paddingTop: 90,
 });
 
+let bufferSize = 2048,
+    AudioContext = null,
+    context = null,
+    processor = null,
+    input = null,
+    globalStream;
+
+const constraints = {
+    audio: true,
+    video: false
+};
+
+// 화상회의 관련        
+if (typeof navigator !== "undefined") {
+    const Peer = require("peerjs").default
+    const peer = new Peer({
+        host: 'localhost',
+        port: 3002,
+        path: '/peerjs',
+    });
+}
 const MeetingProgress = () => {
     const router = useRouter();
     const [isHost, setIsHost] = useState();
@@ -50,15 +71,6 @@ const MeetingProgress = () => {
         }
     }, [lgUp]);
 
-    // 화상회의 관련        
-    if (typeof navigator !== "undefined") {
-        const Peer = require("peerjs").default
-        const peer = new Peer({
-            host: 'localhost',
-            port: 3002,
-            path: '/peerjs',
-        });
-    }
 
     const [peers, setPeers] = useState([]); // peers
     const video = useRef();
@@ -133,9 +145,19 @@ const MeetingProgress = () => {
 
         socket.on("summaryOffer", (summaryFlag) => {
             setSummaryFlag(summaryFlag);
+            if (AudioContext === null) {
+                initRecording((error) => {
+                    console.error('Error when recording', error);
+                });
+            }
         });
         socket.on("initSummaryFlag", (flag) => {
             setSummaryFlag(flag);
+            if (AudioContext === null) {
+                initRecording((error) => {
+                    console.error('Error when recording', error);
+                });
+            }
         });
 
         socket.on("msg", (userNick, time, msg) => {
@@ -145,9 +167,10 @@ const MeetingProgress = () => {
                 nick: userNick,
                 content: msg,
                 time: time
-            }]);
+            }])
             console.log(msg);
         });
+
 
         // peer서버와 정상적으로 통신이 된 경우 open event 발생
         console.log('open');
@@ -192,7 +215,7 @@ const MeetingProgress = () => {
             ).then(res => {
                 setMembers(res.data.members);
             });
-
+            closeRecording();//audio input를 진행하는 context 종료
             setPeers(arr => {
                 return (arr.filter((e) => {
                     if (e.id === userId) {
@@ -212,7 +235,96 @@ const MeetingProgress = () => {
             }
         });
     }, [peers]);
+    const initRecording = (onError) => {
+        AudioContext = window.AudioContext || window.webkitAudioContext;
+        context = new AudioContext();
+        processor = context.createScriptProcessor(bufferSize, 1, 1);
+        processor.connect(context.destination);
+        context.resume();
 
+        var handleSuccess = function (stream) {
+            globalStream = stream;
+            input = context.createMediaStreamSource(stream);
+            input.connect(processor);
+
+            processor.onaudioprocess = function (e) {
+                microphoneProcess(e);
+            };
+        };
+
+        navigator.mediaDevices.getUserMedia(constraints)
+            .then(handleSuccess);
+
+        // Bind the data handler callback
+        // if(onData) {
+        //     socket.on('speechData', (data) => {
+        //         onData(data);
+        //     });
+        // }
+
+        socket.on('googleCloudStreamError', (error) => {
+            if (onError) {
+                onError('error');
+            }
+            // We don't want to emit another end stream event
+            closeAll();
+        });
+    }
+
+    function microphoneProcess(e) {
+        var left = e.inputBuffer.getChannelData(0);
+        var left16 = convertFloat32ToInt16(left);
+        socket.emit('binaryAudioData', left16);
+    }
+
+    /**
+ * Converts a buffer from float32 to int16. Necessary for streaming.
+ * sampleRateHertz of 1600.
+ * 
+ * @param {object} buffer Buffer being converted
+ */
+    function convertFloat32ToInt16(buffer) {
+        let l = buffer.length;
+        let buf = new Int16Array(l / 3);
+
+        while (l--) {
+            if (l % 3 === 0) {
+                buf[l / 3] = buffer[l] * 0xFFFF;
+            }
+        }
+        return buf.buffer
+    }
+
+    //회의 종료할때 호출!!!
+    function closeRecording() {
+        // Clear the listeners (prevents issue if opening and closing repeatedly)
+        //socket.off('speechData');
+        socket.off('googleCloudStreamError');
+        let tracks = globalStream ? globalStream.getTracks() : null;
+        let track = tracks ? tracks[0] : null;
+        if (track) {
+            track.stop();
+        }
+
+        if (processor) {
+            if (input) {
+                try {
+                    input.disconnect(processor);
+                } catch (error) {
+                    console.warn('Attempt to disconnect input failed.')
+                }
+            }
+            processor.disconnect(context.destination);
+        }
+        if (context) {
+            context.close().then(function () {
+                input = null;
+                processor = null;
+                context = null;
+                AudioContext = null;
+            });
+        }
+    }
     const connectToNewUser = async (userId, stream, remoteNick) => {
         const { data } = await axios.get('http://localhost:3001/auth/meeting-info', { withCredentials: true });
         const call = peer.call(userId, stream, { metadata: { "receiverNick": remoteNick, "senderNick": data.name } });
