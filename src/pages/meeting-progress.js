@@ -35,11 +35,9 @@ const MeetingProgress = () => {
         noSsr: false
     });
 
-    useEffect(() => {
-        if (isLogin === false) {
-            router.push('/not-login');
-        }
-    });
+    if (isLogin === false) {
+        router.push('/not-login');
+    }
 
     useEffect(() => {
         if (lgUp) {
@@ -58,9 +56,7 @@ const MeetingProgress = () => {
 
     const [peers, setPeers] = useState([]); // peers
     const video = useRef();
-    const [messageList, setMessageList] = useState([
-        
-    ]);
+    const [messageList, setMessageList] = useState([]);
 
     // 1초마다 회의 시간 갱신
     useEffect(() => {
@@ -71,6 +67,12 @@ const MeetingProgress = () => {
     }, [time]);
 
     useEffect(() => {
+        axios.get(`http://localhost:3001/db/isMeeting`, { withCredentials: true }).then(res => {
+            if (!res.data) {
+                router.push('meeting-list');
+            }
+        });
+
         axios.get('http://localhost:3001/db/currentMeeting', { withCredentials: true }).then(res => {
             console.log(res.data);
             const meeting = res.data.meeting;
@@ -117,97 +119,90 @@ const MeetingProgress = () => {
 
 
     useEffect(() => {
-        socket.on("checkChange", (scripts) => {
-            /*let newMessageList = messageList;
-            console.log("메시지List: " + messageList);
-            console.log("new" + newMessageList);
-            newMessageList[index].isChecked = isChecked;
-            setMessageList(newMessageList);*/
-            console.log(scripts);
-            setMessageList(scripts);
-        });
-
-        socket.on("summaryOffer", (summaryFlag) => {
-            setSummaryFlag(summaryFlag);
-        });
-        socket.on("initSummaryFlag", (flag) => {
-            setSummaryFlag(flag);
-        });
-
-        socket.on("msg", (userNick, time, msg) => {
-            // stt메시지 받음
-            setMessageList(arr => [...arr, {
-                isChecked: false,
-                nick: userNick,
-                content: msg,
-                time: time
-            }]);
-            console.log(msg);
-        });
-
-        // peer서버와 정상적으로 통신이 된 경우 open event 발생
-        console.log('open');
-
-        navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
-            stream.getVideoTracks().forEach((track) => {
-                track.enabled = !track.enabled;
-            })
-            video.current.srcObject = stream; // 내 비디오 넣어줌
-            peer.on('call', (call) => {
-                // 중간에 입장했을때 방에 있던 사람에게 call요청 받았을 때
-                call.answer(stream); // call요청 수락
-
-                // answer가 발생하면 stream이라는 이벤트를 통해 다른 유저의 stream 받아옴
-                call.on('stream', (userVideoStream) => {
-                    // 중간에 입장하여 상대방 받아옴
-                    // 상대방의 stream을 내 브라우저에 추가 
-                    setPeers(arr => {
-                        if (arr.findIndex(v => v.id === call.peer) < 0)
-                            return [...arr, { id: call.peer, nick: call.metadata.senderNick, call: call, stream: userVideoStream }];
-                        else {
-                            arr[arr.findIndex(v => v.id === call.peer)] = { id: call.peer, nick: call.metadata.senderNick, call: call, stream: userVideoStream };
-                            return [...arr];
-                        }
+        if (isLogin) {
+            socket.on("checkChange", (scripts) => {
+                /*let newMessageList = messageList;
+                console.log("메시지List: " + messageList);
+                console.log("new" + newMessageList);
+                newMessageList[index].isChecked = isChecked;
+                setMessageList(newMessageList);*/
+                console.log(scripts);
+                setMessageList(scripts);
+            });
+    
+            socket.on("summaryOffer", (summaryFlag) => {
+                setSummaryFlag(summaryFlag);
+            });
+            socket.on("initSummaryFlag", (flag) => {
+                setSummaryFlag(flag);
+            });
+    
+            socket.on("msg", (userNick, time, msg) => {
+                // stt메시지 받음
+                setMessageList(arr => [...arr, {
+                    isChecked: false,
+                    nick: userNick,
+                    content: msg,
+                    time: time
+                }]);
+                console.log(msg);
+            });
+    
+            // peer서버와 정상적으로 통신이 된 경우 open event 발생
+            console.log('open');
+    
+            navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
+                stream.getVideoTracks().forEach((track) => {
+                    track.enabled = !track.enabled;
+                })
+                video.current.srcObject = stream; // 내 비디오 넣어줌
+                peer.on('call', (call) => {
+                    // 중간에 입장했을때 방에 있던 사람에게 call요청 받았을 때
+                    call.answer(stream); // call요청 수락
+    
+                    // answer가 발생하면 stream이라는 이벤트를 통해 다른 유저의 stream 받아옴
+                    call.on('stream', (userVideoStream) => {
+                        // 중간에 입장하여 상대방 받아옴
+                        // 상대방의 stream을 내 브라우저에 추가 
+                        setPeers(arr => {
+                            if (arr.findIndex(v => v.id === call.peer) < 0)
+                                return [...arr, { id: call.peer, nick: call.metadata.senderNick, call: call, stream: userVideoStream }];
+                            else {
+                                arr[arr.findIndex(v => v.id === call.peer)] = { id: call.peer, nick: call.metadata.senderNick, call: call, stream: userVideoStream };
+                                return [...arr];
+                            }
+                        });
                     });
                 });
+    
+                // 내가 있는 방에 새로운 유저 접속하면 server가 user-connected 입장한 userid와 함께 emit함
+                socket.on('user-connected', (userId, remoteNick) => {
+                    // 새로운 user 연결하는 작업
+                    connectToNewUser(userId, stream, remoteNick);
+                });
             });
-
-            // 내가 있는 방에 새로운 유저 접속하면 server가 user-connected 입장한 userid와 함께 emit함
-            socket.on('user-connected', (userId, remoteNick) => {
-                // 새로운 user 연결하는 작업
-                connectToNewUser(userId, stream, remoteNick);
+    
+            // disconnect 받으면 -> call object를 peers에서 가져와 해당 call close()함
+            socket.on('user-disconnected', (userId) => {
+                console.log("user-disconnected");
+    
+                axios.get('http://localhost:3001/db/currentMeeting',
+                    { withCredentials: true }
+                ).then(res => {
+                    setMembers(res.data.members);
+                });
+                
+                setPeers(arr => {
+                    return (arr.filter((e) => {
+                        if (e.id === userId) {
+                            e.call.close();
+                            return false;
+                        } else return true;
+                    }))
+                });
             });
-        });
-
-        // disconnect 받으면 -> call object를 peers에서 가져와 해당 call close()함
-        socket.on('user-disconnected', (userId) => {
-            console.log("user-disconnected");
-
-            axios.get('http://localhost:3001/db/currentMeeting',
-                { withCredentials: true }
-            ).then(res => {
-                setMembers(res.data.members);
-            });
-            
-            setPeers(arr => {
-                return (arr.filter((e) => {
-                    if (e.id === userId) {
-                        e.call.close();
-                        return false;
-                    } else return true;
-                }))
-            });
-        });
-    }, [])
-
-
-    useEffect(() => {
-        axios.get(`http://localhost:3001/db/isMeeting`, { withCredentials: true }).then(res => {
-            if (!res.data) {
-                self.close();
-            }
-        });
-    }, [peers]);
+        }
+    }, []);
 
     const connectToNewUser = async (userId, stream, remoteNick) => {
         const { data } = await axios.get('http://localhost:3001/auth/meeting-info', { withCredentials: true });
@@ -300,7 +295,13 @@ const MeetingProgress = () => {
         video.current.srcObject.getTracks().forEach((track) => {
             track.stop();
         });
-        opener.location.href = `/summarizer?mid=${mid}`;
+
+        if (!opener) {
+            router.push('/meeting-list');
+        } else {
+            opener.location.href = `/summarizer?mid=${mid}`;
+        }
+
         self.close();
     }
 
@@ -309,16 +310,22 @@ const MeetingProgress = () => {
     }, [peers]);
 
     const handleSubmitScript = async (isHost) => {
-        opener.location.reload();
+        if (!opener) {
+            router.push('/meeting-list');
+        } else {
+            opener.location.reload();
+        }
 
         if (!isHost) {
-            opener.endMeeting(isHost);
-            self.close();
-
             await axios.get('http://localhost:3001/db/exitMeeting',
                 { withCredentials: true }
             ).then(res => {
                 console.log(res.data);
+            });
+
+            await axios.get(`http://localhost:3001/db/setIsMeetingFalse`, { withCredentials: true }).then(res => {
+                console.log(res.data);
+                self.close();
             });
 
             return;
@@ -352,81 +359,85 @@ const MeetingProgress = () => {
 
     return (
         <>
-            {/* <style global jsx>
-                {`html, body, body > div:first-child, div#__next, div#__next > div { height: 100%; }`}
-            </style> */}
-            <ProcessLayoutRoot>
-                <Box
-                    sx={{
-                        position: 'relative',
-                        display: 'flex',
-                        flex: '1 1 auto',
-                        flexDirection: 'column',
-                        ...(isSidebarOpen && {
-                            paddingRight: '450px'
-                        })
-                    }}
-                >
-                    <MeetingVideo
-                        peers={peers}
-                        myVideo={video}
-                    />
-                    <IconButton
-                        onClick={() => setSidebarOpen(!isSidebarOpen)}
+            {isLogin &&
+             <>
+                {/* <style global jsx>
+                    {`html, body, body > div:first-child, div#__next, div#__next > div { height: 100%; }`}
+                </style> */}
+                <ProcessLayoutRoot>
+                    <Box
                         sx={{
-                            position: "fixed",
-                            right: 0,
-                            height: '100px',
-                            backgroundColor: "#202020",
-                            borderRadius: "12px 0 0 12px",
-                            p: 1.5,
-                            mt: 1,
+                            position: 'relative',
+                            display: 'flex',
+                            flex: '1 1 auto',
+                            flexDirection: 'column',
                             ...(isSidebarOpen && {
-                                mr: '450px'
+                                paddingRight: '450px'
                             })
                         }}
                     >
-                        {isSidebarOpen
-                            ? <ArrowForwardIos />
-                            : <ArrowBackIosNew />
-                        }
-                    </IconButton>
-                </Box>
-            </ProcessLayoutRoot>
-            <ProgressInfo
-                myVideo={video}
-                handleCameraChange={handleCameraChange}
-                handleAudioChange={handleAudioChange}
-                isHost={isHost}
-                time={time}
-                code={code}
-                members={members}
-                parentCallback={handleSubmitScript}
-                handleMute={handleMute}
-            />
-            <Drawer
-                anchor="right"
-                open={isSidebarOpen}
-                PaperProps={{
-                    sx: {
-                        pt: '90px',
-                        width: '450px',
-                        border: 'none',
-                        boxShadow: (theme) => theme.shadows[7],
-                    }
-                }}
-                sx={{ zIndex: (theme) => theme.zIndex.appBar + 100 }}
-                variant="persistent"
-            >
-                <MeetingScripts
-                    messageList={messageList}
-                    handleSummaryOnOff={handleSummaryOnOff}
-                    summaryFlag={summaryFlag}
-                    setSummaryFlag={setSummaryFlag}
-                    title={title}
-                    handleServerScript={handleServerScript}
+                        <MeetingVideo
+                            peers={peers}
+                            myVideo={video}
+                        />
+                        <IconButton
+                            onClick={() => setSidebarOpen(!isSidebarOpen)}
+                            sx={{
+                                position: "fixed",
+                                right: 0,
+                                height: '100px',
+                                backgroundColor: "#202020",
+                                borderRadius: "12px 0 0 12px",
+                                p: 1.5,
+                                mt: 1,
+                                ...(isSidebarOpen && {
+                                    mr: '450px'
+                                })
+                            }}
+                        >
+                            {isSidebarOpen
+                                ? <ArrowForwardIos />
+                                : <ArrowBackIosNew />
+                            }
+                        </IconButton>
+                    </Box>
+                </ProcessLayoutRoot>
+                <ProgressInfo
+                    myVideo={video}
+                    handleCameraChange={handleCameraChange}
+                    handleAudioChange={handleAudioChange}
+                    isHost={isHost}
+                    time={time}
+                    code={code}
+                    members={members}
+                    parentCallback={handleSubmitScript}
+                    handleMute={handleMute}
                 />
-            </Drawer>
+                <Drawer
+                    anchor="right"
+                    open={isSidebarOpen}
+                    PaperProps={{
+                        sx: {
+                            pt: '90px',
+                            width: '450px',
+                            border: 'none',
+                            boxShadow: (theme) => theme.shadows[7],
+                        }
+                    }}
+                    sx={{ zIndex: (theme) => theme.zIndex.appBar + 100 }}
+                    variant="persistent"
+                >
+                    <MeetingScripts
+                        messageList={messageList}
+                        handleSummaryOnOff={handleSummaryOnOff}
+                        summaryFlag={summaryFlag}
+                        setSummaryFlag={setSummaryFlag}
+                        title={title}
+                        handleServerScript={handleServerScript}
+                    />
+                </Drawer>
+            </>
+            }
         </>
     );
 };

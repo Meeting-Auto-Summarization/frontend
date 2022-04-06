@@ -60,12 +60,6 @@ const Summarizer = () => {
     }
 
     useEffect(() => {
-        if (isLogin === false) {
-            router.push('/not-login');
-        }
-    });
-
-    useEffect(() => {
         axios.get(`http://localhost:3001/db/meetingResult/${mid}`, { withCredentials: true }).then(res => {
             const resMeeting = res.data.meeting;
             const resScript = res.data.script;
@@ -177,9 +171,8 @@ const Summarizer = () => {
             }
         }
 
-        await axios.post(`http://127.0.0.1:5000/summarize`,
+        await axios.post(`http://127.0.0.1:8000/summarize`,
             { contents: contents }).then(res => {
-                console.log(res.data);
                 const summaryList = res.data;
 
                 const tempReport = report;

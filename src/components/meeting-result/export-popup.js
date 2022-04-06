@@ -13,21 +13,22 @@ import axios from "axios";
 export function ExportPopup({ isScript, handleClose, open, meeting, script, report }) {
 
     const downloadScriptDocx = () => {
-        axios.post('http://127.0.0.1:5000/script-docx',
+        axios.post('http://127.0.0.1:8000/script-docx',
             { meeting: meeting, script: script },
             { responseType: 'blob' },
         ).then(res => {
+            console.log(res)
             const url = window.URL.createObjectURL(new Blob([res.data]));
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', `${meeting.title}_report.docx`);
+            link.setAttribute('download', `${meeting.title}_script.docx`);
             document.body.appendChild(link);
             link.click();
         });
     };
 
     const downloadReportDocx = () => {
-        axios.post('http://127.0.0.1:5000/report-docx',
+        axios.post('http://127.0.0.1:8000/report-docx',
             { meeting: meeting, report: report },
             { responseType: 'blob' },
         ).then(res => {
@@ -41,7 +42,7 @@ export function ExportPopup({ isScript, handleClose, open, meeting, script, repo
     };
 
     const downloadScriptTxt = () => {
-        axios.post('http://127.0.0.1:5000/script-txt',
+        axios.post('http://127.0.0.1:8000/script-txt',
             { meeting: meeting, script: script },
             { responseType: 'blob' },
         ).then(res => {
@@ -55,7 +56,7 @@ export function ExportPopup({ isScript, handleClose, open, meeting, script, repo
     };
 
     const downloadReportTxt = () => {
-        axios.post('http://127.0.0.1:5000/report-txt',
+        axios.post('http://127.0.0.1:8000/report-txt',
             { meeting: meeting, report: report },
             { responseType: 'blob' },
         ).then(res => {

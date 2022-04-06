@@ -20,12 +20,6 @@ const MeetingList = () => {
     const [deleted, setDeleted] = useState([]);
     const [_, updateState] = useState();
     const forceUpdate = useCallback(() => updateState({}), []);
-    
-    useEffect(() => {
-        if (isLogin === false) {
-            router.push('/not-login');
-        }
-    });
 
     useEffect(() => {
         axios.get(`http://localhost:3001/db/meetingList`, { withCredentials: true }).then(res => {

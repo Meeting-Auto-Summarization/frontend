@@ -23,12 +23,6 @@ const MeetingResult = () => {
     const [report, setReport] = useState();
 
     useEffect(() => {
-        if (isLogin === false) {
-            router.push('/not-login');
-        }
-    });
-
-    useEffect(() => {
         axios.get(`http://localhost:3001/db/meetingResult/${mid}`, { withCredentials: true }).then(res => {
             const resMeeting = res.data.meeting;
             const resScript = res.data.script;
