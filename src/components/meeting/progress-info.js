@@ -192,6 +192,7 @@ export function ProgressInfo({ myVideo, handleCameraChange, handleAudioChange, i
     useEffect(() => {
         getDevices();
     }, []);
+    
     return (
         <MeetingNavBar
             sx={{

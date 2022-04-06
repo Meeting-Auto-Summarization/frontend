@@ -60,12 +60,6 @@ const Summarizer = () => {
     }
 
     useEffect(() => {
-        if (isLogin === false) {
-            router.push('/not-login');
-        }
-    });
-
-    useEffect(() => {
         axios.get(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/meetingResult/${mid}`, { withCredentials: true }).then(res => {
             const resMeeting = res.data.meeting;
             const resScript = res.data.script;
@@ -164,30 +158,21 @@ const Summarizer = () => {
             contents[i] = new Array(selectedForReport[i].length);
 
             for (var j = 0; j < selectedForReport[i].length; j++) {
-                contents[i][j] = '';
+                contents[i][j] = ''
 
-                for (var k = 0; k < selectedForReport[i][j].length; k++) {
-                    const line = script.find(t => t._id === selectedForReport[i][j][k]);
-                    contents[i][j] += line.content.split("\n").join(".");
+                if (selectedForReport[i].length !== 1 && j === 0) {
+                    continue;
+                } else {
+                    for (var k = 0; k < selectedForReport[i][j].length; k++) {
+                        const line = script.find(t => t._id === selectedForReport[i][j][k]);
+                        contents[i][j] += line.content.split("\n").join(". ");
+                    }
                 }
             }
         }
 
-        // await axios.post(`http://localhost:3001/py/summarize`,
-        //     { meetingId: mid, report: report },
-        //     { withCredentials: true }).then(res => {
-        //         console.log(res.data)
-        //         setLoading(false);
-        //         router.push({
-        //             pathname: `/meeting-result`,
-        //             query: { mid: mid },
-        //         });
-        //     }
-        // );
-
-        await axios.post(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/py/`,
+        await axios.post(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/py/summarize`,
             { contents: contents }).then(res => {
-                console.log(res.data);
                 const summaryList = res.data;
 
                 const tempReport = report;

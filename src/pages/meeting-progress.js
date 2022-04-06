@@ -19,7 +19,6 @@ const ProcessLayoutRoot = styled('div')({
     paddingTop: 90,
 });
 
-///
 let bufferSize = 2048,
     AudioContext = null,
     context = null,
@@ -31,16 +30,15 @@ const constraints = {
     audio: true,
     video: false
 };
-///
-    if (typeof navigator !== "undefined") {
-        const Peer = require("peerjs").default
-        const peer = new Peer({
-            host: 'ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com',
-            port: 443,
-            path: '/peerjs',
-            debug:3,
-        });
-    }
+if (typeof navigator !== "undefined") {
+    const Peer = require("peerjs").default
+    const peer = new Peer({
+        host: 'ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com',
+        port: 443,
+        path: '/peerjs',
+        debug: 3,
+    });
+}
 
 
 const MeetingProgress = () => {
@@ -59,11 +57,9 @@ const MeetingProgress = () => {
         noSsr: false
     });
 
-    useEffect(() => {
-        if (isLogin === false) {
-            router.push('/not-login');
-        }
-    });
+    if (isLogin === false) {
+        router.push('/not-login');
+    }
 
     useEffect(() => {
         if (lgUp) {
@@ -108,7 +104,6 @@ const MeetingProgress = () => {
         axios.get(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/isHost`, { withCredentials: true }).then(res => {
             setIsHost(res.data);
         });
-
 
         peer.on('open', (id) => { // userid가 peer로 인해 생성됨
             console.log("open");
@@ -174,6 +169,7 @@ const MeetingProgress = () => {
             console.log(msg);
         });
 
+
         // peer서버와 정상적으로 통신이 된 경우 open event 발생
         console.log('open');
 
@@ -207,8 +203,6 @@ const MeetingProgress = () => {
                 connectToNewUser(userId, stream, remoteNick);
             });
         });
-
-        // disconnect 받으면 -> call object를 peers에서 가져와 해당 call close()함
         socket.on('user-disconnected', (userId) => {
             console.log("user-disconnected ");
             closeRecording();//audio input를 진행하는 context 종료
@@ -232,7 +226,6 @@ const MeetingProgress = () => {
         });
     }, [peers]);
 
-    ///
     const initRecording = (onError) => {
         AudioContext = window.AudioContext || window.webkitAudioContext;
         context = new AudioContext();
@@ -328,6 +321,13 @@ const MeetingProgress = () => {
     const connectToNewUser = async (userId, stream, remoteNick) => {
         const { data } = await axios.get('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/auth/meeting-info', { withCredentials: true });
         const call = peer.call(userId, stream, { metadata: { "receiverNick": remoteNick, "senderNick": data.name } });
+
+        axios.get('http://localhost:3001/db/currentMeeting',
+            { withCredentials: true }
+        ).then(res => {
+            setMembers(res.data.members);
+        });
+
         // call객체 생성(dest-id,my-mediaStream)
         // 들어온 상대방에게 call요청 보냄
         call.on('stream', (userVideoStream) => {
@@ -409,7 +409,13 @@ const MeetingProgress = () => {
         video.current.srcObject.getTracks().forEach((track) => {
             track.stop();
         });
-        opener.location.href = `/summarizer?mid=${mid}`;
+
+        if (!opener) {
+            router.push('/meeting-list');
+        } else {
+            opener.location.href = `/summarizer?mid=${mid}`;
+        }
+
         self.close();
     }
 
@@ -417,14 +423,28 @@ const MeetingProgress = () => {
         console.log(peers);
     }, [peers]);
 
-    const handleSubmitScript = (isHost) => {
-        opener.location.reload();
+    const handleSubmitScript = async (isHost) => {
+        if (!opener) {
+            router.push('/meeting-list');
+        } else {
+            opener.location.reload();
+        }
 
         if (!isHost) {
-            opener.endMeeting(isHost);
-            self.close();
+            await axios.get('http://localhost:3001/db/exitMeeting',
+                { withCredentials: true }
+            ).then(res => {
+                console.log(res.data);
+            });
+
+            await axios.get(`http://localhost:3001/db/setIsMeetingFalse`, { withCredentials: true }).then(res => {
+                console.log(res.data);
+                self.close();
+            });
+
             return;
         }
+
         socket.emit("meetingEnd", isHost);
         axios.get(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/setIsMeetingAllFalse`, { withCredentials: true }).then(res => {
             console.log(res.data);
@@ -452,81 +472,85 @@ const MeetingProgress = () => {
 
     return (
         <>
-            {/* <style global jsx>
-                {`html, body, body > div:first-child, div#__next, div#__next > div { height: 100%; }`}
-            </style> */}
-            <ProcessLayoutRoot>
-                <Box
-                    sx={{
-                        position: 'relative',
-                        display: 'flex',
-                        flex: '1 1 auto',
-                        flexDirection: 'column',
-                        ...(isSidebarOpen && {
-                            paddingRight: '450px'
-                        })
-                    }}
-                >
-                    <MeetingVideo
-                        peers={peers}
+            {isLogin &&
+                <>
+                    {/* <style global jsx>
+                    {`html, body, body > div:first-child, div#__next, div#__next > div { height: 100%; }`}
+                </style> */}
+                    <ProcessLayoutRoot>
+                        <Box
+                            sx={{
+                                position: 'relative',
+                                display: 'flex',
+                                flex: '1 1 auto',
+                                flexDirection: 'column',
+                                ...(isSidebarOpen && {
+                                    paddingRight: '450px'
+                                })
+                            }}
+                        >
+                            <MeetingVideo
+                                peers={peers}
+                                myVideo={video}
+                            />
+                            <IconButton
+                                onClick={() => setSidebarOpen(!isSidebarOpen)}
+                                sx={{
+                                    position: "fixed",
+                                    right: 0,
+                                    height: '100px',
+                                    backgroundColor: "#202020",
+                                    borderRadius: "12px 0 0 12px",
+                                    p: 1.5,
+                                    mt: 1,
+                                    ...(isSidebarOpen && {
+                                        mr: '450px'
+                                    })
+                                }}
+                            >
+                                {isSidebarOpen
+                                    ? <ArrowForwardIos />
+                                    : <ArrowBackIosNew />
+                                }
+                            </IconButton>
+                        </Box>
+                    </ProcessLayoutRoot>
+                    <ProgressInfo
                         myVideo={video}
+                        handleCameraChange={handleCameraChange}
+                        handleAudioChange={handleAudioChange}
+                        isHost={isHost}
+                        time={time}
+                        code={code}
+                        members={members}
+                        parentCallback={handleSubmitScript}
+                        handleMute={handleMute}
                     />
-                    <IconButton
-                        onClick={() => setSidebarOpen(!isSidebarOpen)}
-                        sx={{
-                            position: "fixed",
-                            right: 0,
-                            height: '100px',
-                            backgroundColor: "#202020",
-                            borderRadius: "12px 0 0 12px",
-                            p: 1.5,
-                            mt: 1,
-                            ...(isSidebarOpen && {
-                                mr: '450px'
-                            })
+                    <Drawer
+                        anchor="right"
+                        open={isSidebarOpen}
+                        PaperProps={{
+                            sx: {
+                                pt: '90px',
+                                width: '450px',
+                                border: 'none',
+                                boxShadow: (theme) => theme.shadows[7],
+                            }
                         }}
+                        sx={{ zIndex: (theme) => theme.zIndex.appBar + 100 }}
+                        variant="persistent"
                     >
-                        {isSidebarOpen
-                            ? <ArrowForwardIos />
-                            : <ArrowBackIosNew />
-                        }
-                    </IconButton>
-                </Box>
-            </ProcessLayoutRoot>
-            <ProgressInfo
-                myVideo={video}
-                handleCameraChange={handleCameraChange}
-                handleAudioChange={handleAudioChange}
-                isHost={isHost}
-                time={time}
-                code={code}
-                members={members}
-                parentCallback={handleSubmitScript}
-                handleMute={handleMute}
-            />
-            <Drawer
-                anchor="right"
-                open={isSidebarOpen}
-                PaperProps={{
-                    sx: {
-                        pt: '90px',
-                        width: '450px',
-                        border: 'none',
-                        boxShadow: (theme) => theme.shadows[7],
-                    }
-                }}
-                sx={{ zIndex: (theme) => theme.zIndex.appBar + 100 }}
-                variant="persistent"
-            >
-                <MeetingScripts
-                    messageList={messageList}
-                    handleSummaryOnOff={handleSummaryOnOff}
-                    summaryFlag={summaryFlag}
-                    setSummaryFlag={setSummaryFlag}
-                    title={title}
-                    handleServerScript={handleServerScript}
-                />
-            </Drawer>
+                        <MeetingScripts
+                            messageList={messageList}
+                            handleSummaryOnOff={handleSummaryOnOff}
+                            summaryFlag={summaryFlag}
+                            setSummaryFlag={setSummaryFlag}
+                            title={title}
+                            handleServerScript={handleServerScript}
+                        />
+                    </Drawer>
+                </>
+            }
         </>
     );
 };

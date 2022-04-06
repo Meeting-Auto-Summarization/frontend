@@ -55,6 +55,10 @@ export const AppSidebar = (props) => {
 	const [meetingCode, setMeetingCode] = useState('');
 	const [isMeeting, setIsMeeting] = useState(false);
 
+	if (isLogin === false) {
+		router.push('/not-login');
+	}
+
 	const handleSubmitCreateDialog = (title, limitNum) => {
 		axios.post('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/createMeeting', {
 			title: title,
@@ -103,16 +107,10 @@ export const AppSidebar = (props) => {
 	}, []);
 
 	if (typeof window !== "undefined") {
-		window.endMeeting = function endMeeting(isHost) {
-			if (isHost) {
-				axios.get(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/setIsMeetingAllFalse`, { withCredentials: true }).then(res => {
-					console.log(res.data);
-				});
-			} else {
-				axios.get(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/setIsMeetingFalse`, { withCredentials: true }).then(res => {
-					console.log(res.data);
-				});
-			}
+		window.endMeeting = function endMeeting() {
+			axios.get(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/setIsMeetingFalse`, { withCredentials: true }).then(res => {
+				console.log(res.data);
+			});
 		};
 	}
 

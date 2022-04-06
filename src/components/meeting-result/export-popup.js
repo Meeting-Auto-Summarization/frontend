@@ -9,7 +9,6 @@ import { Close } from "@mui/icons-material";
 import { WordIcon } from "../../icons/word";
 import { TXTIcon } from "../../icons/txt"
 import axios from "axios";
-import qs from "qs";
 
 export function ExportPopup({ isScript, handleClose, open, meeting, script, report }) {
 
@@ -18,17 +17,18 @@ export function ExportPopup({ isScript, handleClose, open, meeting, script, repo
             { meeting: meeting, script: script },
             { responseType: 'blob' },
         ).then(res => {
+            console.log(res)
             const url = window.URL.createObjectURL(new Blob([res.data]));
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', `${meeting.title}_report.docx`);
+            link.setAttribute('download', `${meeting.title}_script.docx`);
             document.body.appendChild(link);
             link.click();
         });
     };
 
     const downloadReportDocx = () => {
-        axios.post('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/py/report-docx',
+        axios.post('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:8000/report-docx',
             { meeting: meeting, report: report },
             { responseType: 'blob' },
         ).then(res => {
@@ -56,7 +56,7 @@ export function ExportPopup({ isScript, handleClose, open, meeting, script, repo
     };
 
     const downloadReportTxt = () => {
-        axios.post('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/py/report-txt',
+        axios.post('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:8000/report-txt',
             { meeting: meeting, report: report },
             { responseType: 'blob' },
         ).then(res => {

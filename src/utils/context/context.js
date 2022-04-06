@@ -30,9 +30,9 @@ const UserContextProvider = ({ children }) => {
 
     const getLoginInfo = () => {
         axios.get('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/auth/user-info', { withCredentials: true }).then(response => {
-            setIsLogin(response.data !== '');
+            setIsLogin(response.data);
 
-            if (response.data == '') {
+            if (!response.data) {
                 return;
             }
 
@@ -48,13 +48,12 @@ const UserContextProvider = ({ children }) => {
     }
 
     useEffect(() => {
-        getLoginInfo()
+        getLoginInfo();
         console.log("rendering");
     }, [])
 
     useEffect(() => {
-        console.log("isLogin")
-        console.log(isLogin);
+        console.log(`isLogin: ${isLogin}`)
     }, [isLogin])
 
     return (
