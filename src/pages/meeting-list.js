@@ -121,14 +121,14 @@ const MeetingList = () => {
     };
 
     const handleDelete = async () => {
-        await axios.post(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/db/deleteMeeting`,
+        await axios.post(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/deleteMeeting`,
             { deleted: deleted },
             { withCredentials: true }
         ).then(res => {
             console.log(res.data);
         });
 
-        await axios.get(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/db/meetingList`,
+        await axios.get(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/meetingList`,
             { withCredentials: true }
         ).then(res => {
             const data = res.data;

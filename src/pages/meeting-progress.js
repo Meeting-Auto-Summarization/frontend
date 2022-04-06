@@ -264,7 +264,8 @@ const MeetingProgress = () => {
 
     function microphoneProcess(e) {
         var left = e.inputBuffer.getChannelData(0);
-        var left16 = convertFloat32ToInt16(left);
+        //var left16 = convertFloat32ToInt16(left); //old ver
+        var left16 = downsampleBuffer(left, 44100, 16000);
         socket.emit('binaryAudioData', left16);
     }
 
@@ -274,16 +275,32 @@ const MeetingProgress = () => {
      * 
      * @param {object} buffer Buffer being converted
      */
-    function convertFloat32ToInt16(buffer) {
-        let l = buffer.length;
-        let buf = new Int16Array(l / 3);
-
-        while (l--) {
-            if (l % 3 === 0) {
-                buf[l / 3] = buffer[l] * 0xFFFF;
-            }
+    function downsampleBuffer(buffer, sampleRate, outSampleRate) {
+        if (outSampleRate == sampleRate) {
+            return buffer;
         }
-        return buf.buffer
+        if (outSampleRate > sampleRate) {
+            throw 'downsampling rate show be smaller than original sample rate';
+        }
+        var sampleRateRatio = sampleRate / outSampleRate;
+        var newLength = Math.round(buffer.length / sampleRateRatio);
+        var result = new Int16Array(newLength);
+        var offsetResult = 0;
+        var offsetBuffer = 0;
+        while (offsetResult < result.length) {
+            var nextOffsetBuffer = Math.round((offsetResult + 1) * sampleRateRatio);
+            var accum = 0,
+                count = 0;
+            for (var i = offsetBuffer; i < nextOffsetBuffer && i < buffer.length; i++) {
+                accum += buffer[i];
+                count++;
+            }
+
+            result[offsetResult] = Math.min(1, accum / count) * 0x7fff;
+            offsetResult++;
+            offsetBuffer = nextOffsetBuffer;
+        }
+        return result.buffer;
     }
 
     //회의 종료할때 호출!!!
@@ -322,7 +339,7 @@ const MeetingProgress = () => {
         const { data } = await axios.get('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/auth/meeting-info', { withCredentials: true });
         const call = peer.call(userId, stream, { metadata: { "receiverNick": remoteNick, "senderNick": data.name } });
 
-        axios.get('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/db/currentMeeting',
+        axios.get('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/currentMeeting',
             { withCredentials: true }
         ).then(res => {
             setMembers(res.data.members);
@@ -431,13 +448,13 @@ const MeetingProgress = () => {
         }
 
         if (!isHost) {
-            await axios.get('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/db/exitMeeting',
+            await axios.get('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/exitMeeting',
                 { withCredentials: true }
             ).then(res => {
                 console.log(res.data);
             });
 
-            await axios.get(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/db/setIsMeetingFalse`, { withCredentials: true }).then(res => {
+            await axios.get(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/setIsMeetingFalse`, { withCredentials: true }).then(res => {
                 console.log(res.data);
                 self.close();
             });
