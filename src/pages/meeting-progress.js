@@ -206,9 +206,9 @@ const MeetingProgress = () => {
                 // 새로운 user 연결하는 작업
                 connectToNewUser(userId, stream, remoteNick);
             });
-            socket.on("initSummaryFlag", (flag) => {
-                setSummaryFlag(flag);
-            });
+        });
+        socket.on('user-disconnected', (userId) => {
+            console.log("user-disconnected ");
             closeRecording();//audio input를 진행하는 context 종료
             setPeers(arr => {
                 return (arr.filter((e) => {
