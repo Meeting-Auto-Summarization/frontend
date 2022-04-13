@@ -143,18 +143,24 @@ const MeetingProgress = () => {
 
         socket.on("summaryOffer", (summaryFlag) => {
             setSummaryFlag(summaryFlag);
-            if (AudioContext === null) {
-                initRecording((error) => {
-                    console.error('Error when recording', error);
-                });
+            if (summaryFlag) {
+                if (AudioContext === null) {
+                    initRecording((error) => {
+                        console.error('Error when recording', error);
+                    });
+                }
+            } else {
+                closeRecording();
             }
         });
         socket.on("initSummaryFlag", (flag) => {
             setSummaryFlag(flag);
-            if (AudioContext === null) {
-                initRecording((error) => {
-                    console.error('Error when recording', error);
-                });
+            if (flag) {
+                if (AudioContext === null) {
+                    initRecording((error) => {
+                        console.error('Error when recording', error);
+                    });
+                }
             }
         });
 
@@ -225,33 +231,27 @@ const MeetingProgress = () => {
             }
         });
     }, [peers]);
+    const handleSuccess = function (stream) {
+        console.log("현재 스트림 : ", stream);
 
+        globalStream = stream;
+        input = context.createMediaStreamSource(stream);
+        input.connect(processor);
+
+        processor.onaudioprocess = function (e) {
+            microphoneProcess(e);
+        };
+    };
     const initRecording = (onError) => {
+        console.log('recording check2')
         AudioContext = window.AudioContext || window.webkitAudioContext;
         context = new AudioContext();
         processor = context.createScriptProcessor(bufferSize, 1, 1);
         processor.connect(context.destination);
         context.resume();
 
-        var handleSuccess = function (stream) {
-            globalStream = stream;
-            input = context.createMediaStreamSource(stream);
-            input.connect(processor);
-
-            processor.onaudioprocess = function (e) {
-                microphoneProcess(e);
-            };
-        };
-
-        navigator.mediaDevices.getUserMedia(constraints)
-            .then(handleSuccess);
-
-        // Bind the data handler callback
-        // if(onData) {
-        //     socket.on('speechData', (data) => {
-        //         onData(data);
-        //     });
-        // }
+        handleSuccess(video.current.srcObject);
+        //navigator.mediaDevices.getUserMedia(constraints).then(handleSuccess);
 
         socket.on('googleCloudStreamError', (error) => {
             if (onError) {
@@ -302,7 +302,6 @@ const MeetingProgress = () => {
         }
         return result.buffer;
     }
-
     //회의 종료할때 호출!!!
     function closeRecording() {
         // Clear the listeners (prevents issue if opening and closing repeatedly)
@@ -392,7 +391,7 @@ const MeetingProgress = () => {
         });
     }
 
-    const handleAudioChange = (deviceId, label) => {
+    const handleAudioChange = (deviceId) => {
         const audioConstraint = {
             audio: { deviceId: deviceId },
             video: true
@@ -418,10 +417,15 @@ const MeetingProgress = () => {
                 audioSender.replaceTrack(stream.getAudioTracks()[0]);
                 console.log(audioSender);
             }
-        });
-        socket.emit("deviceChange", summaryFlag, label);
-    }
+            //
+            if (summaryFlag)//요약중이면 기존것 종료하고, 재시작
+            {
+                closeRecording();
+                initRecording();
+            }
 
+        });
+    }
     const handleLeaveRoom = () => {
         video.current.srcObject.getTracks().forEach((track) => {
             track.stop();
@@ -436,9 +440,9 @@ const MeetingProgress = () => {
         self.close();
     }
 
-    useEffect(() => {
-        console.log(peers);
-    }, [peers]);
+    // useEffect(() => {
+    //     console.log(peers);
+    // }, [peers]);
 
     const handleSubmitScript = async (isHost) => {
         if (!opener) {
@@ -480,8 +484,17 @@ const MeetingProgress = () => {
         socket.emit("summaryAlert", summaryFlag);
     }
     function handleMute(micStatus) {
-        if (summaryFlag)
-            socket.emit("micOnOff", micStatus);
+        if (micStatus) {//켜야함
+            if (summaryFlag) {
+                initRecording();
+                socket.emit("micOnOff", micStatus);
+            }
+        } else {//꺼야함
+            if (summaryFlag) {
+                closeRecording();
+                socket.emit("micOnOff", micStatus);
+            }
+        }
     }
     function handleServerScript(index, isChecked) {
         socket.emit("handleCheck", index, isChecked);
