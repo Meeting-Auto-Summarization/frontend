@@ -267,7 +267,7 @@ const MeetingProgress = () => {
 
     function microphoneProcess(e) {
         var left = e.inputBuffer.getChannelData(0);
-        var left16 = convertFloat32ToInt16(left);
+        var left16 = downsampleBuffer(left, 44100, 16000);
         socket.emit('binaryAudioData', left16);
     }
 
@@ -277,18 +277,33 @@ const MeetingProgress = () => {
  * 
  * @param {object} buffer Buffer being converted
  */
-    function convertFloat32ToInt16(buffer) {
-        let l = buffer.length;
-        let buf = new Int16Array(l / 3);
-
-        while (l--) {
-            if (l % 3 === 0) {
-                buf[l / 3] = buffer[l] * 0xFFFF;
-            }
+    function downsampleBuffer(buffer, sampleRate, outSampleRate) {
+        if (outSampleRate == sampleRate) {
+            return buffer;
         }
-        return buf.buffer
-    }
+        if (outSampleRate > sampleRate) {
+            throw 'downsampling rate show be smaller than original sample rate';
+        }
+        var sampleRateRatio = sampleRate / outSampleRate;
+        var newLength = Math.round(buffer.length / sampleRateRatio);
+        var result = new Int16Array(newLength);
+        var offsetResult = 0;
+        var offsetBuffer = 0;
+        while (offsetResult < result.length) {
+            var nextOffsetBuffer = Math.round((offsetResult + 1) * sampleRateRatio);
+            var accum = 0,
+                count = 0;
+            for (var i = offsetBuffer; i < nextOffsetBuffer && i < buffer.length; i++) {
+                accum += buffer[i];
+                count++;
+            }
 
+            result[offsetResult] = Math.min(1, accum / count) * 0x7fff;
+            offsetResult++;
+            offsetBuffer = nextOffsetBuffer;
+        }
+        return result.buffer;
+    }
     //회의 종료할때 호출!!!
     function closeRecording() {
         // Clear the listeners (prevents issue if opening and closing repeatedly)
