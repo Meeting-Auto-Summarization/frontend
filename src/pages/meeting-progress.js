@@ -153,6 +153,8 @@ const MeetingProgress = () => {
                         console.error('Error when recording', error);
                     });
                 }
+            } else {
+                closeRecording();
             }
         });
         socket.on("initSummaryFlag", (flag) => {
@@ -233,7 +235,9 @@ const MeetingProgress = () => {
             }
         });
     }, [peers]);
+
     const initRecording = (onError) => {
+        console.log('recording check2')
         AudioContext = window.AudioContext || window.webkitAudioContext;
         context = new AudioContext();
         processor = context.createScriptProcessor(bufferSize, 1, 1);
@@ -263,6 +267,7 @@ const MeetingProgress = () => {
 
     function microphoneProcess(e) {
         var left = e.inputBuffer.getChannelData(0);
+        //var left16 = convertFloat32ToInt16(left); //old ver
         var left16 = downsampleBuffer(left, 44100, 16000);
         socket.emit('binaryAudioData', left16);
     }
@@ -433,9 +438,9 @@ const MeetingProgress = () => {
         self.close();
     }
 
-    useEffect(() => {
-        console.log(peers);
-    }, [peers]);
+    // useEffect(() => {
+    //     console.log(peers);
+    // }, [peers]);
 
     const handleSubmitScript = async (isHost) => {
         if (!opener) {
