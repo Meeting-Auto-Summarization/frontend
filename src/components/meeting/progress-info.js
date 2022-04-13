@@ -97,22 +97,7 @@ export function ProgressInfo({ myVideo, handleCameraChange, handleAudioChange, i
     const handleMicMenuClose = (idx) => {
         setMicMenu(null);
         if (idx > -1) {
-            let label;
-            if (microphones[idx].deviceId === "default"
-                || microphones[idx].deviceId === "communications") {
-                label = microphones[idx].label.split(' - ')[1];
-                if (label.indexOf(" (")) {
-                    label = label.split(" (")[0];
-                }
-
-            } else {
-                label = microphones[idx].label;
-                if (label.indexOf(" (")) {
-                    label = label.split(" (")[0];
-                }
-            }
-            console.log(label);
-            handleAudioChange(microphones[idx].deviceId, label);
+            handleAudioChange(microphones[idx].deviceId);
             setCurrentMic(idx);
         }
     };
@@ -192,7 +177,7 @@ export function ProgressInfo({ myVideo, handleCameraChange, handleAudioChange, i
     useEffect(() => {
         getDevices();
     }, []);
-    
+
     return (
         <MeetingNavBar
             sx={{

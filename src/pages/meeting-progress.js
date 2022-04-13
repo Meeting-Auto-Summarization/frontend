@@ -235,7 +235,17 @@ const MeetingProgress = () => {
             }
         });
     }, [peers]);
+    const handleSuccess = function (stream) {
+        console.log("현재 스트림 : ", stream);
 
+        globalStream = stream;
+        input = context.createMediaStreamSource(stream);
+        input.connect(processor);
+
+        processor.onaudioprocess = function (e) {
+            microphoneProcess(e);
+        };
+    };
     const initRecording = (onError) => {
         console.log('recording check2')
         AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -244,17 +254,8 @@ const MeetingProgress = () => {
         processor.connect(context.destination);
         context.resume();
 
-        var handleSuccess = function (stream) {
-            globalStream = stream;
-            input = context.createMediaStreamSource(stream);
-            input.connect(processor);
-
-            processor.onaudioprocess = function (e) {
-                microphoneProcess(e);
-            };
-        };
-        // handleSuccess(video.current.srcObject);//현재 device를 가져옴
-        navigator.mediaDevices.getUserMedia(constraints).then(handleSuccess);
+        handleSuccess(video.current.srcObject);
+        //navigator.mediaDevices.getUserMedia(constraints).then(handleSuccess);
 
         socket.on('googleCloudStreamError', (error) => {
             if (onError) {
@@ -420,10 +421,13 @@ const MeetingProgress = () => {
             }
             //
             if (summaryFlag)//요약중이면 기존것 종료하고, 재시작
+            {
+                closeRecording();
                 initRecording();
+            }
+
         });
     }
-
     const handleLeaveRoom = () => {
         video.current.srcObject.getTracks().forEach((track) => {
             track.stop();
