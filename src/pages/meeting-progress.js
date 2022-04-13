@@ -312,10 +312,10 @@ const MeetingProgress = () => {
         //socket.off('speechData');
         socket.off('googleCloudStreamError');
         let tracks = globalStream ? globalStream.getTracks() : null;
-        let track = tracks ? tracks[0] : null;
+        /*let track = tracks ? tracks[0] : null;
         if (track) {
             track.stop();
-        }
+        }*/
 
         if (processor) {
             if (input) {
