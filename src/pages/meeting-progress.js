@@ -147,18 +147,26 @@ const MeetingProgress = () => {
 
         socket.on("summaryOffer", (summaryFlag) => {
             setSummaryFlag(summaryFlag);
-            if (AudioContext === null) {
-                initRecording((error) => {
-                    console.error('Error when recording', error);
-                });
+            if (summaryFlag == true) {
+                if (AudioContext === null) {
+                    initRecording((error) => {
+                        console.error('Error when recording', error);
+                    });
+                }
+            } else {
+                closeRecording();
             }
         });
         socket.on("initSummaryFlag", (flag) => {
             setSummaryFlag(flag);
-            if (AudioContext === null) {
-                initRecording((error) => {
-                    console.error('Error when recording', error);
-                });
+            if (flag == true) {
+                if (AudioContext === null) {
+                    initRecording((error) => {
+                        console.error('Error when recording', error);
+                    });
+                }
+            } else {
+                closeRecording();
             }
         });
 
@@ -206,9 +214,10 @@ const MeetingProgress = () => {
                 // 새로운 user 연결하는 작업
                 connectToNewUser(userId, stream, remoteNick);
             });
-            socket.on("initSummaryFlag", (flag) => {
-                setSummaryFlag(flag);
-            });
+        });
+
+        socket.on('user-disconnected', (userId) => {
+            console.log("user-disconnected ");
             closeRecording();//audio input를 진행하는 context 종료
             setPeers(arr => {
                 return (arr.filter((e) => {
@@ -229,7 +238,9 @@ const MeetingProgress = () => {
             }
         });
     }, [peers]);
+
     const initRecording = (onError) => {
+        console.log('recording check2')
         AudioContext = window.AudioContext || window.webkitAudioContext;
         context = new AudioContext();
         processor = context.createScriptProcessor(bufferSize, 1, 1);
@@ -267,7 +278,8 @@ const MeetingProgress = () => {
 
     function microphoneProcess(e) {
         var left = e.inputBuffer.getChannelData(0);
-        var left16 = convertFloat32ToInt16(left);
+        //var left16 = convertFloat32ToInt16(left); //old ver
+        var left16 = downsampleBuffer(left, 44100, 16000);
         socket.emit('binaryAudioData', left16);
     }
 
@@ -277,16 +289,33 @@ const MeetingProgress = () => {
  * 
  * @param {object} buffer Buffer being converted
  */
-    function convertFloat32ToInt16(buffer) {
-        let l = buffer.length;
-        let buf = new Int16Array(l / 3);
 
-        while (l--) {
-            if (l % 3 === 0) {
-                buf[l / 3] = buffer[l] * 0xFFFF;
-            }
+    function downsampleBuffer(buffer, sampleRate, outSampleRate) {
+        if (outSampleRate == sampleRate) {
+            return buffer;
         }
-        return buf.buffer
+        if (outSampleRate > sampleRate) {
+            throw 'downsampling rate show be smaller than original sample rate';
+        }
+        var sampleRateRatio = sampleRate / outSampleRate;
+        var newLength = Math.round(buffer.length / sampleRateRatio);
+        var result = new Int16Array(newLength);
+        var offsetResult = 0;
+        var offsetBuffer = 0;
+        while (offsetResult < result.length) {
+            var nextOffsetBuffer = Math.round((offsetResult + 1) * sampleRateRatio);
+            var accum = 0,
+                count = 0;
+            for (var i = offsetBuffer; i < nextOffsetBuffer && i < buffer.length; i++) {
+                accum += buffer[i];
+                count++;
+            }
+
+            result[offsetResult] = Math.min(1, accum / count) * 0x7fff;
+            offsetResult++;
+            offsetBuffer = nextOffsetBuffer;
+        }
+        return result.buffer;
     }
 
     //회의 종료할때 호출!!!
@@ -420,9 +449,9 @@ const MeetingProgress = () => {
         self.close();
     }
 
-    useEffect(() => {
-        console.log(peers);
-    }, [peers]);
+    // useEffect(() => {
+    //     console.log(peers);
+    // }, [peers]);
 
     const handleSubmitScript = async (isHost) => {
         if (!opener) {
