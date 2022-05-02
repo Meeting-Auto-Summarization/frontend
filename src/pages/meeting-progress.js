@@ -183,6 +183,12 @@ const MeetingProgress = () => {
                 track.enabled = !track.enabled;
             })
             video.current.srcObject = stream; // 내 비디오 넣어줌
+            // 내가 있는 방에 새로운 유저 접속하면 server가 user-connected 입장한 userid와 함께 emit함
+            socket.on('user-connected', (userId, remoteNick) => {
+                // 새로운 user 연결하는 작업
+                connectToNewUser(userId, stream, remoteNick);
+            });
+
             peer.on('call', (call) => {
                 // 중간에 입장했을때 방에 있던 사람에게 call요청 받았을 때
                 call.answer(stream); // call요청 수락
@@ -202,11 +208,6 @@ const MeetingProgress = () => {
                 });
             });
             socket.emit('ready');
-            // 내가 있는 방에 새로운 유저 접속하면 server가 user-connected 입장한 userid와 함께 emit함
-            socket.on('user-connected', (userId, remoteNick) => {
-                // 새로운 user 연결하는 작업
-                connectToNewUser(userId, stream, remoteNick);
-            });
         });
         socket.on('user-disconnected', (userId) => {
             console.log("user-disconnected ");
