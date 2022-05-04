@@ -60,6 +60,9 @@ export const ReportRange = ({ script, deleted, report, setReport, meeting, membe
         const selectedIndex = script.indexOf(line);
 
         const newSelected = script.slice(startIndex, selectedIndex + 1).map(line => line._id);
+        deleted.forEach(del => {
+            newSelected.splice(newSelected.findIndex(i => i._id === del), 1);
+        });
         setSelected(newSelected);
 
         let tempReport = report;
