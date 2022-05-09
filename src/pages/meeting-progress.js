@@ -181,6 +181,7 @@ const MeetingProgress = () => {
         console.log('open');
 
         navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
+            console.log("장치가져오기 성공");
             stream.getVideoTracks().forEach((track) => {
                 track.enabled = !track.enabled;
             })
@@ -188,17 +189,19 @@ const MeetingProgress = () => {
             // 내가 있는 방에 새로운 유저 접속하면 server가 user-connected 입장한 userid와 함께 emit함
             socket.on('user-connected', (userId, remoteNick) => {
                 // 새로운 user 연결하는 작업
+                console.log("user-connected 이벤트 발생");
                 connectToNewUser(userId, stream, remoteNick);
             });
 
             peer.on('call', (call) => {
                 // 중간에 입장했을때 방에 있던 사람에게 call요청 받았을 때
                 call.answer(stream); // call요청 수락
-
+                console.log("중간에 입장 후 방에있는 사람에게 Call 요청 받음");
                 // answer가 발생하면 stream이라는 이벤트를 통해 다른 유저의 stream 받아옴
                 call.on('stream', (userVideoStream) => {
                     // 중간에 입장하여 상대방 받아옴
                     // 상대방의 stream을 내 브라우저에 추가 
+                    console.log("중간에 입장하여 상대방 받아옴, 상대방의 Stream 내 브라우저에 추가");
                     setPeers(arr => {
                         if (arr.findIndex(v => v.id === call.peer) < 0)
                             return [...arr, { id: call.peer, nick: call.metadata.senderNick, call: call, stream: userVideoStream }];
@@ -358,6 +361,7 @@ const MeetingProgress = () => {
     ///
 
     const connectToNewUser = async (userId, stream, remoteNick) => {
+        console.log("connectToNewUser")
         const { data } = await axios.get('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/auth/meeting-info', { withCredentials: true });
         const call = peer.call(userId, stream, { metadata: { "receiverNick": remoteNick, "senderNick": data.name } });
 
@@ -371,6 +375,7 @@ const MeetingProgress = () => {
         // 들어온 상대방에게 call요청 보냄
         call.on('stream', (userVideoStream) => {
             // 새로 들어온 사람이 answer했을 때 stream이벤트 발생함
+            console.log("내가 있는 방에 새로 들어오는 User 정보 받아옴");
             setPeers(arr => {
                 if (arr.findIndex(v => v.id === userId) < 0)
                     return [...arr, { id: userId, nick: call.metadata.receiverNick, call: call, stream: userVideoStream }];
