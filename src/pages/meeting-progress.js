@@ -210,6 +210,8 @@ const MeetingProgress = () => {
                 });
             });
             socket.emit('ready');
+        }).catch((e) => {
+            console.log("error -> ", e);
         });
         socket.on('user-disconnected', (userId) => {
             console.log("user-disconnected ");
