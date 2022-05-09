@@ -209,6 +209,8 @@ const MeetingProgress = () => {
                     });
                 });
             });
+            // socket.emit('ready');
+        }).then(() => {
             socket.emit('ready');
         }).catch((e) => {
             console.log("error -> ", e);
