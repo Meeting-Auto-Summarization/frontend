@@ -9,8 +9,10 @@ import { ProgressInfo } from "../components/meeting/progress-info";
 import { UserContext } from '../utils/context/context';
 import axios from 'axios';
 
-const socket = io.connect('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001',
-    { cors: { origin: 'https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001' } }); // 서버랑 연결
+// const socket = io.connect('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001',
+//     { cors: { origin: 'https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001' } }); // 서버랑 연결
+
+const socket = io();
 
 const ProcessLayoutRoot = styled('div')({
     display: 'flex',
@@ -208,6 +210,9 @@ const MeetingProgress = () => {
                 });
             });
             socket.emit('ready');
+        }).catch((e) => {
+            console.log("error -> ", e);
+            handleAccessPermission();
         });
         socket.on('user-disconnected', (userId) => {
             console.log("user-disconnected ");
@@ -458,7 +463,11 @@ const MeetingProgress = () => {
     // useEffect(() => {
     //     console.log(peers);
     // }, [peers]);
-
+    const handleAccessPermission = () => {
+        if (!alert("입출력 장치 권한이 없거나 사용가능한 장치가 없습니다")) {
+            self.close();
+        }
+    }
     const handleSubmitScript = async (isHost) => {
         if (!opener) {
             router.push('/meeting-list');
