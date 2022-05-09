@@ -147,7 +147,7 @@ export const AppSidebar = (props) => {
 								cursor: 'pointer',
 								display: 'flex',
 								justifyContent: 'space-between',
-								px: 3,
+								px: 2,
 								py: '11px',
 								borderRadius: 1
 							}}
