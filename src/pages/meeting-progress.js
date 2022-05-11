@@ -197,7 +197,9 @@ const MeetingProgress = () => {
         socket.on("initSummaryFlag", (flag) => {
             setSummaryFlag(flag);
             if (flag) {
+                console.log("init " + flag);
                 if (AudioContext === null) {
+                    console.log("init2 " + flag);
                     initRecording((error) => {
                         console.error('Error when recording', error);
                     });
@@ -260,7 +262,7 @@ const MeetingProgress = () => {
         if (recorderConstraints)
             navigator.mediaDevices.getUserMedia(recorderConstraints).then(handleSuccess);
         else {
-            handleSuccess(video.current.srcObject);
+            navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(handleSuccess);
         }
         socket.on('googleCloudStreamError', (error) => {
             if (onError) {
