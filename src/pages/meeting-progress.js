@@ -113,6 +113,46 @@ const MeetingProgress = () => {
                 socket.emit('join-room', currentMeetingId, id, nick);
             }).catch(err => {
                 console.log(err);
+            }).then(() => {
+                navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
+                    console.log("장치가져오기 성공");
+                    stream.getVideoTracks().forEach((track) => {
+                        track.enabled = !track.enabled;
+                    })
+                    video.current.srcObject = stream; // 내 비디오 넣어줌
+                    // 내가 있는 방에 새로운 유저 접속하면 server가 user-connected 입장한 userid와 함께 emit함
+                    socket.on('user-connected', (userId, remoteNick) => {
+                        // 새로운 user 연결하는 작업
+                        console.log("user-connected 이벤트 발생");
+                        connectToNewUser(userId, stream, remoteNick);
+                    });
+
+                    peer.on('call', (call) => {
+                        // 중간에 입장했을때 방에 있던 사람에게 call요청 받았을 때
+                        call.answer(stream); // call요청 수락
+                        console.log("중간에 입장 후 방에있는 사람에게 Call 요청 받음");
+                        // answer가 발생하면 stream이라는 이벤트를 통해 다른 유저의 stream 받아옴
+                        call.on('stream', (userVideoStream) => {
+                            // 중간에 입장하여 상대방 받아옴
+                            // 상대방의 stream을 내 브라우저에 추가 
+                            console.log("중간에 입장하여 상대방 받아옴, 상대방의 Stream 내 브라우저에 추가");
+                            setPeers(arr => {
+                                if (arr.findIndex(v => v.id === call.peer) < 0)
+                                    return [...arr, { id: call.peer, nick: call.metadata.senderNick, call: call, stream: userVideoStream }];
+                                else {
+                                    arr[arr.findIndex(v => v.id === call.peer)] = { id: call.peer, nick: call.metadata.senderNick, call: call, stream: userVideoStream };
+                                    return [...arr];
+                                }
+                            });
+                        });
+                    });
+                    // socket.emit('ready');
+                }).then(() => {
+                    socket.emit('ready');
+                }).catch((e) => {
+                    console.log("error -> ", e);
+                    handleAccessPermission();
+                });
             });
         });
     }, []);
@@ -177,48 +217,6 @@ const MeetingProgress = () => {
         });
 
 
-        // peer서버와 정상적으로 통신이 된 경우 open event 발생
-        console.log('open');
-
-        navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
-            console.log("장치가져오기 성공");
-            stream.getVideoTracks().forEach((track) => {
-                track.enabled = !track.enabled;
-            })
-            video.current.srcObject = stream; // 내 비디오 넣어줌
-            // 내가 있는 방에 새로운 유저 접속하면 server가 user-connected 입장한 userid와 함께 emit함
-            socket.on('user-connected', (userId, remoteNick) => {
-                // 새로운 user 연결하는 작업
-                console.log("user-connected 이벤트 발생");
-                connectToNewUser(userId, stream, remoteNick);
-            });
-
-            peer.on('call', (call) => {
-                // 중간에 입장했을때 방에 있던 사람에게 call요청 받았을 때
-                call.answer(stream); // call요청 수락
-                console.log("중간에 입장 후 방에있는 사람에게 Call 요청 받음");
-                // answer가 발생하면 stream이라는 이벤트를 통해 다른 유저의 stream 받아옴
-                call.on('stream', (userVideoStream) => {
-                    // 중간에 입장하여 상대방 받아옴
-                    // 상대방의 stream을 내 브라우저에 추가 
-                    console.log("중간에 입장하여 상대방 받아옴, 상대방의 Stream 내 브라우저에 추가");
-                    setPeers(arr => {
-                        if (arr.findIndex(v => v.id === call.peer) < 0)
-                            return [...arr, { id: call.peer, nick: call.metadata.senderNick, call: call, stream: userVideoStream }];
-                        else {
-                            arr[arr.findIndex(v => v.id === call.peer)] = { id: call.peer, nick: call.metadata.senderNick, call: call, stream: userVideoStream };
-                            return [...arr];
-                        }
-                    });
-                });
-            });
-            // socket.emit('ready');
-        }).then(() => {
-            socket.emit('ready');
-        }).catch((e) => {
-            console.log("error -> ", e);
-            handleAccessPermission();
-        });
         socket.on('user-disconnected', (userId) => {
             console.log("user-disconnected ");
             closeRecording();//audio input를 진행하는 context 종료
