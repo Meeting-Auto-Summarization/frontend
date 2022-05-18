@@ -50,6 +50,7 @@ const MeetingProgress = () => {
     const [title, setTitle] = useState('');
     const [members, setMembers] = useState([]);
     const { isLogin } = useContext(UserContext);
+    const [currentMeetingId, setCurrentMeetingId] = useState();
     const lgUp = useMediaQuery((theme) => theme.breakpoints.up('lg'), {
         defaultMatches: true,
         noSsr: false
@@ -106,11 +107,10 @@ const MeetingProgress = () => {
         peer.on('open', (id) => { // userid가 peer로 인해 생성됨
             console.log("open");
             axios.get('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/auth/meeting-info', { withCredentials: true }).then(res => {
-                const { currentMeetingId } = res.data;
+                const { currentMeetingId, currentMeetingTime } = res.data;
                 const nick = res.data.name;
-                console.log("debug");
-                console.log(currentMeetingId);
-                socket.emit('join-room', currentMeetingId, id, nick);
+                setCurrentMeetingId(currentMeetingId);
+                socket.emit('join-room', currentMeetingId, id, nick, currentMeetingTime);
             }).catch(err => {
                 console.log(err);
             }).then(() => {
@@ -493,22 +493,30 @@ const MeetingProgress = () => {
                 console.log(res.data);
                 self.close();
             });
+            // return;
+        } else {
+            socket.emit("meetingEnd");//제출하면서 script add하는 DB 호출
+            await axios.post('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/saveScript',
+                {
+                    roomName: currentMeetingId,
+                    scripts: messageList,
+                }
+                , { withCredentials: true }).then(res => {
+                    console.log(res.data);
+                });
+            await axios.get(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/setIsMeetingAllFalse`, { withCredentials: true }).then(res => {
+                console.log(res.data);
+            });
 
-            return;
+            await axios.post(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/submitMeeting`, {
+                time: time,
+                text: messageList
+            }, { withCredentials: true }).then(res => {
+                console.log(res);
+                handleLeaveRoom();
+            });
         }
 
-        socket.emit("meetingEnd", isHost);
-        axios.get(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/setIsMeetingAllFalse`, { withCredentials: true }).then(res => {
-            console.log(res.data);
-        });
-
-        axios.post(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/submitMeeting`, {
-            time: time,
-            text: messageList
-        }, { withCredentials: true }).then(res => {
-            console.log(res);
-            handleLeaveRoom();
-        });
     };
 
     function handleSummaryOnOff(summaryFlag) {
