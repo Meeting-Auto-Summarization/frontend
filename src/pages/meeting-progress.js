@@ -9,8 +9,8 @@ import { ProgressInfo } from "../components/meeting/progress-info";
 import { UserContext } from '../utils/context/context';
 import axios from 'axios';
 
-const socket = io.connect('http://localhost:3001',
-    { cors: { origin: 'http://localhost:3001' } }); // 서버랑 연결
+const socket = io.connect('http://localhost:3002',
+    { cors: { origin: 'http://localhost:3002' } }); // 서버랑 연결
 
 const ProcessLayoutRoot = styled('div')({
     display: 'flex',
@@ -37,7 +37,7 @@ if (typeof navigator !== "undefined") {
     const peer = new Peer({
         host: 'localhost',
         port: 3002,
-        path: '/peerjs',
+        path: '/',
     });
 }
 const MeetingProgress = () => {
@@ -51,6 +51,7 @@ const MeetingProgress = () => {
     const [title, setTitle] = useState('');
     const [members, setMembers] = useState([]);
     const { isLogin } = useContext(UserContext);
+    const [currentMeetingId, setCurrentMeetingId] = useState();
     const lgUp = useMediaQuery((theme) => theme.breakpoints.up('lg'), {
         defaultMatches: true,
         noSsr: false
@@ -112,11 +113,10 @@ const MeetingProgress = () => {
         peer.on('open', (id) => { // userid가 peer로 인해 생성됨
             console.log("open");
             axios.get('http://localhost:3001/auth/meeting-info', { withCredentials: true }).then(res => {
-                const { currentMeetingId } = res.data;
+                const { currentMeetingId, currentMeetingTime } = res.data;
                 const nick = res.data.name;
-                console.log("debug");
-                console.log(currentMeetingId);
-                socket.emit('join-room', currentMeetingId, id, nick);
+                setCurrentMeetingId(currentMeetingId);
+                socket.emit('join-room', currentMeetingId, id, nick, currentMeetingTime);
             }).catch(err => {
                 console.log(err);
             });
@@ -272,11 +272,11 @@ const MeetingProgress = () => {
     }
 
     /**
- * Converts a buffer from float32 to int16. Necessary for streaming.
- * sampleRateHertz of 1600.
- * 
- * @param {object} buffer Buffer being converted
- */
+     * Converts a buffer from float32 to int16. Necessary for streaming.
+     * sampleRateHertz of 1600.
+     * 
+     * @param {object} buffer Buffer being converted
+     */
     function convertFloat32ToInt16(buffer) {
         let l = buffer.length;
         let buf = new Int16Array(l / 3);
@@ -442,23 +442,32 @@ const MeetingProgress = () => {
                 console.log(res.data);
                 self.close();
             });
+            // return;
+        } else {
+            socket.emit("meetingEnd");//제출하면서 script add하는 DB 호출
+            await axios.post('http://localhost:3001/db/saveScript',
+                {
+                    roomName: currentMeetingId,
+                    scripts: messageList,
+                }
+                , { withCredentials: true }).then(res => {
+                    console.log(res.data);
+                });
+            await axios.get(`http://localhost:3001/db/setIsMeetingAllFalse`, { withCredentials: true }).then(res => {
+                console.log(res.data);
+            });
 
-            return;
+            await axios.post(`http://localhost:3001/db/submitMeeting`, {
+                time: time,
+                text: messageList
+            }, { withCredentials: true }).then(res => {
+                console.log(res);
+                handleLeaveRoom();
+            });
+
+
         }
 
-        socket.emit("meetingEnd", isHost);
-
-        await axios.get(`http://localhost:3001/db/setIsMeetingAllFalse`, { withCredentials: true }).then(res => {
-            console.log(res.data);
-        });
-
-        await axios.post(`http://localhost:3001/db/submitMeeting`, {
-            time: time,
-            text: messageList
-        }, { withCredentials: true }).then(res => {
-            console.log(res);
-            handleLeaveRoom();
-        });
     };
 
     function handleSummaryOnOff(summaryFlag) {
