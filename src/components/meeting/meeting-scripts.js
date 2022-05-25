@@ -60,15 +60,17 @@ const StyledTableRow = styled(TableRow)({
     },
 });
 
-export function MeetingScripts({ messageList, handleSummaryOnOff, summaryFlag, setSummaryFlag, title, handleServerScript }) {
+export function MeetingScripts({ messageList, handleSummaryOnOff, summaryFlag, setSummaryFlag, title, handleServerScript, isHost }) {
     const handleSummaryButton = () => {
-        if (!(summaryFlag === undefined)) {
-            if (summaryFlag) {
-                handleSummaryOnOff(false);
-                setSummaryFlag(false);
-            } else {
-                handleSummaryOnOff(true);
-                setSummaryFlag(true);
+        if (isHost) {
+            if (!(summaryFlag === undefined)) {
+                if (summaryFlag) {
+                    handleSummaryOnOff(false);
+                    setSummaryFlag(false);
+                } else {
+                    handleSummaryOnOff(true);
+                    setSummaryFlag(true);
+                }
             }
         }
     };
