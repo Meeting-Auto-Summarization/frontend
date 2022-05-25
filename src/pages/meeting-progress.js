@@ -600,6 +600,7 @@ const MeetingProgress = () => {
                             setSummaryFlag={setSummaryFlag}
                             title={title}
                             handleServerScript={handleServerScript}
+                            isHost={isHost}
                         />
                     </Drawer>
                 </>
