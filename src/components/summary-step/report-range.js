@@ -52,6 +52,10 @@ export const ReportRange = ({ script, deleted, report, setReport, meeting, membe
 
         const newSelected = [id];
 
+        let tempReport = report;
+        tempReport[selectedTitle[0]][selectedTitle[1]].selected = newSelected;
+        setReport(tempReport);
+
         setSelected(newSelected);
     };
 
