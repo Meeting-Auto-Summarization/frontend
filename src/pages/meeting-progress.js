@@ -38,7 +38,17 @@ if (typeof navigator !== "undefined") {
     });
 }
 
-
+try {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.lang = "ko-KR";
+    recognition.maxAlternatives = 30;
+}
+catch (err) {
+    console.error(err);
+    console.error('지원하지않는 브라우저 입니다.');
+}
 const MeetingProgress = () => {
     const router = useRouter();
     const [isHost, setIsHost] = useState();
@@ -103,6 +113,17 @@ const MeetingProgress = () => {
         axios.get(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/isHost`, { withCredentials: true }).then(res => {
             setIsHost(res.data);
         });
+
+        recognition.onresult = (e) => {
+            const current = e.resultIndex;
+            if (e.results[current].isFinal) {
+                socket.emit('getSttResult', e.results[current][0].transcript);
+            }
+        }
+        recognition.onend = () => {
+            if (summaryFlag)
+                recognition.start();
+        }
 
         peer.on('open', (id) => { // userid가 peer로 인해 생성됨
             console.log("open");
@@ -182,31 +203,14 @@ const MeetingProgress = () => {
         socket.on("summaryOffer", (summaryFlag) => {
             setSummaryFlag(summaryFlag);
             if (summaryFlag) {
-                if (AudioContext === null) {
-                    initRecording((error) => {
-                        console.error('Error when recording', error);
-                    });
-                } else {
-                    resumeRecording();
-                }
-            } else {
-                pauseRecording();
-                //closeRecording();
-            }
-        });
-        socket.on("initSummaryFlag", (flag) => {
-            setSummaryFlag(flag);
-            if (flag) {
-                console.log("init " + flag);
-                if (AudioContext === null) {
-                    console.log("init2 " + flag);
-                    initRecording((error) => {
-                        console.error('Error when recording', error);
-                    });
-                }
-            }
+                recognition.start();
+            } else recognition.stop();
         });
 
+        socket.on("initSummaryFlag", (flag) => {
+            setSummaryFlag(flag);
+            if (flag) recognition.start();
+        });
         socket.on("msg", (userNick, time, msg) => {
             // stt메시지 받음
             setMessageList(arr => [...arr, {
@@ -221,7 +225,6 @@ const MeetingProgress = () => {
 
         socket.on('user-disconnected', (userId) => {
             console.log("user-disconnected ");
-            closeRecording();//audio input를 진행하는 context 종료
             setPeers(arr => {
                 return (arr.filter((e) => {
                     if (e.id === userId) {
@@ -242,123 +245,9 @@ const MeetingProgress = () => {
         });
     }, [peers]);
 
-    //STT stream 관련 코드
-    const handleSuccess = function (stream) {
-        console.log("현재 스트림 : ", stream);
-        console.log(context);
-        input = context.createMediaStreamSource(stream);
-        input.connect(processor);
 
-        processor.onaudioprocess = function (e) {
-            microphoneProcess(e);
-        };
-    };
-    const initRecording = (onError, recorderConstraints) => {
-        AudioContext = window.AudioContext || window.webkitAudioContext;
-        context = new AudioContext();
-        processor = context.createScriptProcessor(bufferSize, 1, 1);
-        processor.connect(context.destination);
-        context.resume();
-        if (recorderConstraints)
-            navigator.mediaDevices.getUserMedia(recorderConstraints).then(handleSuccess);
-        else {
-            navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(handleSuccess);
-        }
-        socket.on('googleCloudStreamError', (error) => {
-            if (onError) {
-                onError('error');
-            }
-            closeRecording();
-        });
-    }
-    const pauseRecording = () => {
-        processor.onaudioprocess = null;
-    }
-    const resumeRecording = () => {
-        processor.onaudioprocess = function (e) {
-            microphoneProcess(e);
-        };
-    }
-    const restartRecording = (constraints) => {//기기변경
-        socket.off('googleCloudStreamError');
-        if (processor) {
-            if (input) {
-                try {
-                    input.disconnect(processor);
-                } catch (error) {
-                    console.warn('Attempt to disconnect input failed.')
-                }
-            }
-            processor.disconnect(context.destination);
-        }
-        if (context) {
-            context.close().then(function () {
-                input = null;
-                processor = null;
-                context = null;
-                AudioContext = null;
-                initRecording("error", constraints);
-            });
-        }
-    }
 
-    function microphoneProcess(e) {
-        var left = e.inputBuffer.getChannelData(0);
-        //var left16 = convertFloat32ToInt16(left); //old ver
-        var left16 = downsampleBuffer(left, 44100, 16000);
-        socket.emit('binaryAudioData', left16);
-    }
 
-    function downsampleBuffer(buffer, sampleRate, outSampleRate) {
-        if (outSampleRate == sampleRate) {
-            return buffer;
-        }
-        if (outSampleRate > sampleRate) {
-            throw 'downsampling rate show be smaller than original sample rate';
-        }
-        var sampleRateRatio = sampleRate / outSampleRate;
-        var newLength = Math.round(buffer.length / sampleRateRatio);
-        var result = new Int16Array(newLength);
-        var offsetResult = 0;
-        var offsetBuffer = 0;
-        while (offsetResult < result.length) {
-            var nextOffsetBuffer = Math.round((offsetResult + 1) * sampleRateRatio);
-            var accum = 0,
-                count = 0;
-            for (var i = offsetBuffer; i < nextOffsetBuffer && i < buffer.length; i++) {
-                accum += buffer[i];
-                count++;
-            }
-
-            result[offsetResult] = Math.min(1, accum / count) * 0x7fff;
-            offsetResult++;
-            offsetBuffer = nextOffsetBuffer;
-        }
-        return result.buffer;
-    }
-    //회의 종료할때 호출!!!
-    function closeRecording() {
-        socket.off('googleCloudStreamError');
-        if (processor) {
-            if (input) {
-                try {
-                    input.disconnect(processor);
-                } catch (error) {
-                    console.warn('Attempt to disconnect input failed.')
-                }
-            }
-            processor.disconnect(context.destination);
-        }
-        if (context) {
-            context.close().then(function () {
-                input = null;
-                processor = null;
-                context = null;
-                AudioContext = null;
-            });
-        }
-    }
-    ///
 
     const connectToNewUser = async (userId, stream, remoteNick) => {
         console.log("connectToNewUser")
@@ -425,7 +314,6 @@ const MeetingProgress = () => {
             video: true
         };
         const myStream = video.current.srcObject;
-
         navigator.mediaDevices.getUserMedia(audioConstraint).then((stream) => {
             video.current.srcObject = stream;
             if (!myStream.getVideoTracks()[0].enabled) {
@@ -446,10 +334,12 @@ const MeetingProgress = () => {
                 console.log(audioSender);
             }
             //
+            /*
             if (summaryFlag)//요약중이면 기존것 종료하고, 재시작
             {
                 restartRecording(audioConstraint);
             }
+            */
 
         });
     }
@@ -467,9 +357,6 @@ const MeetingProgress = () => {
         self.close();
     }
 
-    // useEffect(() => {
-    //     console.log(peers);
-    // }, [peers]);
     const handleAccessPermission = () => {
         if (!alert("입출력 장치 권한이 없거나 사용가능한 장치가 없습니다")) {
             self.close();
@@ -520,17 +407,14 @@ const MeetingProgress = () => {
     };
 
     function handleSummaryOnOff(summaryFlag) {
-        console.log("디버깅");
         socket.emit("summaryAlert", summaryFlag);
     }
     function handleMute(micStatus) {
         if (micStatus && summaryFlag) {//켜야함
-            resumeRecording();
-            socket.emit("micOnOff", micStatus);
+            recognition.start();
         } else {//꺼야함
             if (summaryFlag) {
-                pauseRecording();
-                socket.emit("micOnOff", micStatus);
+                recognition.stop();
             }
         }
     }
