@@ -64,10 +64,16 @@ export const ReportRange = ({ script, deleted, report, setReport, meeting, membe
         const selectedIndex = script.indexOf(line);
 
         const newSelected = script.slice(startIndex, selectedIndex + 1).map(line => line._id);
+        
         deleted.forEach(del => {
-            newSelected.splice(newSelected.indexOf(del), 1);
+            const delIndex = newSelected.indexOf(del);
+
+            if (delIndex > -1) {
+                newSelected.splice(delIndex, 1);
+            }
         });
         setSelected(newSelected);
+
 
         let tempReport = report;
         tempReport[selectedTitle[0]][selectedTitle[1]].selected = newSelected;
@@ -75,6 +81,7 @@ export const ReportRange = ({ script, deleted, report, setReport, meeting, membe
 
         setStartIndex(-1);
     };
+
 
     const handleChangeMember = (e) => {
         setMember(e.target.value);
