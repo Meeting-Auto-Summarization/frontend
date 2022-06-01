@@ -38,7 +38,17 @@ if (typeof navigator !== "undefined") {
     });
 }
 
-
+try {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.lang = "ko-KR";
+    recognition.maxAlternatives = 30;
+}
+catch (err) {
+    console.error(err);
+    console.error('지원하지않는 브라우저 입니다.');
+}
 const MeetingProgress = () => {
     const router = useRouter();
     const [isHost, setIsHost] = useState();
@@ -103,6 +113,17 @@ const MeetingProgress = () => {
         axios.get(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/isHost`, { withCredentials: true }).then(res => {
             setIsHost(res.data);
         });
+
+        recognition.onresult = (e) => {
+            const current = e.resultIndex;
+            if (e.results[current].isFinal) {
+                socket.emit('getSttResult', e.results[current][0].transcript);
+            }
+        }
+        recognition.onend = () => {
+            if (summaryFlag)
+                recognition.start();
+        }
 
         peer.on('open', (id) => { // userid가 peer로 인해 생성됨
             console.log("open");
@@ -182,31 +203,14 @@ const MeetingProgress = () => {
         socket.on("summaryOffer", (summaryFlag) => {
             setSummaryFlag(summaryFlag);
             if (summaryFlag) {
-                if (AudioContext === null) {
-                    initRecording((error) => {
-                        console.error('Error when recording', error);
-                    });
-                } else {
-                    resumeRecording();
-                }
-            } else {
-                pauseRecording();
-                //closeRecording();
-            }
-        });
-        socket.on("initSummaryFlag", (flag) => {
-            setSummaryFlag(flag);
-            if (flag) {
-                console.log("init " + flag);
-                if (AudioContext === null) {
-                    console.log("init2 " + flag);
-                    initRecording((error) => {
-                        console.error('Error when recording', error);
-                    });
-                }
-            }
+                recognition.start();
+            } else recognition.stop();
         });
 
+        socket.on("initSummaryFlag", (flag) => {
+            setSummaryFlag(flag);
+            if (flag) recognition.start();
+        });
         socket.on("msg", (userNick, time, msg) => {
             // stt메시지 받음
             setMessageList(arr => [...arr, {
