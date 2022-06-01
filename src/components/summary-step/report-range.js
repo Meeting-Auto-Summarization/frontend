@@ -1,4 +1,3 @@
-import PerfectScrollbar from 'react-perfect-scrollbar';
 import { Box, Card, Checkbox, Table, TableBody, TableCell, TableHead, TableRow, Typography, Grid, Slider,
     FormControl,
     InputLabel,
@@ -105,6 +104,10 @@ export const ReportRange = ({ script, deleted, report, setReport, meeting, membe
     };
 
     const timeValueText = (value) => {
+        let content = script[value].content;
+        if (content.length > 15) {
+            content = `${content.slice(0, 15)}...`
+        }
         const time = script[value].time;
         
         const seconds = parseInt(time % 60);
@@ -112,9 +115,9 @@ export const ReportRange = ({ script, deleted, report, setReport, meeting, membe
         const hours = parseInt(time / 3600);
 
         if (hours !== 0) {
-            return `${`${hours}`}:${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}`
+            return `${content}   ${`${hours}`}:${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}`
         } else {
-            return `${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}`
+            return `${content}   ${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}`
         }
     };
 
