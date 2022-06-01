@@ -73,15 +73,18 @@ export const ScriptEdit = ({ script, selected, deleted, report, setScript, setSe
             );
         }
 
-        const newReport = report;
+        if (deletedIndex === -1) {
+            const newReport = report;
 
-        newReport.forEach(onedim => {
-            onedim.forEach(element => {
-                element.selected.splice(element.selected.indexOf(id), 1);
+            newReport.forEach(onedim => {
+                onedim.forEach(element => {
+                    element.selected.splice(element.selected.indexOf(id), 1);
+                });
             });
-        });
+
+            setReport(newReport);
+        }
         
-        setReport(newReport);
         setDeleted(newDeleted);
     };
 
