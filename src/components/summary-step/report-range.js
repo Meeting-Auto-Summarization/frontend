@@ -1,5 +1,4 @@
-import PerfectScrollbar from 'react-perfect-scrollbar';
-import { Card, Checkbox, Table, TableBody, TableCell, TableHead, TableRow, Typography, Grid,
+import { Box, Card, Checkbox, Table, TableBody, TableCell, TableHead, TableRow, Typography, Grid, Slider,
     FormControl,
     InputLabel,
     Select,
@@ -11,6 +10,7 @@ export const ReportRange = ({ script, deleted, report, setReport, meeting, membe
     const [selectedTitle, setSelectedTitle] = useState([0, 0]);
     const [selected, setSelected] = useState([]);
     const [startIndex, setStartIndex] = useState(-1);
+    const [selectedTimeRange, setSelectedTimeRange] = useState([0, 0]);
 
     useEffect(() => {
         if (report.length !== 0) {
@@ -29,6 +29,18 @@ export const ReportRange = ({ script, deleted, report, setReport, meeting, membe
 
         setSelected(report[selectedTitle[0]][selectedTitle[1]].selected);
     }, [selectedTitle]);
+
+    useEffect(() => {
+        console.log(selected)
+        let tempReport = report;
+        tempReport[selectedTitle[0]][selectedTitle[1]].selected = selected;
+        setReport(tempReport);
+
+        const first_index = script.indexOf(script.find(line => line._id === selected[0]));
+        const last_index = script.indexOf(script.find(line => line._id === selected[selected.length - 1]));
+
+        setSelectedTimeRange([first_index, last_index]);
+    }, [selected]);
 
     const handleSelectAll = (event) => {
         let newSelectedCustomerIds;
@@ -62,7 +74,7 @@ export const ReportRange = ({ script, deleted, report, setReport, meeting, membe
     const handleSelectEnd = (id) => {
         const line = script.find(line => line._id === id);
         const selectedIndex = script.indexOf(line);
-
+                
         const newSelected = script.slice(startIndex, selectedIndex + 1).map(line => line._id);
         
         deleted.forEach(del => {
@@ -72,19 +84,42 @@ export const ReportRange = ({ script, deleted, report, setReport, meeting, membe
                 newSelected.splice(delIndex, 1);
             }
         });
+
         setSelected(newSelected);
-
-
-        let tempReport = report;
-        tempReport[selectedTitle[0]][selectedTitle[1]].selected = newSelected;
-        setReport(tempReport);
-
         setStartIndex(-1);
     };
 
 
     const handleChangeMember = (e) => {
         setMember(e.target.value);
+    };
+
+    const handleTimeRange = (event, value, activeThumb) => {
+        if (value[0] === selectedTimeRange[0] && value[1] === selectedTimeRange[1]) {
+            return;
+        }
+
+        setSelectedTimeRange(value);
+
+        const newSelected = []
+        for (var i = value[0]; i <= value[1]; i++) {
+            newSelected.push(script[i]._id);
+        }
+        setSelected(newSelected);
+    };
+
+    const timeValueText = (value) => {
+        const time = script[value].time;
+        
+        const seconds = parseInt(time % 60);
+        const minutes = parseInt((time / 60) % 60);
+        const hours = parseInt(time / 3600);
+
+        if (hours !== 0) {
+            return `${`${hours}`}:${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}`
+        } else {
+            return `${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds}`
+        }
     };
 
     const isSelected = (id) => selected.indexOf(id) !== -1;
@@ -99,22 +134,52 @@ export const ReportRange = ({ script, deleted, report, setReport, meeting, membe
                 item
                 xs={8}
             >
+                <Box
+                    fullWidth
+                    px={2}
+                    pb={3}
+                >
+                    <Typography
+                        color="dimgrey"
+                        variant="h4"
+                        align='right'
+                    >
+                        시간 선택
+                    </Typography>
+                    <Slider
+                        value={selectedTimeRange}
+                        onChange={handleTimeRange}
+                        getAriaValueText={timeValueText}
+                        valueLabelFormat={timeValueText}
+                        valueLabelDisplay="on"
+                        step={1}
+                        min={0}
+                        max={script.length - 1}
+                        marks
+                        disableSwap
+                    />
+                </Box>
                 <Card>
-                    <PerfectScrollbar>
-                        <FormControl fullWidth>
-                            <InputLabel>Members</InputLabel>
-                            <Select
-                                value={member}
-                                onChange={handleChangeMember}
-                            >
-                                <MenuItem value={0}>All Members</MenuItem>
-                                {meeting && meeting.members.map((member, index) => {
-                                    return (
-                                        <MenuItem key={index} value={index + 1}>{member}</MenuItem>
-                                    );
-                                })}
-                            </Select>
-                        </FormControl>
+                    <FormControl fullWidth>
+                        <InputLabel>Members</InputLabel>
+                        <Select
+                            value={member}
+                            onChange={handleChangeMember}
+                        >
+                            <MenuItem value={0}>All Members</MenuItem>
+                            {meeting && meeting.members.map((member, index) => {
+                                return (
+                                    <MenuItem key={index} value={index + 1}>{member}</MenuItem>
+                                );
+                            })}
+                        </Select>
+                    </FormControl>
+                    <Box
+                        sx={{
+                            height: "50vh",
+                            overflow: 'auto'
+                        }}
+                    >
                         <Table>
                             <TableHead>
                                 <TableRow>
@@ -195,7 +260,7 @@ export const ReportRange = ({ script, deleted, report, setReport, meeting, membe
                                 })}
                             </TableBody>
                         </Table>
-                    </PerfectScrollbar>
+                    </Box>
                 </Card>
             </Grid>
             <Grid item xs={4}>
