@@ -9,8 +9,13 @@ import { ProgressInfo } from "../components/meeting/progress-info";
 import { UserContext } from '../utils/context/context';
 import axios from 'axios';
 
+// const socket = io.connect('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001',
+//     { cors: { origin: 'https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001' } }); // 서버랑 연결
+
+
 const socket = io.connect('http://localhost:3002',
     { cors: { origin: 'http://localhost:3002' } }); // 서버랑 연결
+
 
 const ProcessLayoutRoot = styled('div')({
     display: 'flex',
@@ -23,13 +28,7 @@ let bufferSize = 2048,
     AudioContext = null,
     context = null,
     processor = null,
-    input = null,
-    globalStream;
-
-const constraints = {
-    audio: true,
-    video: false
-};
+    input = null;
 
 // 화상회의 관련        
 if (typeof navigator !== "undefined") {
@@ -39,6 +38,18 @@ if (typeof navigator !== "undefined") {
         port: 3003,
         path: '/peerjs',
     });
+}
+
+try {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.lang = "ko-KR";
+    recognition.maxAlternatives = 30;
+}
+catch (err) {
+    console.error(err);
+    console.error('지원하지않는 브라우저 입니다.');
 }
 const MeetingProgress = () => {
     const router = useRouter();
@@ -51,6 +62,7 @@ const MeetingProgress = () => {
     const [title, setTitle] = useState('');
     const [members, setMembers] = useState([]);
     const { isLogin } = useContext(UserContext);
+    const [currentMeetingId, setCurrentMeetingId] = useState();
     const lgUp = useMediaQuery((theme) => theme.breakpoints.up('lg'), {
         defaultMatches: true,
         noSsr: false
@@ -69,6 +81,7 @@ const MeetingProgress = () => {
         }
     }, [lgUp]);
 
+    // 화상회의 관련        
 
     const [peers, setPeers] = useState([]); // peers
     const video = useRef();
@@ -83,12 +96,6 @@ const MeetingProgress = () => {
     }, [time]);
 
     useEffect(() => {
-        axios.get(`http://localhost:3001/db/isMeeting`, { withCredentials: true }).then(res => {
-            if (!res.data) {
-                router.push('meeting-list');
-            }
-        });
-
         axios.get('http://localhost:3001/db/currentMeeting', { withCredentials: true }).then(res => {
             console.log(res.data);
             const meeting = res.data.meeting;
@@ -109,16 +116,66 @@ const MeetingProgress = () => {
             setIsHost(res.data);
         });
 
+        recognition.onresult = (e) => {
+            const current = e.resultIndex;
+            if (e.results[current].isFinal) {
+                socket.emit('getSttResult', e.results[current][0].transcript);
+            }
+        }
+        recognition.onend = () => {
+            if (summaryFlag)
+                recognition.start();
+        }
+
         peer.on('open', (id) => { // userid가 peer로 인해 생성됨
             console.log("open");
             axios.get('http://localhost:3001/auth/meeting-info', { withCredentials: true }).then(res => {
-                const { currentMeetingId } = res.data;
+                const { currentMeetingId, currentMeetingTime } = res.data;
                 const nick = res.data.name;
-                console.log("debug");
-                console.log(currentMeetingId);
-                socket.emit('join-room', currentMeetingId, id, nick);
+                setCurrentMeetingId(currentMeetingId);
+                socket.emit('join-room', currentMeetingId, id, nick, currentMeetingTime);
             }).catch(err => {
                 console.log(err);
+            }).then(() => {
+                navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
+                    console.log("장치가져오기 성공");
+                    stream.getVideoTracks().forEach((track) => {
+                        track.enabled = !track.enabled;
+                    })
+                    video.current.srcObject = stream; // 내 비디오 넣어줌
+                    // 내가 있는 방에 새로운 유저 접속하면 server가 user-connected 입장한 userid와 함께 emit함
+                    socket.on('user-connected', (userId, remoteNick) => {
+                        // 새로운 user 연결하는 작업
+                        console.log("user-connected 이벤트 발생");
+                        connectToNewUser(userId, stream, remoteNick);
+                    });
+
+                    peer.on('call', (call) => {
+                        // 중간에 입장했을때 방에 있던 사람에게 call요청 받았을 때
+                        call.answer(stream); // call요청 수락
+                        console.log("중간에 입장 후 방에있는 사람에게 Call 요청 받음");
+                        // answer가 발생하면 stream이라는 이벤트를 통해 다른 유저의 stream 받아옴
+                        call.on('stream', (userVideoStream) => {
+                            // 중간에 입장하여 상대방 받아옴
+                            // 상대방의 stream을 내 브라우저에 추가 
+                            console.log("중간에 입장하여 상대방 받아옴, 상대방의 Stream 내 브라우저에 추가");
+                            setPeers(arr => {
+                                if (arr.findIndex(v => v.id === call.peer) < 0)
+                                    return [...arr, { id: call.peer, nick: call.metadata.senderNick, call: call, stream: userVideoStream }];
+                                else {
+                                    arr[arr.findIndex(v => v.id === call.peer)] = { id: call.peer, nick: call.metadata.senderNick, call: call, stream: userVideoStream };
+                                    return [...arr];
+                                }
+                            });
+                        });
+                    });
+                    // socket.emit('ready');
+                }).then(() => {
+                    socket.emit('ready');
+                }).catch((e) => {
+                    console.log("error -> ", e);
+                    handleAccessPermission();
+                });
             });
         });
     }, []);
@@ -147,21 +204,15 @@ const MeetingProgress = () => {
 
         socket.on("summaryOffer", (summaryFlag) => {
             setSummaryFlag(summaryFlag);
-            if (AudioContext === null) {
-                initRecording((error) => {
-                    console.error('Error when recording', error);
-                });
-            }
-        });
-        socket.on("initSummaryFlag", (flag) => {
-            setSummaryFlag(flag);
-            if (AudioContext === null) {
-                initRecording((error) => {
-                    console.error('Error when recording', error);
-                });
-            }
+            if (summaryFlag) {
+                recognition.start();
+            } else recognition.stop();
         });
 
+        socket.on("initSummaryFlag", (flag) => {
+            setSummaryFlag(flag);
+            if (flag) recognition.start();
+        });
         socket.on("msg", (userNick, time, msg) => {
             // stt메시지 받음
             setMessageList(arr => [...arr, {
@@ -174,42 +225,8 @@ const MeetingProgress = () => {
         });
 
 
-        // peer서버와 정상적으로 통신이 된 경우 open event 발생
-        console.log('open');
-
-        navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((stream) => {
-            stream.getVideoTracks().forEach((track) => {
-                track.enabled = !track.enabled;
-            })
-            video.current.srcObject = stream; // 내 비디오 넣어줌
-            peer.on('call', (call) => {
-                // 중간에 입장했을때 방에 있던 사람에게 call요청 받았을 때
-                call.answer(stream); // call요청 수락
-
-                // answer가 발생하면 stream이라는 이벤트를 통해 다른 유저의 stream 받아옴
-                call.on('stream', (userVideoStream) => {
-                    // 중간에 입장하여 상대방 받아옴
-                    // 상대방의 stream을 내 브라우저에 추가 
-                    setPeers(arr => {
-                        if (arr.findIndex(v => v.id === call.peer) < 0)
-                            return [...arr, { id: call.peer, nick: call.metadata.senderNick, call: call, stream: userVideoStream }];
-                        else {
-                            arr[arr.findIndex(v => v.id === call.peer)] = { id: call.peer, nick: call.metadata.senderNick, call: call, stream: userVideoStream };
-                            return [...arr];
-                        }
-                    });
-                });
-            });
-            socket.emit('ready');
-            // 내가 있는 방에 새로운 유저 접속하면 server가 user-connected 입장한 userid와 함께 emit함
-            socket.on('user-connected', (userId, remoteNick) => {
-                // 새로운 user 연결하는 작업
-                connectToNewUser(userId, stream, remoteNick);
-            });
-        });
         socket.on('user-disconnected', (userId) => {
             console.log("user-disconnected ");
-            closeRecording();//audio input를 진행하는 context 종료
             setPeers(arr => {
                 return (arr.filter((e) => {
                     if (e.id === userId) {
@@ -229,97 +246,13 @@ const MeetingProgress = () => {
             }
         });
     }, [peers]);
-    const initRecording = (onError) => {
-        AudioContext = window.AudioContext || window.webkitAudioContext;
-        context = new AudioContext();
-        processor = context.createScriptProcessor(bufferSize, 1, 1);
-        processor.connect(context.destination);
-        context.resume();
 
-        var handleSuccess = function (stream) {
-            globalStream = stream;
-            input = context.createMediaStreamSource(stream);
-            input.connect(processor);
 
-            processor.onaudioprocess = function (e) {
-                microphoneProcess(e);
-            };
-        };
 
-        navigator.mediaDevices.getUserMedia(constraints)
-            .then(handleSuccess);
 
-        // Bind the data handler callback
-        // if(onData) {
-        //     socket.on('speechData', (data) => {
-        //         onData(data);
-        //     });
-        // }
 
-        socket.on('googleCloudStreamError', (error) => {
-            if (onError) {
-                onError('error');
-            }
-            // We don't want to emit another end stream event
-            closeAll();
-        });
-    }
-
-    function microphoneProcess(e) {
-        var left = e.inputBuffer.getChannelData(0);
-        var left16 = convertFloat32ToInt16(left);
-        socket.emit('binaryAudioData', left16);
-    }
-
-    /**
- * Converts a buffer from float32 to int16. Necessary for streaming.
- * sampleRateHertz of 1600.
- * 
- * @param {object} buffer Buffer being converted
- */
-    function convertFloat32ToInt16(buffer) {
-        let l = buffer.length;
-        let buf = new Int16Array(l / 3);
-
-        while (l--) {
-            if (l % 3 === 0) {
-                buf[l / 3] = buffer[l] * 0xFFFF;
-            }
-        }
-        return buf.buffer
-    }
-
-    //회의 종료할때 호출!!!
-    function closeRecording() {
-        // Clear the listeners (prevents issue if opening and closing repeatedly)
-        //socket.off('speechData');
-        socket.off('googleCloudStreamError');
-        let tracks = globalStream ? globalStream.getTracks() : null;
-        let track = tracks ? tracks[0] : null;
-        if (track) {
-            track.stop();
-        }
-
-        if (processor) {
-            if (input) {
-                try {
-                    input.disconnect(processor);
-                } catch (error) {
-                    console.warn('Attempt to disconnect input failed.')
-                }
-            }
-            processor.disconnect(context.destination);
-        }
-        if (context) {
-            context.close().then(function () {
-                input = null;
-                processor = null;
-                context = null;
-                AudioContext = null;
-            });
-        }
-    }
     const connectToNewUser = async (userId, stream, remoteNick) => {
+        console.log("connectToNewUser")
         const { data } = await axios.get('http://localhost:3001/auth/meeting-info', { withCredentials: true });
         const call = peer.call(userId, stream, { metadata: { "receiverNick": remoteNick, "senderNick": data.name } });
 
@@ -333,6 +266,7 @@ const MeetingProgress = () => {
         // 들어온 상대방에게 call요청 보냄
         call.on('stream', (userVideoStream) => {
             // 새로 들어온 사람이 answer했을 때 stream이벤트 발생함
+            console.log("내가 있는 방에 새로 들어오는 User 정보 받아옴");
             setPeers(arr => {
                 if (arr.findIndex(v => v.id === userId) < 0)
                     return [...arr, { id: userId, nick: call.metadata.receiverNick, call: call, stream: userVideoStream }];
@@ -376,13 +310,12 @@ const MeetingProgress = () => {
         });
     }
 
-    const handleAudioChange = (deviceId, label) => {
+    const handleAudioChange = (deviceId) => {
         const audioConstraint = {
             audio: { deviceId: deviceId },
             video: true
         };
         const myStream = video.current.srcObject;
-
         navigator.mediaDevices.getUserMedia(audioConstraint).then((stream) => {
             video.current.srcObject = stream;
             if (!myStream.getVideoTracks()[0].enabled) {
@@ -402,10 +335,16 @@ const MeetingProgress = () => {
                 audioSender.replaceTrack(stream.getAudioTracks()[0]);
                 console.log(audioSender);
             }
-        });
-        socket.emit("deviceChange", summaryFlag, label);
-    }
+            //
+            /*
+            if (summaryFlag)//요약중이면 기존것 종료하고, 재시작
+            {
+                restartRecording(audioConstraint);
+            }
+            */
 
+        });
+    }
     const handleLeaveRoom = () => {
         video.current.srcObject.getTracks().forEach((track) => {
             track.stop();
@@ -420,10 +359,11 @@ const MeetingProgress = () => {
         self.close();
     }
 
-    useEffect(() => {
-        console.log(peers);
-    }, [peers]);
-
+    const handleAccessPermission = () => {
+        if (!alert("입출력 장치 권한이 없거나 사용가능한 장치가 없습니다")) {
+            self.close();
+        }
+    }
     const handleSubmitScript = async (isHost) => {
         if (!opener) {
             router.push('/meeting-list');
@@ -442,31 +382,43 @@ const MeetingProgress = () => {
                 console.log(res.data);
                 self.close();
             });
+            // return;
+        } else {
+            socket.emit("meetingEnd");//제출하면서 script add하는 DB 호출
+            await axios.post('http://localhost:3001/db/saveScript',
+                {
+                    roomName: currentMeetingId,
+                    scripts: messageList,
+                }
+                , { withCredentials: true }).then(res => {
+                    console.log(res.data);
+                });
+            await axios.get(`http://localhost:3001/db/setIsMeetingAllFalse`, { withCredentials: true }).then(res => {
+                console.log(res.data);
+            });
 
-            return;
+            await axios.post(`http://localhost:3001/db/submitMeeting`, {
+                time: time,
+                text: messageList
+            }, { withCredentials: true }).then(res => {
+                console.log(res);
+                handleLeaveRoom();
+            });
         }
 
-        socket.emit("meetingEnd", isHost);
-
-        await axios.get(`http://localhost:3001/db/setIsMeetingAllFalse`, { withCredentials: true }).then(res => {
-            console.log(res.data);
-        });
-
-        await axios.post(`http://localhost:3001/db/submitMeeting`, {
-            time: time,
-            text: messageList
-        }, { withCredentials: true }).then(res => {
-            console.log(res);
-            handleLeaveRoom();
-        });
     };
 
     function handleSummaryOnOff(summaryFlag) {
         socket.emit("summaryAlert", summaryFlag);
     }
     function handleMute(micStatus) {
-        if (summaryFlag)
-            socket.emit("micOnOff", micStatus);
+        if (micStatus && summaryFlag) {//켜야함
+            recognition.start();
+        } else {//꺼야함
+            if (summaryFlag) {
+                recognition.stop();
+            }
+        }
     }
     function handleServerScript(index, isChecked) {
         socket.emit("handleCheck", index, isChecked);
@@ -549,6 +501,7 @@ const MeetingProgress = () => {
                             setSummaryFlag={setSummaryFlag}
                             title={title}
                             handleServerScript={handleServerScript}
+                            isHost={isHost}
                         />
                     </Drawer>
                 </>
