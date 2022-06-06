@@ -10,7 +10,7 @@ import { UserContext } from '../utils/context/context';
 
 const MeetingList = () => {
     const { isLogin } = useContext(UserContext);
-    const router = useRouter();    
+    const router = useRouter();
     const [limit, setLimit] = useState(6);
     const [page, setPage] = useState(1);
     const [saveMeetings, setSaveMeetings] = useState(null);
@@ -34,7 +34,7 @@ const MeetingList = () => {
 
                 meetingList.push(tempMeeting);
             }
-            
+
             setMeetings(meetingList);
             setSaveMeetings(meetingList);
         });
@@ -42,7 +42,7 @@ const MeetingList = () => {
         function handleResize() {
             let width = window.innerWidth
             let lim;
-            
+
             if (width >= 1920) {
                 lim = 9;
             } else if (width < 1920 && width >= 900) {
@@ -53,19 +53,19 @@ const MeetingList = () => {
 
             setLimit(lim);
         }
-        
+
         window.addEventListener("resize", handleResize);
         handleResize();
         return () => window.removeEventListener("resize", handleResize);
     }, []);
-    
+
     const handlePageChange = (e, newPage) => {
         setPage(newPage);
     };
 
     const handleSearch = (e) => {
         const text = e.target.value;
-        
+
         if (!text) {
             setMeetings(saveMeetings);
             return;
@@ -80,21 +80,21 @@ const MeetingList = () => {
         const tempMeetings = meetings;
 
         if (newSorting == 'time') {
-            tempMeetings.sort(function(a, b) {
+            tempMeetings.sort(function (a, b) {
                 return a.date - b.date;
             });
         } else if (newSorting == 'reverse-time') {
-            tempMeetings.sort(function(a, b) {
+            tempMeetings.sort(function (a, b) {
                 return b.date - a.date;
             });
         } else if (newSorting == 'alpha') {
-            tempMeetings.sort(function(a, b) {
+            tempMeetings.sort(function (a, b) {
                 if (a.title < b.title) return -1;
                 else if (a.title > b.title) return 1;
                 else return 0;
             });
         } else {
-            tempMeetings.sort(function(a, b) {
+            tempMeetings.sort(function (a, b) {
                 if (a.title > b.title) return -1;
                 else if (a.title < b.title) return 1;
                 else return 0;
@@ -108,7 +108,7 @@ const MeetingList = () => {
         if (deleting) {
             const tempDeleted = deleted;
             const deleteIndex = tempDeleted.indexOf(meeting._id);
-            
+
             if (deleteIndex === -1) {
                 tempDeleted.push(meeting._id);
             } else {
@@ -142,7 +142,7 @@ const MeetingList = () => {
 
                 meetingList.push(tempMeeting);
             }
-            
+
             setMeetings(meetingList);
             setSaveMeetings(meetingList);
         });
@@ -184,13 +184,13 @@ const MeetingList = () => {
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">
-                                    <Search />
+                                        <Search />
                                     </InputAdornment>
                                 ),
                             }}
                             variant="outlined"
                             onChange={handleSearch}
-                            sx={{ 
+                            sx={{
                                 mr: 3,
                                 backgroundColor: 'white'
                             }}
@@ -271,7 +271,7 @@ const MeetingList = () => {
                                 삭제
                             </Button>
                         }
-                    </Box>  
+                    </Box>
                 </Container>
             </Box>
         </>

@@ -24,12 +24,6 @@ const ProcessLayoutRoot = styled('div')({
     paddingTop: 90,
 });
 
-let bufferSize = 2048,
-    AudioContext = null,
-    context = null,
-    processor = null,
-    input = null;
-
 // 화상회의 관련        
 if (typeof navigator !== "undefined") {
     const Peer = require("peerjs").default
@@ -335,13 +329,6 @@ const MeetingProgress = () => {
                 audioSender.replaceTrack(stream.getAudioTracks()[0]);
                 console.log(audioSender);
             }
-            //
-            /*
-            if (summaryFlag)//요약중이면 기존것 종료하고, 재시작
-            {
-                restartRecording(audioConstraint);
-            }
-            */
 
         });
     }
@@ -372,38 +359,34 @@ const MeetingProgress = () => {
         }
 
         if (!isHost) {
-            await axios.get('http://localhost:3001/db/exitMeeting',
-                { withCredentials: true }
-            ).then(res => {
-                console.log(res.data);
-            });
-
-            await axios.get(`http://localhost:3001/db/setIsMeetingFalse`, { withCredentials: true }).then(res => {
+            await axios.get('http://localhost:3001/db/exitMeeting', { withCredentials: true }).then(res => {
                 console.log(res.data);
                 self.close();
             });
+            /* await axios.get('http://localhost:3001/db/exitMeeting',
+                 { withCredentials: true }
+             ).then(res => {
+                 console.log(res.data);
+             });
+ 
+             await axios.get(`http://localhost:3001/db/setIsMeetingFalse`, { withCredentials: true }).then(res => {
+                 console.log(res.data);
+                 self.close();
+             });*/
             // return;
         } else {
             socket.emit("meetingEnd");//제출하면서 script add하는 DB 호출
-            await axios.post('http://localhost:3001/db/saveScript',
+            await axios.post('http://localhost:3001/db/endMeeting',
                 {
                     roomName: currentMeetingId,
                     scripts: messageList,
+                    time: time,
+                    text: messageList
                 }
                 , { withCredentials: true }).then(res => {
                     console.log(res.data);
+                    handleLeaveRoom();
                 });
-            await axios.get(`http://localhost:3001/db/setIsMeetingAllFalse`, { withCredentials: true }).then(res => {
-                console.log(res.data);
-            });
-
-            await axios.post(`http://localhost:3001/db/submitMeeting`, {
-                time: time,
-                text: messageList
-            }, { withCredentials: true }).then(res => {
-                console.log(res);
-                handleLeaveRoom();
-            });
         }
 
     };
