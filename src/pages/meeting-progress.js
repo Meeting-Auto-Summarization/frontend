@@ -9,8 +9,8 @@ import { ProgressInfo } from "../components/meeting/progress-info";
 import { UserContext } from '../utils/context/context';
 import axios from 'axios';
 
-const socket = io.connect('http://localhost:3001',
-    { cors: { origin: 'http://localhost:3001' } }); // 서버랑 연결
+const socket = io.connect('http://localhost:3002',
+    { cors: { origin: 'http://localhost:3002' } }); // 서버랑 연결
 
 const ProcessLayoutRoot = styled('div')({
     display: 'flex',
@@ -36,7 +36,7 @@ if (typeof navigator !== "undefined") {
     const Peer = require("peerjs").default
     const peer = new Peer({
         host: 'localhost',
-        port: 3002,
+        port: 3003,
         path: '/peerjs',
     });
 }
