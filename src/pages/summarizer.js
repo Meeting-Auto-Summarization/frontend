@@ -171,7 +171,7 @@ const Summarizer = () => {
             }
         }
 
-        await axios.post(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/py/summarize`,
+        await axios.post(`http://203.252.166.225:8000/summarize`,
             { contents: contents }).then(res => {
                 const summaryList = res.data;
 

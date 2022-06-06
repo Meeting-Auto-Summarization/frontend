@@ -73,11 +73,14 @@ export const AppSidebar = (props) => {
 	};
 
 	const handleSubmitJoinDialog = (code) => {
+
+
 		axios.get(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/joinMeeting/${code}`, { withCredentials: true }).then(res => {
 			if (res.data) {
-				axios.get(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/isMeeting`, { withCredentials: true }).then(res => {
+				/*axios.get(`http://localhost:3001/db/isMeeting`, { withCredentials: true }).then(res => {
 					setIsMeeting(res.data);
-				});
+				});*/
+				setIsMeeting(res.data);
 				window.open('/meeting-progress');
 			} else {
 				alert('존재하지 않거나 이미 종료된 회의입니다.')
@@ -97,7 +100,6 @@ export const AppSidebar = (props) => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 		[router.asPath]
 	);
-
 
 	useEffect(() => {
 		axios.get(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/isMeeting`, { withCredentials: true }).then(res => {
