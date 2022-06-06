@@ -44,11 +44,11 @@ const Summarizer = () => {
     const [meeting, setMeeting] = useState();
     const [sciptEditMember, setSciptEditMember] = useState(0);
     const [reportRangeMember, setReportRangeMember] = useState(0);
-    
+
     const [script, setScript] = useState([]);
     const [selected, setSelected] = useState([]);
     const [deleted, setDeleted] = useState([]);
-    
+
     const [report, setReport] = useState([[]]);
 
     const [loading, setLoading] = useState(false);
@@ -76,7 +76,7 @@ const Summarizer = () => {
             } else {
                 resMeeting.time = `${min < 10 ? `0${min}` : min}:${sec < 10 ? `0${sec}` : sec}`;
             }
-            
+
             resMeeting.date = new Date(Date.parse(resMeeting.date)).toLocaleString();
             resMeeting.members = members;
 
@@ -100,7 +100,7 @@ const Summarizer = () => {
 
     function TabPanel(props) {
         const { children, value, index, ...other } = props;
-      
+
         return (
             <div
                 role="tabpanel"
@@ -152,14 +152,14 @@ const Summarizer = () => {
                 selectedForReport[i][j] = report[i][j].selected;
             }
         }
-        
+
         const contents = new Array(selectedForReport.length);
         for (var i = 0; i < selectedForReport.length; i++) {
             contents[i] = new Array(selectedForReport[i].length);
 
             for (var j = 0; j < selectedForReport[i].length; j++) {
                 contents[i][j] = ''
-                
+
                 if (selectedForReport[i].length !== 1 && j === 0) {
                     continue;
                 } else {
@@ -171,7 +171,7 @@ const Summarizer = () => {
             }
         }
 
-        await axios.post(`http://127.0.0.1:8000/summarize`,
+        await axios.post(`http://203.252.166.225:8000/summarize`,
             { contents: contents }).then(res => {
                 const summaryList = res.data;
 
@@ -185,7 +185,7 @@ const Summarizer = () => {
 
                 setReport(tempReport);
             }
-        );
+            );
 
         await axios.post(`http://localhost:3001/db/meetingResult`,
             { meetingId: mid, script: deletedScript, report: report },
@@ -197,7 +197,7 @@ const Summarizer = () => {
                     query: { mid: mid },
                 });
             }
-        );
+            );
     };
 
     return (
