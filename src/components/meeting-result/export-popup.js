@@ -1,9 +1,9 @@
 import {
-  Typography,
-  IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
+    Typography,
+    IconButton,
+    Dialog,
+    DialogTitle,
+    DialogContent,
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import { WordIcon } from "../../icons/word";
@@ -13,7 +13,7 @@ import axios from "axios";
 export function ExportPopup({ isScript, handleClose, open, meeting, script, report }) {
 
     const downloadScriptDocx = () => {
-        axios.post('http://127.0.0.1:8000/script-docx',
+        axios.post('http://203.252.166.225:8000/script-docx',
             { meeting: meeting, script: script },
             { responseType: 'blob' },
         ).then(res => {
@@ -28,7 +28,7 @@ export function ExportPopup({ isScript, handleClose, open, meeting, script, repo
     };
 
     const downloadReportDocx = () => {
-        axios.post('http://127.0.0.1:8000/report-docx',
+        axios.post('http://203.252.166.225:8000/report-docx',
             { meeting: meeting, report: report },
             { responseType: 'blob' },
         ).then(res => {
@@ -42,7 +42,7 @@ export function ExportPopup({ isScript, handleClose, open, meeting, script, repo
     };
 
     const downloadScriptTxt = () => {
-        axios.post('http://127.0.0.1:8000/script-txt',
+        axios.post('http://203.252.166.225:8000/script-txt',
             { meeting: meeting, script: script },
             { responseType: 'blob' },
         ).then(res => {
@@ -56,7 +56,7 @@ export function ExportPopup({ isScript, handleClose, open, meeting, script, repo
     };
 
     const downloadReportTxt = () => {
-        axios.post('http://127.0.0.1:8000/report-txt',
+        axios.post('http://203.252.166.225:8000/report-txt',
             { meeting: meeting, report: report },
             { responseType: 'blob' },
         ).then(res => {
@@ -72,20 +72,20 @@ export function ExportPopup({ isScript, handleClose, open, meeting, script, repo
     return (
         <Dialog onClose={handleClose} open={open}>
             <DialogTitle>양식 선택</DialogTitle>
-                {open ? (
-                    <IconButton
-                        aria-label="close"
-                        onClick={handleClose}
-                        sx={{
-                            position: "absolute",
-                            right: 8,
-                            top: 8,
-                            color: (theme) => theme.palette.grey[500],
-                        }}
-                    >
-                        <Close />
-                    </IconButton>
-                ) : null}
+            {open ? (
+                <IconButton
+                    aria-label="close"
+                    onClick={handleClose}
+                    sx={{
+                        position: "absolute",
+                        right: 8,
+                        top: 8,
+                        color: (theme) => theme.palette.grey[500],
+                    }}
+                >
+                    <Close />
+                </IconButton>
+            ) : null}
             <DialogContent
                 sx={{
                     display: 'flex',
