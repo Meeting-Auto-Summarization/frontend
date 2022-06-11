@@ -117,6 +117,7 @@ const MeetingProgress = () => {
         }
         recognition.onend = () => {
             socket.emit("endEvent");
+            console.log("현재 summaryFlag : " + summaryFlag);
             if (summaryFlag)
                 recognition.start();
         }
