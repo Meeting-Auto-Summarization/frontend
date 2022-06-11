@@ -116,10 +116,13 @@ const MeetingProgress = () => {
             }
         }
         recognition.onend = () => {
+            socket.emit("endEvent");
             if (summaryFlag)
                 recognition.start();
         }
-
+        socket.on('restart', () => {
+            recognition.start();
+        })
         peer.on('open', (id) => { // userid가 peer로 인해 생성됨
             console.log("open");
             axios.get('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/auth/meeting-info', { withCredentials: true }).then(res => {
