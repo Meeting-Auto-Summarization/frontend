@@ -111,7 +111,8 @@ const MeetingProgress = () => {
         recognition.onresult = (e) => {
             const current = e.resultIndex;
             if (e.results[current].isFinal) {
-                socket.emit('getSttResult', e.results[current][0].transcript);
+                const nowTime = new Date();
+                socket.emit('getSttResult', e.results[current][0].transcript, nowTime);
             }
         }
         recognition.onend = () => {
