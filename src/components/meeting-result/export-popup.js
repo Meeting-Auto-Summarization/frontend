@@ -56,7 +56,7 @@ export function ExportPopup({ isScript, handleClose, open, meeting, script, repo
     };
 
     const downloadReportTxt = () => {
-        axios.post('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:8000/report-txt',
+        axios.post('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/py/report-txt',
             { meeting: meeting, report: report },
             { responseType: 'blob' },
         ).then(res => {

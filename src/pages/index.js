@@ -1,7 +1,6 @@
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { Box, Button, Container, Grid, Typography } from '@mui/material';
-import { Facebook as FacebookIcon } from '../icons/facebook';
 import { Google as GoogleIcon } from '../icons/google';
 import GoogleLogin from 'react-google-login';
 
@@ -51,18 +50,7 @@ const Login = () => {
                             </Typography>
                         </Box>
                         <Grid container spacing={3}>
-                            <Grid item xs={12} md={6}>
-                                <Button
-                                    color="info"
-                                    fullWidth
-                                    startIcon={<FacebookIcon />}
-                                    size="large"
-                                    variant="contained"
-                                >
-                                    Login with Facebook
-                                </Button>
-                            </Grid>
-                            <Grid item xs={12} md={6}>
+                            <Grid item xs={12} md={12}>
                                 <GoogleLogin
                                     clientId="842588185399-tekfrmotkjmsao3i99opfsvga774vo35.apps.googleusercontent.com"
                                     render={renderProps => (

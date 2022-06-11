@@ -12,7 +12,7 @@ import axios from 'axios';
 // const socket = io.connect('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001',
 //     { cors: { origin: 'https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:3001' } }); // 서버랑 연결
 
-const socket = io('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com');
+const socket = io('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com', { transports: ["websocket"] });
 
 const ProcessLayoutRoot = styled('div')({
     display: 'flex',
@@ -20,12 +20,6 @@ const ProcessLayoutRoot = styled('div')({
     maxWidth: '100%',
     paddingTop: 90,
 });
-
-let bufferSize = 2048,
-    AudioContext = null,
-    context = null,
-    processor = null,
-    input = null;
 
 // 화상회의 관련        
 if (typeof navigator !== "undefined") {
@@ -117,14 +111,20 @@ const MeetingProgress = () => {
         recognition.onresult = (e) => {
             const current = e.resultIndex;
             if (e.results[current].isFinal) {
-                socket.emit('getSttResult', e.results[current][0].transcript);
+                const nowTime = new Date().getTime();
+                socket.emit('getSttResult', e.results[current][0].transcript, nowTime);
             }
         }
         recognition.onend = () => {
+            socket.emit("endEvent");
+            console.log("현재 summaryFlag : " + summaryFlag);
             if (summaryFlag)
                 recognition.start();
         }
-
+        socket.on('restart', () => {
+            console.log("restart");
+            recognition.start();
+        })
         peer.on('open', (id) => { // userid가 peer로 인해 생성됨
             console.log("open");
             axios.get('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/auth/meeting-info', { withCredentials: true }).then(res => {
@@ -333,13 +333,6 @@ const MeetingProgress = () => {
                 audioSender.replaceTrack(stream.getAudioTracks()[0]);
                 console.log(audioSender);
             }
-            //
-            /*
-            if (summaryFlag)//요약중이면 기존것 종료하고, 재시작
-            {
-                restartRecording(audioConstraint);
-            }
-            */
 
         });
     }
@@ -370,38 +363,34 @@ const MeetingProgress = () => {
         }
 
         if (!isHost) {
-            await axios.get('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/exitMeeting',
-                { withCredentials: true }
-            ).then(res => {
-                console.log(res.data);
-            });
-
-            await axios.get(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/setIsMeetingFalse`, { withCredentials: true }).then(res => {
+            await axios.get('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/exitMeeting', { withCredentials: true }).then(res => {
                 console.log(res.data);
                 self.close();
             });
+            /* await axios.get('http://localhost:3001/db/exitMeeting',
+                 { withCredentials: true }
+             ).then(res => {
+                 console.log(res.data);
+             });
+
+             await axios.get(`http://localhost:3001/db/setIsMeetingFalse`, { withCredentials: true }).then(res => {
+                 console.log(res.data);
+                 self.close();
+             });*/
             // return;
         } else {
             socket.emit("meetingEnd");//제출하면서 script add하는 DB 호출
-            await axios.post('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/saveScript',
+            await axios.post('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/endMeeting',
                 {
                     roomName: currentMeetingId,
                     scripts: messageList,
+                    time: time,
+                    text: messageList
                 }
                 , { withCredentials: true }).then(res => {
                     console.log(res.data);
+                    handleLeaveRoom();
                 });
-            await axios.get(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/setIsMeetingAllFalse`, { withCredentials: true }).then(res => {
-                console.log(res.data);
-            });
-
-            await axios.post(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/submitMeeting`, {
-                time: time,
-                text: messageList
-            }, { withCredentials: true }).then(res => {
-                console.log(res);
-                handleLeaveRoom();
-            });
         }
 
     };
@@ -410,6 +399,7 @@ const MeetingProgress = () => {
         socket.emit("summaryAlert", summaryFlag);
     }
     function handleMute(micStatus) {
+        console.log("요약 상태 : "+ summaryFlag);
         if (micStatus && summaryFlag) {//켜야함
             recognition.start();
         } else {//꺼야함
