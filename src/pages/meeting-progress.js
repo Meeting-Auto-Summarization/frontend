@@ -398,6 +398,7 @@ const MeetingProgress = () => {
         socket.emit("summaryAlert", summaryFlag);
     }
     function handleMute(micStatus) {
+        console.log("요약 상태 : "+ summaryFlag);
         if (micStatus && summaryFlag) {//켜야함
             recognition.start();
         } else {//꺼야함
