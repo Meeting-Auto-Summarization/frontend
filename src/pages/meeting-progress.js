@@ -111,7 +111,7 @@ const MeetingProgress = () => {
         recognition.onresult = (e) => {
             const current = e.resultIndex;
             if (e.results[current].isFinal) {
-                const nowTime = new Date();
+                const nowTime = new Date().getTime();
                 socket.emit('getSttResult', e.results[current][0].transcript, nowTime);
             }
         }
@@ -121,6 +121,7 @@ const MeetingProgress = () => {
                 recognition.start();
         }
         socket.on('restart', () => {
+            console.log("restart");
             recognition.start();
         })
         peer.on('open', (id) => { // userid가 peer로 인해 생성됨
