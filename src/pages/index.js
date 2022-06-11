@@ -50,7 +50,7 @@ const Login = () => {
                             </Typography>
                         </Box>
                         <Grid container spacing={3}>
-                            <Grid item xs={12} md={6}>
+                            <Grid item xs={12} md={12}>
                                 <GoogleLogin
                                     clientId="842588185399-tekfrmotkjmsao3i99opfsvga774vo35.apps.googleusercontent.com"
                                     render={renderProps => (
