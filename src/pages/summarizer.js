@@ -165,7 +165,7 @@ const Summarizer = () => {
                 } else {
                     for (var k = 0; k < selectedForReport[i][j].length; k++) {
                         const line = script.find(t => t._id === selectedForReport[i][j][k]);
-                        contents[i][j] += line.content.trim();
+                        contents[i][j] += line.content;
                     }
                 }
             }
