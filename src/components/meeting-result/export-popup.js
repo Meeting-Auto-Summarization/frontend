@@ -13,11 +13,7 @@ import axios from "axios";
 export function ExportPopup({ isScript, handleClose, open, meeting, script, report }) {
 
     const downloadScriptDocx = () => {
-<<<<<<< HEAD
         axios.post('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/py/script-docx',
-=======
-        axios.post('http://203.252.166.225:8000/script-docx',
->>>>>>> front2
             { meeting: meeting, script: script },
             { responseType: 'blob' },
         ).then(res => {
@@ -32,11 +28,7 @@ export function ExportPopup({ isScript, handleClose, open, meeting, script, repo
     };
 
     const downloadReportDocx = () => {
-<<<<<<< HEAD
         axios.post('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/py/report-docx',
-=======
-        axios.post('http://203.252.166.225:8000/report-docx',
->>>>>>> front2
             { meeting: meeting, report: report },
             { responseType: 'blob' },
         ).then(res => {
@@ -50,11 +42,7 @@ export function ExportPopup({ isScript, handleClose, open, meeting, script, repo
     };
 
     const downloadScriptTxt = () => {
-<<<<<<< HEAD
         axios.post('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/py/script-txt',
-=======
-        axios.post('http://203.252.166.225:8000/script-txt',
->>>>>>> front2
             { meeting: meeting, script: script },
             { responseType: 'blob' },
         ).then(res => {
@@ -68,11 +56,7 @@ export function ExportPopup({ isScript, handleClose, open, meeting, script, repo
     };
 
     const downloadReportTxt = () => {
-<<<<<<< HEAD
-        axios.post('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com:8000/report-txt',
-=======
-        axios.post('http://203.252.166.225:8000/report-txt',
->>>>>>> front2
+        axios.post('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/py/report-txt',
             { meeting: meeting, report: report },
             { responseType: 'blob' },
         ).then(res => {
