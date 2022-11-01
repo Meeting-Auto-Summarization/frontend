@@ -193,16 +193,12 @@ const MeetingProgress = () => {
 
 
     useEffect(() => {
-        socket.on("checkChange", (scripts) => {
-            /*let newMessageList = messageList;
-            console.log("메시지List: " + messageList);
-            console.log("new" + newMessageList);
-            newMessageList[index].isChecked = isChecked;
-            setMessageList(newMessageList);*/
-            console.log(scripts);
-            setMessageList(scripts);
+        socket.on("checkChange", (index,isChecked) => {
+            setMessageList(arr=>
+                arr.map((message,idx)=>
+                    idx===index?{...message,isChecked:isChecked}:message 
+                ))
         });
-
         socket.on("summaryOffer", (summaryFlag) => {
             setSummaryFlag(summaryFlag);
             if (summaryFlag) {
