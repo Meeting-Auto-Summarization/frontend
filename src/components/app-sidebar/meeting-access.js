@@ -5,7 +5,7 @@ import { useState } from 'react';
 export const MeetingAccess = ({ callback }) => {
     const [title, setTitle] = useState('');
 
-    axios.get('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/currentMeetingTitle', { withCredentials: true }).then(res => {
+    axios.get('http://localhost:3001/db/currentMeetingTitle', { withCredentials: true }).then(res => {
         setTitle(res.data);
     });
 

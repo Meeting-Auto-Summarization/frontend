@@ -60,7 +60,7 @@ const Summarizer = () => {
     }
 
     useEffect(() => {
-        axios.get(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/meetingResult/${mid}`, { withCredentials: true }).then(res => {
+        axios.get(`http://localhost:3001/db/meetingResult/${mid}`, { withCredentials: true }).then(res => {
             const resMeeting = res.data.meeting;
             const resScript = res.data.script;
             let resReport = res.data.report;
@@ -187,7 +187,7 @@ const Summarizer = () => {
             }
             );
 
-        await axios.post(`https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/db/meetingResult`,
+        await axios.post(`http://localhost:3001/db/meetingResult`,
             { meetingId: mid, script: deletedScript, report: report },
             { withCredentials: true }).then(res => {
                 console.log(res.data);

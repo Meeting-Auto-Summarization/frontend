@@ -59,7 +59,7 @@ const Login = () => {
                                             color="error"
                                             startIcon={<GoogleIcon />}
                                             onClick={() => {
-                                                window.location.href = "https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com/app/auth/google"
+                                                window.location.href = "http://localhost:3001/auth/google"
                                             }}
                                             size="large"
                                             variant="contained"
