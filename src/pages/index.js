@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { Box, Button, Container, Grid, Typography } from '@mui/material';
 import { Google as GoogleIcon } from '../icons/google';
 import GoogleLogin from 'react-google-login';
+import { SERVERURL } from 'src/config/config';
 
 const Login = () => {
     const router = useRouter();
@@ -59,7 +60,7 @@ const Login = () => {
                                             color="error"
                                             startIcon={<GoogleIcon />}
                                             onClick={() => {
-                                                window.location.href = "http://localhost:3001/auth/google"
+                                                window.location.href = `${SERVERURL.API_SERVER}/auth/google`;
                                             }}
                                             size="large"
                                             variant="contained"

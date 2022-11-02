@@ -8,13 +8,14 @@ import { MeetingVideo } from "../components/meeting/meeting-video";
 import { ProgressInfo } from "../components/meeting/progress-info";
 import { UserContext } from '../utils/context/context';
 import axios from 'axios';
+import { SERVERURL } from 'src/config/config';
 
 
 
 //const socket = io('https://ec2-3-38-49-118.ap-northeast-2.compute.amazonaws.com', { transports: ["websocket"] });
 
-const socket = io.connect('http://localhost:3002',
-    { cors: { origin: 'http://localhost:3002' } }); // 서버랑 연결
+const socket = io.connect(SERVERURL.SOCKET_SERVER,
+    { cors: { origin: SERVERURL.SOCKET_SERVER } }); // 서버랑 연결
 
 
 const ProcessLayoutRoot = styled('div')({
@@ -28,7 +29,7 @@ const ProcessLayoutRoot = styled('div')({
 if (typeof navigator !== "undefined") {
     const Peer = require("peerjs").default
     const peer = new Peer({
-        host: 'localhost',
+        host: SERVERURL.PEER_HOST,
         port: 3003,
         path: '/peerjs',
     });
@@ -91,7 +92,7 @@ const MeetingProgress = () => {
     }, [time]);
 
     useEffect(() => {
-        axios.get('http://localhost:3001/db/currentMeeting', { withCredentials: true }).then(res => {
+        axios.get(`${SERVERURL.API_SERVER}/db/currentMeeting`, { withCredentials: true }).then(res => {
             console.log(res.data);
             const meeting = res.data.meeting;
             setMembers(res.data.members);
@@ -107,7 +108,7 @@ const MeetingProgress = () => {
             setTime(diff);
         });
 
-        axios.get(`http://localhost:3001/db/isHost`, { withCredentials: true }).then(res => {
+        axios.get(`${SERVERURL.API_SERVER}/db/isHost`, { withCredentials: true }).then(res => {
             setIsHost(res.data);
         });
 
@@ -130,7 +131,7 @@ const MeetingProgress = () => {
         })
         peer.on('open', (id) => { // userid가 peer로 인해 생성됨
             console.log("open");
-            axios.get('http://localhost:3001/auth/meeting-info', { withCredentials: true }).then(res => {
+            axios.get(`${SERVERURL.API_SERVER}/auth/meeting-info`, { withCredentials: true }).then(res => {
                 const { currentMeetingId, currentMeetingTime } = res.data;
                 const nick = res.data.name;
                 setCurrentMeetingId(currentMeetingId);
@@ -185,18 +186,14 @@ const MeetingProgress = () => {
         socket.on("initScripts", (scripts) => {
             setMessageList(scripts);
         });//들어왔을때 client script 추가
-        /*axios.get(`http://localhost:3001/db/currentMeetingScript`, { withCredentials: true }).then(res => {
-            setMessageList(res.data);
-            console.log(res.data);
-        });*/
     }, []);
 
 
     useEffect(() => {
-        socket.on("checkChange", (index,isChecked) => {
-            setMessageList(arr=>
-                arr.map((message,idx)=>
-                    idx===index?{...message,isChecked:isChecked}:message 
+        socket.on("checkChange", (index, isChecked) => {
+            setMessageList(arr =>
+                arr.map((message, idx) =>
+                    idx === index ? { ...message, isChecked: isChecked } : message
                 ))
         });
         socket.on("summaryOffer", (summaryFlag) => {
@@ -237,7 +234,7 @@ const MeetingProgress = () => {
 
 
     useEffect(() => {
-        axios.get(`http://localhost:3001/db/isMeeting`, { withCredentials: true }).then(res => {
+        axios.get(`${SERVERURL.API_SERVER}/db/isMeeting`, { withCredentials: true }).then(res => {
             if (!res.data) {
                 self.close();
             }
@@ -250,10 +247,10 @@ const MeetingProgress = () => {
 
     const connectToNewUser = async (userId, stream, remoteNick) => {
         console.log("connectToNewUser")
-        const { data } = await axios.get('http://localhost:3001/auth/meeting-info', { withCredentials: true });
+        const { data } = await axios.get(`${SERVERURL.API_SERVER}/auth/meeting-info`, { withCredentials: true });
         const call = peer.call(userId, stream, { metadata: { "receiverNick": remoteNick, "senderNick": data.name } });
 
-        axios.get('http://localhost:3001/db/currentMeeting',
+        axios.get(`${SERVERURL.API_SERVER}/db/currentMeeting`,
             { withCredentials: true }
         ).then(res => {
             setMembers(res.data.members);
@@ -362,24 +359,24 @@ const MeetingProgress = () => {
         }
 
         if (!isHost) {
-            await axios.get('http://localhost:3001/db/exitMeeting', { withCredentials: true }).then(res => {
+            await axios.get(`${SERVERURL.API_SERVER}/db/exitMeeting`, { withCredentials: true }).then(res => {
                 console.log(res.data);
                 self.close();
             });
-            /* await axios.get('http://localhost:3001//db/exitMeeting',
+            /* await axios.get('${SERVERURL.API_SERVER}//db/exitMeeting',
                  { withCredentials: true }
              ).then(res => {
                  console.log(res.data);
              });
 
-             await axios.get(`http://localhost:3001//db/setIsMeetingFalse`, { withCredentials: true }).then(res => {
+             await axios.get(`${SERVERURL.API_SERVER}//db/setIsMeetingFalse`, { withCredentials: true }).then(res => {
                  console.log(res.data);
                  self.close();
              });*/
             // return;
         } else {
             socket.emit("meetingEnd");//제출하면서 script add하는 DB 호출
-            await axios.post('http://localhost:3001/db/endMeeting',
+            await axios.post(`${SERVERURL.API_SERVER}/db/endMeeting`,
                 {
                     roomName: currentMeetingId,
                     scripts: messageList,

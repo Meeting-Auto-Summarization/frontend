@@ -1,5 +1,6 @@
 import { createContext, useState, useMemo, useEffect } from 'react';
 import axios from "axios"
+import { SERVERURL } from 'src/config/config';
 
 export const UserContext = createContext({});
 
@@ -29,7 +30,7 @@ const UserContextProvider = ({ children }) => {
         ]);
 
     const getLoginInfo = () => {
-        axios.get('http://localhost:3001/auth/user-info', { withCredentials: true }).then(response => {
+        axios.get(`${SERVERURL.API_SERVER}/auth/user-info`, { withCredentials: true }).then(response => {
             setIsLogin(response.data);
 
             if (!response.data) {

@@ -1,11 +1,12 @@
 import { Box, Typography, Button } from '@mui/material';
 import axios from 'axios';
 import { useState } from 'react';
+import { SERVERURL } from 'src/config/config';
 
 export const MeetingAccess = ({ callback }) => {
     const [title, setTitle] = useState('');
 
-    axios.get('http://localhost:3001/db/currentMeetingTitle', { withCredentials: true }).then(res => {
+    axios.get(`${SERVERURL.API_SERVER}/db/currentMeetingTitle`, { withCredentials: true }).then(res => {
         setTitle(res.data);
     });
 

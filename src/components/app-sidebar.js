@@ -16,6 +16,7 @@ import { JoinMeetingDialog } from './app-sidebar/join-meeting-dialog';
 import { OngoingDialog } from './app-sidebar/ongoing-dialog';
 import axios from "axios";
 import { UserContext } from 'src/utils/context/context';
+import { SERVERURL } from 'src/config/config';
 
 const items = [
 	{
@@ -34,7 +35,7 @@ const items = [
 		title: 'Settings'
 	},
 	{
-		href: 'http://localhost:3001/auth/logout',
+		href: `${SERVERURL.API_SERVER}/auth/logout`,
 		icon: (<LockIcon fontSize="small" />),
 		title: 'Logout'
 	}
@@ -60,7 +61,7 @@ export const AppSidebar = (props) => {
 	}
 
 	const handleSubmitCreateDialog = (title, limitNum) => {
-		axios.post('http://localhost:3001/db/createMeeting', {
+		axios.post(`${SERVERURL.API_SERVER}/db/createMeeting`, {
 			title: title,
 			// code: code,
 			capacity: limitNum,
@@ -75,11 +76,8 @@ export const AppSidebar = (props) => {
 	const handleSubmitJoinDialog = (code) => {
 
 
-		axios.get(`http://localhost:3001/db/joinMeeting/${code}`, { withCredentials: true }).then(res => {
+		axios.get(`${SERVERURL.API_SERVER}/db/joinMeeting/${code}`, { withCredentials: true }).then(res => {
 			if (res.data) {
-				/*axios.get(`http://localhost:3001//db/isMeeting`, { withCredentials: true }).then(res => {
-					setIsMeeting(res.data);
-				});*/
 				setIsMeeting(res.data);
 				window.open('/meeting-progress');
 			} else {
@@ -102,7 +100,7 @@ export const AppSidebar = (props) => {
 	);
 
 	useEffect(() => {
-		axios.get(`http://localhost:3001/db/isMeeting`, { withCredentials: true }).then(res => {
+		axios.get(`${SERVERURL.API_SERVER}/db/isMeeting`, { withCredentials: true }).then(res => {
 			console.log(`isMeeting : ${res.data}`)
 			setIsMeeting(res.data);
 		});
@@ -110,7 +108,7 @@ export const AppSidebar = (props) => {
 
 	if (typeof window !== "undefined") {
 		window.endMeeting = function endMeeting() {
-			axios.get(`http://localhost:3001/db/setIsMeetingFalse`, { withCredentials: true }).then(res => {
+			axios.get(`${SERVERURL.API_SERVER}/db/setIsMeetingFalse`, { withCredentials: true }).then(res => {
 				console.log(res.data);
 			});
 		};
