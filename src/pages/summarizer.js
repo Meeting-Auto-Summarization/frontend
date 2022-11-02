@@ -11,6 +11,7 @@ import { ScriptEdit } from 'src/components/summary-step/script-edit';
 import { ReportForm } from '../components/summary-step/report-form';
 import { ReportRange } from '../components/summary-step/report-range';
 import queryString from 'query-string';
+import { SERVERURL } from 'src/config/config';
 
 const StyledTabs = styled(Tabs)(({ theme }) => ({
     position: 'fixed',
@@ -60,7 +61,7 @@ const Summarizer = () => {
     }
 
     useEffect(() => {
-        axios.get(`http://localhost:3001/db/meetingResult/${mid}`, { withCredentials: true }).then(res => {
+        axios.get(`${SERVERURL.API_SERVER}/db/meetingResult/${mid}`, { withCredentials: true }).then(res => {
             const resMeeting = res.data.meeting;
             const resScript = res.data.script;
             let resReport = res.data.report;
@@ -187,7 +188,7 @@ const Summarizer = () => {
             }
             );
 
-        await axios.post(`http://localhost:3001/db/meetingResult`,
+        await axios.post(`${SERVERURL.API_SERVER}/db/meetingResult`,
             { meetingId: mid, script: deletedScript, report: report },
             { withCredentials: true }).then(res => {
                 console.log(res.data);

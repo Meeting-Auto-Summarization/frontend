@@ -10,6 +10,7 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
+import { SERVERURL } from 'src/config/config';
 
 export const AccountProfileDetails = ({ user, ...rest }) => {
     const [values, setValues] = useState();
@@ -32,7 +33,7 @@ export const AccountProfileDetails = ({ user, ...rest }) => {
     };
 
     const handleSubmit = (event) => {
-        axios.post('http://localhost:3001/db/userInfo',
+        axios.post(`${SERVERURL.API_SERVER}/db/userInfo`,
             { values: values },
             { withCredentials: true }).then(res => {
                 window.location.reload()
@@ -118,14 +119,6 @@ export const AccountProfileDetails = ({ user, ...rest }) => {
                                     value={values.name}
                                     variant="outlined"
                                 />
-                                {/* <TextField
-                                    fullWidth
-                                    label="Phone Number"
-                                    name="phone"
-                                    onChange={handleChange}
-                                    value={values.phone}
-                                    variant="outlined"
-                                /> */}
                             </Grid>
                         </Grid>
                     </CardContent>

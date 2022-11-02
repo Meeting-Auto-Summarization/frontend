@@ -8,6 +8,7 @@ import { useRouter } from 'next/router';
 import { UserContext } from '../utils/context/context';
 import queryString from 'query-string';
 import axios from 'axios';
+import { SERVERURL } from 'src/config/config';
 
 const MeetingResult = () => {
     const router = useRouter();
@@ -23,7 +24,7 @@ const MeetingResult = () => {
     const [report, setReport] = useState();
 
     useEffect(() => {
-        axios.get(`http://localhost:3001/db/meetingResult/${mid}`, { withCredentials: true }).then(res => {
+        axios.get(`${SERVERURL.API_SERVER}/db/meetingResult/${mid}`, { withCredentials: true }).then(res => {
             const resMeeting = res.data.meeting;
             const resScript = res.data.script;
             const resReport = res.data.report;

@@ -7,6 +7,8 @@ import { SortByAlpha, AccessTime, Search, DeleteOutline } from '@mui/icons-mater
 import { AppLayout } from 'src/components/app-layout';
 import { MeetingListResult } from 'src/components/meeting-list/meeting-list-result';
 import { UserContext } from '../utils/context/context';
+import { SERVERURL } from 'src/config/config';
+
 
 const MeetingList = () => {
     const { isLogin } = useContext(UserContext);
@@ -22,7 +24,7 @@ const MeetingList = () => {
     const forceUpdate = useCallback(() => updateState({}), []);
 
     useEffect(() => {
-        axios.get(`http://localhost:3001/db/meetingList`, { withCredentials: true }).then(res => {
+        axios.get(`${SERVERURL.API_SERVER}/db/meetingList`, { withCredentials: true }).then(res => {
             const data = res.data;
             let meetingList = [];
 
@@ -121,14 +123,14 @@ const MeetingList = () => {
     };
 
     const handleDelete = async () => {
-        await axios.post(`http://localhost:3001/db/deleteMeeting`,
+        await axios.post(`${SERVERURL.API_SERVER}/db/deleteMeeting`,
             { deleted: deleted },
             { withCredentials: true }
         ).then(res => {
             console.log(res.data);
         });
 
-        await axios.get(`http://localhost:3001/db/meetingList`,
+        await axios.get(`${SERVERURL.API_SERVER}/db/meetingList`,
             { withCredentials: true }
         ).then(res => {
             const data = res.data;
