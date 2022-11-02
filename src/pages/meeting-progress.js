@@ -30,7 +30,7 @@ if (typeof navigator !== "undefined") {
     const Peer = require("peerjs").default
     const peer = new Peer({
         host: SERVERURL.PEER_HOST,
-        port: 3003,
+        port: SERVERURL.PEER_PORT,
         path: '/peerjs',
     });
 }
